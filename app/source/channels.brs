@@ -1,8 +1,9 @@
 ' Which channels the guide shows. b0r3d TV first asks the TV for its whole app list (a call
 ' Roku doesn't document). If the TV won't say, it goes through its own list of known apps one
-' by one and keeps the installed ones. TV inputs never become channels; screensaver apps are
-' channels that start hidden. Settings then puts them in the owner's order and hides or shows
-' each one (ApplyChannelPrefs).
+' by one and keeps the installed ones. TV inputs only become channels when TVFollow says hello
+' (tvfollow.brs), since only TVFollow can switch them; screensaver apps are channels that start
+' hidden. Settings then puts them in the owner's order and hides or shows each one
+' (ApplyChannelPrefs).
 
 function BuildChannels() as object
     known = {}
@@ -53,8 +54,9 @@ function MakeChannel(id as string, name as string, sign as string, now as string
     return { id: id, name: name, sign: sign, now: now, kind: kind, n: "", shown: true }
 end function
 
-' Puts the channels in the saved order (new apps go at the end), marks which are shown, and
-' numbers the shown ones 01, 02... The highlight stays on the same channel where it can.
+' Puts the channels in the saved order (new inputs go in front, new apps at the end), marks
+' which are shown, and numbers the shown ones 01, 02... The highlight stays on the same channel
+' where it can.
 sub ApplyChannelPrefs(st as object)
     focusId = ""
     if st.DoesExist("channels") then
@@ -65,7 +67,7 @@ sub ApplyChannelPrefs(st as object)
     st.channels = []
     for each c in st.all
         c.n = "--"
-        c.shown = (c.kind = "app")
+        c.shown = (c.kind = "app" or c.kind = "input")
         if vis.DoesExist(c.id) then c.shown = vis[c.id]
         if c.shown then st.channels.Push(c)
     end for
@@ -85,6 +87,13 @@ end sub
 function InOrder(list as object, saved as string) as object
     out = []
     taken = {}
+    ' inputs never placed by the owner come first, like a cable box's
+    for each c in list
+        if c.kind = "input" and Instr(1, "," + saved + ",", "," + c.id + ",") = 0 then
+            out.Push(c)
+            taken[c.id] = true
+        end if
+    end for
     if saved <> "" then
         for each id in saved.Split(",")
             for each c in list
@@ -114,19 +123,49 @@ function ReadVisibility() as object
 end function
 
 sub SaveChannelPrefs(st as object)
-    order = ""
-    vis = ""
+    ' Inputs missing this time (TVFollow isn't running, say) keep their place and show/hide:
+    ' each goes back just before the channel that came after it, or at the end.
+    here = {}
     for each c in st.all
-        if order <> "" then
-            order = order + ","
-            vis = vis + ","
-        end if
-        order = order + c.id
-        vis = vis + c.id + ":" + OnOff(c.shown)
+        here[c.id] = true
     end for
-    RegWrite("order", order)
-    RegWrite("vis", vis)
+    ahead = {}
+    held = []
+    for each id in RegRead("order", "").Split(",")
+        if IsTvInput(id) and not here.DoesExist(id) then
+            held.Push(id)
+        else if here.DoesExist(id) and held.Count() > 0 then
+            ahead[id] = held
+            held = []
+        end if
+    end for
+    savedVis = ReadVisibility()
+    prefs = { order: "", vis: "" }
+    for each c in st.all
+        if ahead.DoesExist(c.id) then
+            for each id in ahead[c.id]
+                KeepMissing(prefs, id, savedVis)
+            end for
+        end if
+        prefs.order = Joined(prefs.order, c.id)
+        prefs.vis = Joined(prefs.vis, c.id + ":" + OnOff(c.shown))
+    end for
+    for each id in held
+        KeepMissing(prefs, id, savedVis)
+    end for
+    RegWrite("order", prefs.order)
+    RegWrite("vis", prefs.vis)
 end sub
+
+sub KeepMissing(prefs as object, id as string, savedVis as object)
+    prefs.order = Joined(prefs.order, id)
+    if savedVis.DoesExist(id) then prefs.vis = Joined(prefs.vis, id + ":" + OnOff(savedVis[id]))
+end sub
+
+function Joined(list as string, item as string) as string
+    if list = "" then return item
+    return list + "," + item
+end function
 
 ' One entry of the TV's app list, as { id, title, kind }, whatever shape the TV hands over.
 function AppEntry(entry as dynamic) as dynamic

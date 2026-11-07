@@ -10,3 +10,4 @@ splash_color=#0a1640
 splash_min_time=0
 ui_resolutions=hd,fhd
 screensaver_title=b0r3d TV
+supports_input_launch=1

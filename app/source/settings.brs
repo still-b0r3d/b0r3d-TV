@@ -118,6 +118,9 @@ end sub
 
 sub ChannelsKey(st as object, code as integer)
     n = st.all.Count()
+    ' the list can change under the highlight (TVFollow's hello adds the inputs)
+    if st.csel > n - 1 then st.csel = n - 1
+    if st.csel < 0 then st.csel = 0
     if code = 0 or code = 10 then
         st.mode = "settings"
     else if code = 2 then

@@ -9,16 +9,26 @@ sub Main(args as dynamic)
         note: "",
         noteName: "",
         noteTimer: invalid,
+        noteInput: false,
+        tvf: invalid,
+        tvfAsked: 0,
+        tvfTimer: CreateObject("roTimespan"),
+        moved: false,
         version: AppVersionLine(),
         sel: 0,
         csel: 0,
         guideMs: -1
     }
+    ' TVFollow's hello comes as an input event (see tvfollow.brs). Listening starts first, since
+    ' the hello can come while the rest is still starting.
+    st.input = CreateObject("roInput")
+    st.input.SetMessagePort(st.port)
     LoadPrefs(st)
     st.clock = ClockNow()
     st.fontReg = RegisterFonts()
     st.families = FontFamilies(st.fontReg)
     st.built = BuildChannels()
+    st.apps = st.built.list
     ApplyChannelPrefs(st)
     st.focus = StartFocus(st.channels)
     st.answers = TvAnswers(st)
@@ -26,6 +36,7 @@ sub Main(args as dynamic)
     OpenScreen(st, RegRead("res", "fhd"))
     print "b0r3d TV "; st.version; " started at "; st.w; " x "; st.h; " with "; st.channels.Count(); " channels"
     PrintAnswers(st)
+    GreetTvFollow(st)
     Redraw(st)
 
     while true
@@ -36,6 +47,11 @@ sub Main(args as dynamic)
             code = msg.GetInt()
             if code < 100 then
                 if not HandleKey(st, code) then exit while
+            end if
+        else if type(msg) = "roInputEvent" then
+            if TakeTvFollowHello(st, msg.GetInfo()) then
+                AddInputChannels(st)
+                Redraw(st)
             end if
         end if
     end while
@@ -82,6 +98,7 @@ end function
 sub MoveFocus(st as object, delta as integer)
     count = st.channels.Count()
     if count = 0 then return
+    st.moved = true
     n = st.focus + delta
     if n < 0 then n = 0
     if n > count - 1 then n = count - 1
@@ -95,6 +112,7 @@ end sub
 
 ' LAST (Replay) jumps between the two channels opened most recently, like a cable remote's LAST key.
 sub JumpLast(st as object)
+    st.moved = true
     last = RegRead("last", "")
     prev = RegRead("prev", "")
     target = last
@@ -114,15 +132,23 @@ sub JumpLast(st as object)
 end sub
 
 ' OK tunes in: a burst of static and the channel banner, then the Roku's app manager opens the
-' app. The channel is remembered first, because b0r3d TV closes as the other app opens.
+' app, or TVFollow switches to the input. The channel is remembered first, because b0r3d TV
+' closes as the other app opens.
 sub OpenChannel(st as object)
     if st.channels.Count() = 0 then return
     ch = st.channels[st.focus]
     RememberOpened(ch.id)
     TuneIn(st, ch)
-    st.note = "Opening " + ch.name + "..."
     st.noteName = ch.name
     st.noteTimer = CreateObject("roTimespan")
+    st.noteInput = (ch.kind = "input")
+    if st.noteInput then
+        st.note = "Asking TVFollow to switch to " + ch.name + "..."
+        Redraw(st)
+        AskTvFollow(st, ch)
+        return
+    end if
+    st.note = "Opening " + ch.name + "..."
     Redraw(st)
     print "b0r3d TV: opening "; ch.id
     try
@@ -140,9 +166,22 @@ end sub
 ' drawn again, since Roku's own screensaver can wipe it while b0r3d TV is open.
 sub Tick(st as object)
     st.clock = ClockNow()
+    ' no hello yet: TVFollow may have connected before b0r3d TV was listening, so ask again
+    if st.tvf = invalid then
+        askAt = [3000, 10000]
+        if st.tvfAsked <= askAt.Count() then
+            if st.tvfTimer.TotalMilliseconds() > askAt[st.tvfAsked - 1] then GreetTvFollow(st)
+        end if
+    end if
     if st.noteTimer <> invalid then
         if st.noteTimer.TotalMilliseconds() > 4000 then
-            st.note = "Nothing yet: the TV didn't open " + st.noteName + "."
+            if st.noteInput then
+                st.note = "Nothing yet: TVFollow didn't switch to " + st.noteName + "."
+                ' a fresh hello, in case TVFollow connected again and its new token didn't arrive
+                GreetTvFollow(st)
+            else
+                st.note = "Nothing yet: the TV didn't open " + st.noteName + "."
+            end if
             st.noteTimer = invalid
         end if
     end if

@@ -17,7 +17,7 @@ And two games: **Stuck Pixels**, a falling-block game, and **Test Pattern**, a b
 
 0.2 is a test build. Every app on your TV gets a channel, and the guide remembers the channel you opened last. Settings (the ✱ key) picks the look (the late-night cable guide, the phosphor terminal in green, amber or cyan, or the VCR menu in blue, black or green), shows, hides and reorders the channels, and sets the clock, the sound and the screen size. Its TV check page shows what your TV allows. Opening a channel tunes in with a burst of static and the channel's banner. The b0r3d 95 look and the games come next.
 
-Roku TVs don't let an app switch the TV's inputs, so b0r3d TV leaves HDMI and the antenna to Roku's own home screen. And when you leave an app you opened from b0r3d TV, the TV goes to Roku's home screen, not back to b0r3d TV. To come back quickly, move b0r3d TV to the first spot on the home screen: highlight it there, press ✱ and move it.
+Roku TVs don't let an app switch the TV's inputs. [TVFollow](https://github.com/still-b0r3d/TVFollow) can do it for b0r3d TV: with TVFollow 1.3 (coming soon) running on your PC and **Let the app switch the TV's inputs** ticked in its developer tools, your TV's inputs (HDMI, the antenna) show up as channels a few seconds after b0r3d TV opens, and opening one switches the TV. Without TVFollow, b0r3d TV leaves the inputs to Roku's own home screen. And when you leave an app you opened from b0r3d TV, the TV goes to Roku's home screen, not back to b0r3d TV. To come back quickly, move b0r3d TV to the first spot on the home screen: highlight it there, press ✱ and move it.
 
 ## The remote
 
