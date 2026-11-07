@@ -1,5 +1,5 @@
-' The late-night cable guide look: a preview window, the focused channel's details,
-' a grid of channels and a bar of remote hints, on a 1280 x 720 screen.
+' The late-night cable guide look: a preview window, the focused channel's details, a grid
+' of channels and a bar of remote hints. Laid out on a 1280 x 720 grid and scaled by st.k.
 
 function GuideColors() as object
     return {
@@ -18,150 +18,189 @@ function GuideColors() as object
     }
 end function
 
-function GuideFonts() as object
-    reg = CreateObject("roFontRegistry")
+' How many channel rows the grid shows at once.
+function GuideRows() as integer
+    return 6
+end function
+
+' This look's fonts, at the screen's scale.
+function GuideFonts(st as object) as object
+    k = st.k
     return {
-        logo: reg.GetDefaultFont(46, true, false),
-        badge: reg.GetDefaultFont(24, true, false),
-        clock: reg.GetDefaultFont(44, true, false),
-        small: reg.GetDefaultFont(20, false, false),
-        num: reg.GetDefaultFont(64, true, false),
-        sign: reg.GetDefaultFont(56, true, false),
-        name: reg.GetDefaultFont(32, true, false),
-        body: reg.GetDefaultFont(23, false, false),
-        bold: reg.GetDefaultFont(23, true, false),
-        cellNum: reg.GetDefaultFont(30, true, false),
-        cell: reg.GetDefaultFont(26, true, false),
-        cellText: reg.GetDefaultFont(24, false, false),
-        head: reg.GetDefaultFont(20, true, false),
-        big: reg.GetDefaultFont(96, true, false),
-        bar: reg.GetDefaultFont(21, true, false)
+        logo: Barlow(st, "extrabold", Z(46, k)),
+        badge: Barlow(st, "extrabold", Z(24, k)),
+        time: Vt323(st, Z(48, k)),
+        date: Barlow(st, "semibold", Z(20, k)),
+        num: Vt323(st, Z(76, k)),
+        sign: Barlow(st, "extrabold", Z(60, k)),
+        name: Barlow(st, "bold", Z(32, k)),
+        now: Barlow(st, "medium", Z(23, k)),
+        hint: Barlow(st, "bold", Z(23, k)),
+        big: Barlow(st, "extrabold", Z(104, k)),
+        bigHint: Barlow(st, "semibold", Z(24, k)),
+        head: Barlow(st, "bold", Z(20, k)),
+        cellNum: Vt323(st, Z(36, k)),
+        cellSign: Barlow(st, "extrabold", Z(27, k)),
+        cellNow: Barlow(st, "semibold", Z(25, k)),
+        bar: Barlow(st, "bold", Z(21, k)),
+        barNum: Vt323(st, Z(26, k)),
+        pageTitle: Barlow(st, "extrabold", Z(30, k)),
+        pageLabel: Barlow(st, "semibold", Z(23, k)),
+        pageValue: Vt323(st, Z(27, k))
     }
 end function
 
 sub DrawGuide(st as object)
     s = st.screen
     f = st.fonts
-    k = GuideColors()
-    ch = st.channels[st.focus]
-    s.Clear(k.bg)
+    c = GuideColors()
+    k = st.k
+    count = st.channels.Count()
+    ch = invalid
+    if count > 0 then ch = st.channels[st.focus]
+    s.Clear(c.bg)
 
     ' The preview window shows the focused channel.
-    DrawFrame(s, 40, 30, 520, 292, 4, k.frame)
-    s.DrawRect(44, 34, 512, 284, k.tile)
-    DrawPreview(st, ch, 44, 34, 512, 284)
-
-    ' The details of the focused channel, the logo and the clock.
-    x = 592
-    s.DrawText("b0r3d", x, 30, k.white, f.logo)
-    bx = x + f.logo.GetOneLineWidth("b0r3d", 600) + 12
-    s.DrawRect(bx, 42, 52, 32, k.accent)
-    DrawCentered(s, "TV", bx, 42, 52, 32, k.ink, f.badge)
-    DrawRight(s, st.clock.time, 1240, 30, k.white, f.clock)
-    DrawRight(s, st.clock.date, 1240, 80, k.soft, f.small)
-    s.DrawText(ch.n, x, 112, k.accent, f.num)
-    s.DrawText(ch.sign, x + f.num.GetOneLineWidth(ch.n, 600) + 18, 118, k.white, f.sign)
-    s.DrawText(ch.name, x, 192, k.text, f.name)
-    s.DrawText(ch.now, x, 236, k.soft, f.body)
-    s.DrawText(ch.hint, x, 282, k.accent, f.bold)
-    DrawSprite(s, RukusLoaf(), RukusColors(), 1240 - 16 * 7, 322 - 9 * 7, 7)
-
-    ' The grid: a header, then one row per channel.
-    gx = 40
-    gy = 340
-    s.DrawRect(gx, gy, 96, 34, k.frame)
-    s.DrawRect(gx + 100, gy, 170, 34, k.frame)
-    s.DrawRect(gx + 274, gy, 926, 34, k.frame)
-    DrawCentered(s, "CH", gx, gy, 96, 34, k.ink, f.head)
-    DrawMiddle(s, "CALL", gx + 114, gy, 34, k.ink, f.head)
-    DrawMiddle(s, "ON NOW · " + st.clock.time, gx + 290, gy, 34, k.ink, f.head)
-    y = gy + 38
-    for i = 0 to st.channels.Count() - 1
-        row = st.channels[i]
-        fg = k.text
-        b1 = k.cell1
-        b2 = k.cell2
-        b3 = k.cell3
-        if i = st.focus then
-            fg = k.ink
-            b1 = k.accent
-            b2 = k.accent
-            b3 = k.accent
-        end if
-        s.DrawRect(gx, y, 96, 44, b1)
-        s.DrawRect(gx + 100, y, 170, 44, b2)
-        s.DrawRect(gx + 274, y, 926, 44, b3)
-        DrawCentered(s, row.n, gx, y, 96, 44, fg, f.cellNum)
-        DrawMiddle(s, row.sign, gx + 114, y, 44, fg, f.cell)
-        DrawMiddle(s, row.now, gx + 290, y, 44, fg, f.cellText)
-        y = y + 48
-    end for
-
-    ' What just happened, or how to use this test build.
-    if st.note <> "" then
-        s.DrawText(st.note, gx, y + 22, k.white, f.bold)
+    DrawFrame(s, Z(40, k), Z(30, k), Z(560, k) - Z(40, k), Z(322, k) - Z(30, k), Z(4, k), c.frame)
+    px = Z(44, k)
+    py = Z(34, k)
+    pw = Z(556, k) - px
+    ph = Z(318, k) - py
+    s.DrawRect(px, py, pw, ph, c.tile)
+    if ch <> invalid then
+        bigH = f.big.GetOneLineHeight()
+        hintH = f.bigHint.GetOneLineHeight()
+        gap = Z(10, k)
+        top = py + (ph - bigH - gap - hintH) \ 2
+        DrawCenteredSpaced(s, ch.sign, px, top, pw, bigH, c.white, f.big, Z(6, k))
+        DrawCentered(s, TrimToWidth("OK opens " + ch.name, f.bigHint, pw - Z(24, k)), px, top + bigH + gap, pw, hintH, c.soft, f.bigHint)
     else
-        s.DrawText("Test build 0.1: press OK on a channel to try it.", gx, y + 22, k.soft, f.body)
+        DrawCentered(s, "NO CHANNELS YET", px, py, pw, ph, c.white, f.name)
     end if
 
-    ' The bar of remote hints, and the version.
-    s.DrawRect(0, 668, 1280, 52, k.bar)
-    DrawArrowUp(s, 52, 685, k.white)
-    DrawArrowDown(s, 78, 685, k.white)
-    hx = DrawRun(s, 100, 682, "MOVE", k.soft, f.bar, 28)
-    hx = DrawRun(s, hx, 682, "OK", k.white, f.bar, 8)
-    hx = DrawRun(s, hx, 682, "TUNE IN", k.soft, f.bar, 28)
-    hx = DrawRun(s, hx, 682, "BACK", k.white, f.bar, 8)
-    hx = DrawRun(s, hx, 682, "LEAVE", k.soft, f.bar, 0)
-    DrawRight(s, st.version, 1240, 682, k.soft, f.bar)
+    ' The focused channel's details, the logo and the clock.
+    x = Z(592, k)
+    right = Z(1240, k)
+    logoY = Z(26, k)
+    DrawSpaced(s, "b0r3d", x, logoY, c.white, f.logo, Z(1, k))
+    bx = x + SpacedWidth("b0r3d", f.logo, Z(1, k)) + Z(10, k)
+    bw = f.badge.GetOneLineWidth("TV", 99999) + Z(20, k)
+    bh = f.badge.GetOneLineHeight() + Z(2, k)
+    by = logoY + (f.logo.GetOneLineHeight() - bh) \ 2
+    s.DrawRect(bx, by, bw, bh, c.accent)
+    DrawCentered(s, "TV", bx, by, bw, bh, c.ink, f.badge)
+    timeY = Z(28, k)
+    DrawRight(s, st.clock.time, right, timeY, c.white, f.time)
+    DrawRightSpaced(s, st.clock.date, right, timeY + f.time.GetOneLineHeight() + Z(2, k), c.soft, f.date, Z(2, k))
+    if ch <> invalid then
+        ny = Z(97, k)
+        s.DrawText(ch.n, x, ny, c.accent, f.num)
+        sx = x + f.num.GetOneLineWidth(ch.n, 99999) + Z(18, k)
+        sy = ny + f.num.GetAscent() - f.sign.GetAscent()
+        s.DrawText(ch.sign, sx, sy, c.white, f.sign)
+        s.DrawText(TrimToWidth(ch.name, f.name, right - x), x, Z(181, k), c.text, f.name)
+        s.DrawText(TrimToWidth(ch.now, f.now, right - x), x, Z(227, k), c.soft, f.now)
+    end if
+    sc = Z(7, k)
+    rukusX = right - 16 * sc
+    hint = ""
+    if ch <> invalid then hint = "OK opens " + ch.name
+    if st.note <> "" then hint = st.note
+    s.DrawText(TrimToWidth(hint, f.hint, rukusX - x - Z(12, k)), x, Z(322, k) - f.hint.GetOneLineHeight(), c.accent, f.hint)
+    DrawSprite(s, RukusLoaf(), RukusColors(), rukusX, Z(322, k) - 9 * sc, sc)
 
+    ' The grid: a header, then one row per channel, scrolling with the highlight.
+    gx = Z(40, k)
+    w1 = Z(136, k) - gx
+    x2 = Z(140, k)
+    w2 = Z(310, k) - x2
+    x3 = Z(314, k)
+    w3 = right - x3
+    hy = Z(340, k)
+    hh = Z(374, k) - hy
+    s.DrawRect(gx, hy, w1, hh, c.frame)
+    s.DrawRect(x2, hy, w2, hh, c.frame)
+    s.DrawRect(x3, hy, w3, hh, c.frame)
+    DrawCenteredSpaced(s, "CH", gx, hy, w1, hh, c.ink, f.head, Z(2, k))
+    DrawMiddleSpaced(s, "CALL", x2 + Z(14, k), hy, hh, c.ink, f.head, Z(2, k))
+    DrawMiddleSpaced(s, "ON NOW · " + st.clock.time, x3 + Z(16, k), hy, hh, c.ink, f.head, Z(2, k))
+    rows = GuideRows()
+    first = TopRow(st.focus, count, rows)
+    for r = 0 to rows - 1
+        i = first + r
+        if i >= count then exit for
+        row = st.channels[i]
+        ry = Z(378 + r * 48, k)
+        rh = Z(422 + r * 48, k) - ry
+        fg = c.text
+        b1 = c.cell1
+        b2 = c.cell2
+        b3 = c.cell3
+        if i = st.focus then
+            fg = c.ink
+            b1 = c.accent
+            b2 = c.accent
+            b3 = c.accent
+        end if
+        s.DrawRect(gx, ry, w1, rh, b1)
+        s.DrawRect(x2, ry, w2, rh, b2)
+        s.DrawRect(x3, ry, w3, rh, b3)
+        DrawCentered(s, row.n, gx, ry, w1, rh, fg, f.cellNum)
+        DrawMiddleSpaced(s, row.sign, x2 + Z(14, k), ry, rh, fg, f.cellSign, Z(1, k))
+        DrawMiddle(s, TrimToWidth(row.now, f.cellNow, w3 - Z(32, k)), x3 + Z(16, k), ry, rh, fg, f.cellNow)
+    end for
+
+    DrawGuideBar(st, ch, count)
     s.SwapBuffers()
 end sub
 
-' The preview of the focused channel: its call sign and what OK does.
-sub DrawPreview(st as object, ch as object, x as integer, y as integer, w as integer, h as integer)
-    f = st.fonts
-    k = GuideColors()
-    DrawCentered(st.screen, ch.sign, x, y + 56, w, 110, k.white, f.big)
-    DrawCentered(st.screen, ch.hint, x, y + 190, w, 32, k.soft, f.body)
-end sub
-
-sub DrawFrame(s as object, x as integer, y as integer, w as integer, h as integer, t as integer, color as dynamic)
-    s.DrawRect(x, y, w, t, color)
-    s.DrawRect(x, y + h - t, w, t, color)
-    s.DrawRect(x, y, t, h, color)
-    s.DrawRect(x + w - t, y, t, h, color)
-end sub
-
-sub DrawArrowUp(s as object, cx as integer, y as integer, color as dynamic)
-    for i = 0 to 7
-        s.DrawRect(cx - i, y + i * 2, i * 2 + 1, 2, color)
-    end for
-end sub
-
-sub DrawArrowDown(s as object, cx as integer, y as integer, color as dynamic)
-    for i = 0 to 7
-        s.DrawRect(cx - 7 + i, y + i * 2, 15 - i * 2, 2, color)
-    end for
-end sub
-
-sub DrawCentered(s as object, text as string, x as integer, y as integer, w as integer, h as integer, color as dynamic, font as object)
-    tw = font.GetOneLineWidth(text, 4000)
-    th = font.GetOneLineHeight()
-    s.DrawText(text, x + (w - tw) \ 2, y + (h - th) \ 2, color, font)
-end sub
-
-sub DrawMiddle(s as object, text as string, x as integer, y as integer, h as integer, color as dynamic, font as object)
-    th = font.GetOneLineHeight()
-    s.DrawText(text, x, y + (h - th) \ 2, color, font)
-end sub
-
-sub DrawRight(s as object, text as string, rx as integer, y as integer, color as dynamic, font as object)
-    s.DrawText(text, rx - font.GetOneLineWidth(text, 4000), y, color, font)
-end sub
-
-' Draws one piece of text and returns where the next one starts.
-function DrawRun(s as object, x as integer, y as integer, text as string, color as dynamic, font as object, gap as integer) as integer
-    s.DrawText(text, x, y, color, font)
-    return x + font.GetOneLineWidth(text, 4000) + gap
+' The first row shown, so the highlight sits third from the top while the list scrolls.
+function TopRow(focus as integer, count as integer, rows as integer) as integer
+    first = focus - 2
+    if first > count - rows then first = count - rows
+    if first < 0 then first = 0
+    return first
 end function
+
+' The bar of remote hints, the version and where the highlight is.
+sub DrawGuideBar(st as object, ch as dynamic, count as integer)
+    s = st.screen
+    f = st.fonts
+    c = GuideColors()
+    k = st.k
+    top = Z(668, k)
+    s.DrawRect(0, top, st.w, st.h - top, c.bar)
+    bw = Z(48, k)
+    bh = Z(44, k)
+    bt = top + (st.h - top - bh) \ 2
+    ax = Z(40, k)
+    s.DrawRect(ax, bt, bw, bh, c.cell1)
+    DrawChevron(s, ax + bw \ 2, bt + bh \ 2, Z(6, k), Z(3, k), true, c.white)
+    ax = ax + bw + Z(14, k)
+    s.DrawRect(ax, bt, bw, bh, c.cell1)
+    DrawChevron(s, ax + bw \ 2, bt + bh \ 2, Z(6, k), Z(3, k), false, c.white)
+    hx = ax + bw + Z(14, k)
+    ty = top + (st.h - top - f.bar.GetOneLineHeight()) \ 2
+    mid = top + (st.h - top) \ 2
+    sp = Z(1, k)
+    gap = Z(14, k)
+    far = Z(32, k)
+    hx = DrawRun(s, hx, ty, "MOVE", c.soft, f.bar, sp, far)
+    hx = DrawRun(s, hx, ty, "OK", c.white, f.bar, sp, gap)
+    hx = DrawRun(s, hx, ty, "TUNE IN", c.soft, f.bar, sp, far)
+    DrawStar(s, hx + Z(8, k), mid, Z(8, k), Z(3, k), c.white)
+    hx = hx + Z(16, k) + gap
+    hx = DrawRun(s, hx, ty, "TEST PAGE", c.soft, f.bar, sp, far)
+    DrawPlay(s, hx, mid, Z(16, k), c.white)
+    hx = hx + Z(14, k) + gap
+    shown = "720P"
+    if st.h >= 1080 then shown = "1080P"
+    DrawRun(s, hx, ty, shown, c.soft, f.bar, sp, 0)
+
+    right = Z(1240, k)
+    nty = top + (st.h - top - f.barNum.GetOneLineHeight()) \ 2
+    where = ""
+    if ch <> invalid then where = "CH " + ch.n + " · " + (st.focus + 1).ToStr() + " OF " + count.ToStr()
+    DrawRight(s, where, right, nty, c.soft, f.barNum)
+    DrawRight(s, st.version, right - f.barNum.GetOneLineWidth(where, 99999) - Z(28, k), nty, c.soft, f.barNum)
+end sub
