@@ -15,7 +15,9 @@ And two games: a falling-block game and a brick breaker.
 
 ## Status
 
-0.1 is a first test build: the home screen in the late-night cable guide look, with three channels (your PC on HDMI 1, antenna TV and YouTube). The other looks and the games come next.
+0.1 is a first test build: the home screen in the late-night cable guide look, with one channel, YouTube. Your other apps, the other looks and the games come next.
+
+Roku TVs don't let an app switch the TV's inputs, so b0r3d TV leaves HDMI and the antenna to Roku's own home screen. In testing, Back inside YouTube went to Roku's home screen rather than back to b0r3d TV: press Home and pick b0r3d TV to come back.
 
 ## Trying it
 

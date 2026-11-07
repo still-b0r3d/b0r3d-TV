@@ -46,7 +46,7 @@ sub Main(args as dynamic)
             else if code = 3 then
                 MoveFocus(st, 1)
             else if code = 6 then
-                TuneIn(st)
+                OpenChannel(st)
             end if
         end if
     end while
@@ -65,8 +65,9 @@ sub MoveFocus(st as object, delta as integer)
     end if
 end sub
 
-' OK opens the highlighted channel: an app, or one of the TV's inputs.
-sub TuneIn(st as object)
+' OK opens the highlighted channel's app through the Roku's app manager. Roku TVs don't let
+' an app switch the TV's inputs, so inputs stay on Roku's own home screen.
+sub OpenChannel(st as object)
     ch = st.channels[st.focus]
     st.note = "Opening " + ch.name + "..."
     st.noteTimer = CreateObject("roTimespan")
@@ -83,25 +84,21 @@ sub TuneIn(st as object)
     end try
 end sub
 
-' The channels in this test build: the PC, the antenna and YouTube.
+' The channels in this test build: just YouTube for now.
 function GuideChannels() as object
     list = [
-        { n: "01", sign: "PC", name: "Your PC", now: "Your desktop on HDMI 1", kind: "pc", id: "tvinput.hdmi1", hint: "OK switches the TV to your PC" },
-        { n: "02", sign: "ANT", name: "Antenna TV", now: "Live TV from the antenna", kind: "ant", id: "tvinput.dtv", hint: "OK opens live TV" },
-        { n: "03", sign: "YTUBE", name: "YouTube", now: "YouTube", kind: "app", id: "837", hint: "OK opens YouTube" }
+        { n: "01", sign: "YTUBE", name: "YouTube", now: "YouTube", id: "837", hint: "OK opens YouTube" }
     ]
     apps = CreateObject("roAppManager")
     for each ch in list
-        if ch.kind = "app" then
-            found = false
-            try
-                found = apps.IsAppInstalled(ch.id, "")
-            catch e
-                print "b0r3d TV: could not ask whether "; ch.name; " is installed: "; e.message
-            end try
-            print "b0r3d TV: "; ch.name; " installed: "; found
-            if not found then ch.now = ch.now + " (not found on this TV)"
-        end if
+        found = false
+        try
+            found = apps.IsAppInstalled(ch.id, "")
+        catch e
+            print "b0r3d TV: could not ask whether "; ch.name; " is installed: "; e.message
+        end try
+        print "b0r3d TV: "; ch.name; " installed: "; found
+        if not found then ch.now = ch.now + " (not found on this TV)"
     end for
     return list
 end function

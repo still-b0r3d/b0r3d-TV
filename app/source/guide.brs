@@ -118,45 +118,12 @@ sub DrawGuide(st as object)
     s.SwapBuffers()
 end sub
 
-' The preview of the focused channel: an input's picture, or an app's call sign.
+' The preview of the focused channel: its call sign and what OK does.
 sub DrawPreview(st as object, ch as object, x as integer, y as integer, w as integer, h as integer)
-    s = st.screen
     f = st.fonts
     k = GuideColors()
-    if ch.kind = "pc" then
-        DrawMonitor(s, x + w \ 2, y + 100, k.soft)
-        DrawCentered(s, "HDMI 1 · YOUR PC", x, y + 196, w, 40, k.white, f.name)
-    else if ch.kind = "ant" then
-        DrawAntenna(s, x + w \ 2, y + 100, k.soft)
-        DrawCentered(s, "ANTENNA · LIVE TV", x, y + 196, w, 40, k.white, f.name)
-    else
-        DrawCentered(s, ch.sign, x, y + 56, w, 110, k.white, f.big)
-        DrawCentered(s, ch.hint, x, y + 190, w, 32, k.soft, f.body)
-    end if
-end sub
-
-sub DrawMonitor(s as object, cx as integer, cy as integer, color as dynamic)
-    w = 132
-    h = 84
-    x = cx - w \ 2
-    y = cy - h \ 2
-    DrawFrame(s, x, y, w, h, 5, color)
-    s.DrawRect(cx - 5, y + h, 10, 14, color)
-    s.DrawRect(cx - 34, y + h + 14, 68, 5, color)
-end sub
-
-sub DrawAntenna(s as object, cx as integer, cy as integer, color as dynamic)
-    w = 140
-    h = 76
-    x = cx - w \ 2
-    y = cy - h \ 2 + 16
-    DrawFrame(s, x, y, w, h, 5, color)
-    for d = -2 to 2
-        s.DrawLine(cx + d, y, cx - 40 + d, y - 44, color)
-        s.DrawLine(cx + d, y, cx + 40 + d, y - 44, color)
-    end for
-    s.DrawRect(x + 20, y + 24, 70, 5, color)
-    s.DrawRect(x + 20, y + 42, 46, 5, color)
+    DrawCentered(st.screen, ch.sign, x, y + 56, w, 110, k.white, f.big)
+    DrawCentered(st.screen, ch.hint, x, y + 190, w, 32, k.soft, f.body)
 end sub
 
 sub DrawFrame(s as object, x as integer, y as integer, w as integer, h as integer, t as integer, color as dynamic)
