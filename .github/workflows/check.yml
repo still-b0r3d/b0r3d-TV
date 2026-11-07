@@ -1,0 +1,26 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Compile the app
+        run: npx --yes --package brighterscript@0.73.8 bsc --cwd app --root-dir . --create-package false --staging-dir "$RUNNER_TEMP/stage"
+
+      - name: Check the commits and files
+        env:
+          LEAK_TERMS: ${{ secrets.LEAK_TERMS }}
+        run: bash tools/check.sh
