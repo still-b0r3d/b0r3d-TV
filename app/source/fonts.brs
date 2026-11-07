@@ -1,6 +1,6 @@
-' The fonts: Barlow Condensed in four weights and VT323, both free under the SIL Open Font
-' License (each folder in fonts/ carries its OFL.txt). Roku's own font stands in for any that
-' doesn't load.
+' The fonts: Barlow Condensed in four weights, VT323 and Silkscreen, all free under the SIL Open
+' Font License (each folder in fonts/ carries its OFL.txt). Roku's own font stands in for any
+' that doesn't load.
 
 function RegisterFonts() as object
     reg = CreateObject("roFontRegistry")
@@ -16,7 +16,9 @@ function FontFiles() as object
         "pkg:/fonts/barlow-condensed/BarlowCondensed-SemiBold.ttf",
         "pkg:/fonts/barlow-condensed/BarlowCondensed-Bold.ttf",
         "pkg:/fonts/barlow-condensed/BarlowCondensed-ExtraBold.ttf",
-        "pkg:/fonts/vt323/VT323-Regular.ttf"
+        "pkg:/fonts/vt323/VT323-Regular.ttf",
+        "pkg:/fonts/silkscreen/Silkscreen-Regular.ttf",
+        "pkg:/fonts/silkscreen/Silkscreen-Bold.ttf"
     ]
 end function
 
@@ -59,6 +61,15 @@ end function
 function Vt323(st as object, size as integer) as object
     font = FontOf(st, "VT323", size, false)
     if font = invalid then font = st.fontReg.GetDefaultFont(size, false, false)
+    return font
+end function
+
+' Silkscreen is drawn on an 8-pixel grid, so it's only sharp at multiples of 8 pixels.
+function Silk(st as object, size as integer, bold as boolean) as object
+    px = Int(size / 8 + 0.5) * 8
+    if px < 8 then px = 8
+    font = FontOf(st, "Silkscreen", px, bold)
+    if font = invalid then font = st.fontReg.GetDefaultFont(px, bold, false)
     return font
 end function
 

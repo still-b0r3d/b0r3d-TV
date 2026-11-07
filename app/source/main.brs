@@ -1,5 +1,6 @@
 ' b0r3d TV: a home screen for Roku TVs that looks like an old cable box.
 ' Everything is drawn on one 2D screen: 1920 x 1080 where the TV allows it, else 1280 x 720.
+' Screens (st.mode): the guide, Settings, the channel list, the TV check and About.
 
 sub Main(args as dynamic)
     st = {
@@ -8,15 +9,20 @@ sub Main(args as dynamic)
         note: "",
         noteName: "",
         noteTimer: invalid,
-        clock: ClockNow(),
-        version: AppVersionLine()
+        version: AppVersionLine(),
+        sel: 0,
+        csel: 0,
+        guideMs: -1
     }
+    LoadPrefs(st)
+    st.clock = ClockNow()
     st.fontReg = RegisterFonts()
     st.families = FontFamilies(st.fontReg)
     st.built = BuildChannels()
-    st.channels = st.built.list
+    ApplyChannelPrefs(st)
     st.focus = StartFocus(st.channels)
     st.answers = TvAnswers(st)
+    st.tuneSound = LoadTuneSound()
     OpenScreen(st, RegRead("res", "fhd"))
     print "b0r3d TV "; st.version; " started at "; st.w; " x "; st.h; " with "; st.channels.Count(); " channels"
     PrintAnswers(st)
@@ -37,12 +43,16 @@ end sub
 
 ' One key press. Returns false when b0r3d TV should close.
 function HandleKey(st as object, code as integer) as boolean
-    if st.mode = "test" then
+    if st.mode = "settings" then
+        SettingsKey(st, code)
+        return true
+    else if st.mode = "channels" then
+        ChannelsKey(st, code)
+        return true
+    else if st.mode = "check" or st.mode = "about" then
         if code = 0 or code = 10 then
-            st.mode = "guide"
+            st.mode = "settings"
             Redraw(st)
-        else if code = 13 then
-            FlipSharpness(st)
         end if
         return true
     end if
@@ -53,29 +63,20 @@ function HandleKey(st as object, code as integer) as boolean
     else if code = 3 then
         MoveFocus(st, 1)
     else if code = 8 then
-        MoveFocus(st, -GuideRows())
+        MoveFocus(st, -GuideRowsFor(st))
     else if code = 9 then
-        MoveFocus(st, GuideRows())
+        MoveFocus(st, GuideRowsFor(st))
     else if code = 7 then
         JumpLast(st)
     else if code = 6 then
         OpenChannel(st)
     else if code = 10 then
-        st.mode = "test"
-        PrintAnswers(st)
+        st.mode = "settings"
+        st.sel = 0
         Redraw(st)
-    else if code = 13 then
-        FlipSharpness(st)
     end if
     return true
 end function
-
-' The test page's answers, in the app log too.
-sub PrintAnswers(st as object)
-    for each line in AllAnswers(st)
-        print "b0r3d TV check: "; line.label; ": "; line.value
-    end for
-end sub
 
 ' Up and down move the highlight one row; Rewind and Fast-forward a page. It stops at the ends.
 sub MoveFocus(st as object, delta as integer)
@@ -112,12 +113,13 @@ sub JumpLast(st as object)
     Redraw(st)
 end sub
 
-' OK opens the highlighted channel's app through the Roku's app manager. It's remembered first,
-' because b0r3d TV closes as the other app opens.
+' OK tunes in: a burst of static and the channel banner, then the Roku's app manager opens the
+' app. The channel is remembered first, because b0r3d TV closes as the other app opens.
 sub OpenChannel(st as object)
     if st.channels.Count() = 0 then return
     ch = st.channels[st.focus]
     RememberOpened(ch.id)
+    TuneIn(st, ch)
     st.note = "Opening " + ch.name + "..."
     st.noteName = ch.name
     st.noteTimer = CreateObject("roTimespan")
@@ -148,10 +150,18 @@ sub Tick(st as object)
 end sub
 
 sub Redraw(st as object)
-    if st.mode = "test" then
-        DrawTestPage(st)
+    if st.mode = "settings" then
+        DrawSettings(st)
+    else if st.mode = "channels" then
+        DrawChannelList(st)
+    else if st.mode = "check" then
+        DrawTvCheck(st)
+    else if st.mode = "about" then
+        DrawAbout(st)
     else
-        DrawGuide(st)
+        timer = CreateObject("roTimespan")
+        DrawGuideFor(st)
+        st.guideMs = timer.TotalMilliseconds()
     end if
 end sub
 
@@ -177,29 +187,42 @@ sub RememberOpened(id as string)
     RegWrite("last", id)
 end sub
 
-' "v0.15 · Build: dev": the version from the manifest, the build from BuildStamp().
+' The test page's answers, in the app log too.
+sub PrintAnswers(st as object)
+    for each line in AllAnswers(st)
+        print "b0r3d TV check: "; line.label; ": "; line.value
+    end for
+end sub
+
+' "v0.2 · Build: dev": the version from the manifest, the build from BuildStamp().
 function AppVersionLine() as string
     info = CreateObject("roAppInfo")
     return "v" + info.GetValue("major_version") + "." + info.GetValue("minor_version") + " · Build: " + BuildStamp()
 end function
 
-' The time and date for the guide, in the TV's own time zone.
+' The time and date in the TV's own time zone, in the forms the looks use.
 function ClockNow() as object
     dt = CreateObject("roDateTime")
     dt.ToLocalTime()
     hours = dt.GetHours()
     mins = dt.GetMinutes()
+    secs = dt.GetSeconds()
     half = "AM"
     if hours >= 12 then half = "PM"
     h12 = hours mod 12
     if h12 = 0 then h12 = 12
-    mm = mins.ToStr()
-    if mins < 10 then mm = "0" + mm
     days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
     months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
+    day = days[dt.GetDayOfWeek()]
     return {
-        time: h12.ToStr() + ":" + mm + " " + half,
-        date: days[dt.GetDayOfWeek()] + " " + months[dt.GetMonth() - 1] + " " + dt.GetDayOfMonth().ToStr(),
-        minute: hours * 60 + mins
+        time: h12.ToStr() + ":" + TwoDigits(mins) + " " + half,
+        hm12: h12.ToStr() + ":" + TwoDigits(mins),
+        half: half,
+        time24: TwoDigits(hours) + ":" + TwoDigits(mins),
+        ss: TwoDigits(secs),
+        date: day + " " + months[dt.GetMonth() - 1] + " " + dt.GetDayOfMonth().ToStr(),
+        isoDate: day + " " + dt.GetYear().ToStr() + "-" + TwoDigits(dt.GetMonth()) + "-" + TwoDigits(dt.GetDayOfMonth()),
+        minute: hours * 60 + mins,
+        second: secs
     }
 end function

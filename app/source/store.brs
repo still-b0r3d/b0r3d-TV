@@ -1,5 +1,7 @@
-' What b0r3d TV keeps on the TV between runs: the last two channels opened (for LAST and for
-' landing on the last one) and the screen size picked with Play.
+' What b0r3d TV keeps on the TV between runs, in one registry section:
+'   look, colour.<look>, scan, clock, sound, res   the settings
+'   order, vis                                       the channels' order and which are shown
+'   last, prev                                       the last two channels opened
 
 function RegRead(key as string, fallback as string) as string
     sec = CreateObject("roRegistrySection", "b0r3dtv")
@@ -12,3 +14,24 @@ sub RegWrite(key as string, value as string)
     sec.Write(key, value)
     sec.Flush()
 end sub
+
+' The settings, read into st once at the start.
+sub LoadPrefs(st as object)
+    st.look = RegRead("look", "cable")
+    if not IsLook(st.look) then st.look = "cable"
+    st.scan = RegRead("scan", "1") = "1"
+    st.clock24 = RegRead("clock", "12") = "24"
+    st.sound = RegRead("sound", "1") = "1"
+end sub
+
+' The colour picked for one look (an index into its colour list).
+function ColourIndex(look as string) as integer
+    i = RegRead("colour." + look, "0").ToInt()
+    if i < 0 or i >= LookColourNames(look).Count() then i = 0
+    return i
+end function
+
+function OnOff(on as boolean) as string
+    if on then return "1"
+    return "0"
+end function

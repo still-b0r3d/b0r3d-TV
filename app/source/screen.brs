@@ -5,6 +5,7 @@
 sub OpenScreen(st as object, want as string)
     st.screen = invalid
     st.fonts = invalid
+    st.scanBmp = invalid
     screen = invalid
     st.fhdRefused = false
     st.fhdHow = ""
@@ -32,22 +33,13 @@ sub OpenScreen(st as object, want as string)
     st.k = st.w / 1280
     st.res = "hd"
     if st.w >= 1920 then st.res = "fhd"
-    st.fonts = GuideFonts(st)
+    LoadLook(st)
 end sub
 
-' Play flips between the two sizes, to see which looks sharper on the TV. The pick is kept.
-sub FlipSharpness(st as object)
-    want = "fhd"
-    if st.res = "fhd" then want = "hd"
+' The Screen size setting: switches between 1920 x 1080 and 1280 x 720. The pick is kept.
+sub SetScreenSize(st as object, want as string)
     OpenScreen(st, want)
     RegWrite("res", want)
-    if want = "fhd" and st.res <> "fhd" then
-        st.note = "This TV said no to 1920 x 1080, so it stays 1280 x 720."
-    else
-        st.note = "Now " + st.w.ToStr() + " x " + st.h.ToStr() + ". Play flips back."
-    end if
-    st.noteTimer = invalid
-    Redraw(st)
 end sub
 
 ' A double-buffered screen of that size (0 x 0: the TV's own size), or invalid.

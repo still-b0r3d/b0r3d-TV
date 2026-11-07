@@ -1,5 +1,5 @@
 ' The TV's answers to the questions the next steps depend on. They are asked once at the
-' start, shown on the test page (the options key) and printed to the app log.
+' start, shown on the TV check page (Settings) and printed to the app log.
 
 function TvAnswers(st as object) as object
     am = CreateObject("roAppManager")
@@ -9,7 +9,7 @@ function TvAnswers(st as object) as object
         { label: "Home-screen order", value: AskDisplayOrder(am) },
         { label: "Recent apps", value: AskRecentApps(am) },
         { label: "Installed check", value: AskInstalled(am) },
-        { label: "Guide built from", value: st.built.source + ", " + st.channels.Count().ToStr() + " channels" },
+        { label: "Guide built from", value: st.built.source + ", " + st.all.Count().ToStr() + " apps" },
         { label: "TV menus", value: AskMenus(di) },
         { label: "Screensaver wait", value: AskScreensaverWait(am) },
         { label: "Idle-clock reset", value: AskIdleReset(am) },
@@ -19,9 +19,13 @@ function TvAnswers(st as object) as object
     ]
 end function
 
-' The answers plus the screen line, which changes when Play flips the size.
+' The answers plus the lines that change while b0r3d TV runs: the screen size and how long the
+' guide took to draw.
 function AllAnswers(st as object) as object
     all = [{ label: "Screen now", value: ScreenAnswer(st) }]
+    drawn = "not drawn yet"
+    if st.guideMs >= 0 then drawn = st.guideMs.ToStr() + " ms, in the " + LookTitle(st.look) + " look"
+    all.Push({ label: "Guide draw time", value: drawn })
     all.Append(st.answers)
     return all
 end function
@@ -29,13 +33,11 @@ end function
 function ScreenAnswer(st as object) as string
     text = st.w.ToStr() + " x " + st.h.ToStr()
     if st.res = "fhd" then
-        text = text + " (" + st.fhdHow + "): 1080p works. Play flips to 1280 x 720."
+        text = text + " (" + st.fhdHow + ")"
     else if st.fhdRefused then
-        text = text + ": the TV said no to 1920 x 1080."
-    else
-        text = text + ". Play flips to 1920 x 1080."
+        text = text + ": the TV said no to 1920 x 1080"
     end if
-    return text
+    return text + ". Settings, Screen size switches it."
 end function
 
 function AskAppList(am as object) as string

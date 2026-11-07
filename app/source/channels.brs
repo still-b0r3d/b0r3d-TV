@@ -1,6 +1,8 @@
 ' Which channels the guide shows. b0r3d TV first asks the TV for its whole app list (a call
 ' Roku doesn't document). If the TV won't say, it goes through its own list of known apps one
-' by one and keeps the installed ones. TV inputs and screensavers never become channels.
+' by one and keeps the installed ones. TV inputs never become channels; screensaver apps are
+' channels that start hidden. Settings then puts them in the owner's order and hides or shows
+' each one (ApplyChannelPrefs).
 
 function BuildChannels() as object
     known = {}
@@ -19,17 +21,20 @@ function BuildChannels() as object
         for each entry in tvApps
             item = AppEntry(entry)
             if item <> invalid then
-                ' Where the TV says what kind of app it is, keep only real apps ("appl").
-                if item.kind <> "" and LCase(item.kind) <> "appl" then item = invalid
+                ' Where the TV says what kind of app it is, keep apps ("appl") and screensavers.
+                kind = LCase(item.kind)
+                if kind <> "" and kind <> "appl" and kind <> "ssvr" then item = invalid
             end if
             if item <> invalid then
                 app = known[item.id]
                 if app <> invalid then
-                    if app.kind = "app" then out.list.Push(MakeChannel(item.id, app.name, app.sign, Tagline(item.title, app.name)))
+                    out.list.Push(MakeChannel(item.id, app.name, app.sign, Tagline(item.title, app.name), app.kind))
                 else if not IsTvInput(item.id) and item.id <> "dev" then
                     name = ShortTitle(item.title)
                     if name = "" then name = "App " + item.id
-                    out.list.Push(MakeChannel(item.id, name, MakeSign(name), Tagline(item.title, name)))
+                    kind = "app"
+                    if LCase(item.kind) = "ssvr" then kind = "saver"
+                    out.list.Push(MakeChannel(item.id, name, MakeSign(name), Tagline(item.title, name), kind))
                 end if
             end if
         end for
@@ -37,21 +42,91 @@ function BuildChannels() as object
     end if
     if out.list.Count() = 0 then
         for each app in KnownApps()
-            if app.kind = "app" then
-                if IsInstalled(am, app.id) then out.list.Push(MakeChannel(app.id, app.name, app.sign, app.name))
-            end if
+            if IsInstalled(am, app.id) then out.list.Push(MakeChannel(app.id, app.name, app.sign, app.name, app.kind))
         end for
         out.source = "b0r3d TV's list of known apps"
     end if
-    for i = 0 to out.list.Count() - 1
-        out.list[i].n = TwoDigits(i + 1)
+    return out
+end function
+
+function MakeChannel(id as string, name as string, sign as string, now as string, kind as string) as object
+    return { id: id, name: name, sign: sign, now: now, kind: kind, n: "", shown: true }
+end function
+
+' Puts the channels in the saved order (new apps go at the end), marks which are shown, and
+' numbers the shown ones 01, 02... The highlight stays on the same channel where it can.
+sub ApplyChannelPrefs(st as object)
+    focusId = ""
+    if st.DoesExist("channels") then
+        if st.channels.Count() > 0 and st.focus < st.channels.Count() then focusId = st.channels[st.focus].id
+    end if
+    st.all = InOrder(st.built.list, RegRead("order", ""))
+    vis = ReadVisibility()
+    st.channels = []
+    for each c in st.all
+        c.n = "--"
+        c.shown = (c.kind = "app")
+        if vis.DoesExist(c.id) then c.shown = vis[c.id]
+        if c.shown then st.channels.Push(c)
+    end for
+    for i = 0 to st.channels.Count() - 1
+        st.channels[i].n = TwoDigits(i + 1)
+    end for
+    i = IndexOfId(st.channels, focusId)
+    if i >= 0 then
+        st.focus = i
+    else if not st.DoesExist("focus") then
+        st.focus = 0
+    end if
+    if st.focus > st.channels.Count() - 1 then st.focus = st.channels.Count() - 1
+    if st.focus < 0 then st.focus = 0
+end sub
+
+function InOrder(list as object, saved as string) as object
+    out = []
+    taken = {}
+    if saved <> "" then
+        for each id in saved.Split(",")
+            for each c in list
+                if c.id = id and not taken.DoesExist(id) then
+                    out.Push(c)
+                    taken[id] = true
+                end if
+            end for
+        end for
+    end if
+    for each c in list
+        if not taken.DoesExist(c.id) then out.Push(c)
     end for
     return out
 end function
 
-function MakeChannel(id as string, name as string, sign as string, now as string) as object
-    return { id: id, name: name, sign: sign, now: now, n: "" }
+' Which channels the owner showed or hid: "837:1,123095:0,...".
+function ReadVisibility() as object
+    vis = {}
+    saved = RegRead("vis", "")
+    if saved = "" then return vis
+    for each pair in saved.Split(",")
+        parts = pair.Split(":")
+        if parts.Count() = 2 then vis[parts[0]] = (parts[1] = "1")
+    end for
+    return vis
 end function
+
+sub SaveChannelPrefs(st as object)
+    order = ""
+    vis = ""
+    for each c in st.all
+        if order <> "" then
+            order = order + ","
+            vis = vis + ","
+        end if
+        order = order + c.id
+        vis = vis + c.id + ":" + OnOff(c.shown)
+    end for
+    RegWrite("order", order)
+    RegWrite("vis", vis)
+end sub
 
 ' One entry of the TV's app list, as { id, title, kind }, whatever shape the TV hands over.
 function AppEntry(entry as dynamic) as dynamic

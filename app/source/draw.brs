@@ -124,6 +124,56 @@ sub DrawStar(s as object, cx as integer, cy as integer, r as integer, thick as i
     end for
 end sub
 
+' Text with a soft glow (the phosphor look): the glow colour a step to each side, then the text.
+sub DrawGlow(s as object, text as string, x as integer, y as integer, color as dynamic, glowColor as dynamic, font as object, off as integer)
+    if off > 0 then
+        s.DrawText(text, x - off, y, glowColor, font)
+        s.DrawText(text, x + off, y, glowColor, font)
+    end if
+    s.DrawText(text, x, y, color, font)
+end sub
+
+sub DrawGlowSpaced(s as object, text as string, x as integer, y as integer, color as dynamic, glowColor as dynamic, font as object, off as integer, sp as integer)
+    if off > 0 then
+        DrawSpaced(s, text, x - off, y, glowColor, font, sp)
+        DrawSpaced(s, text, x + off, y, glowColor, font, sp)
+    end if
+    DrawSpaced(s, text, x, y, color, font, sp)
+end sub
+
+' A glowing piece of text in the kit's colours; returns where the next one starts.
+function DrawGlowRun(s as object, x as integer, y as integer, text as string, kit as object, font as object, off as integer, gap as integer) as integer
+    DrawGlow(s, text, x, y, kit.full, kit.glow, font, off)
+    return x + font.GetOneLineWidth(text, 99999) + gap
+end function
+
+' A dotted line from x1 to x2: squares of size pixels, one every stepPx.
+sub DrawDots(s as object, x1 as integer, x2 as integer, y as integer, size as integer, stepPx as integer, color as dynamic)
+    x = x1
+    while x + size <= x2
+        s.DrawRect(x, y, size, size, color)
+        x = x + stepPx
+    end while
+end sub
+
+' Text with a hard shadow down and to the right (the VCR look).
+sub DrawShadowed(s as object, text as string, x as integer, y as integer, color as dynamic, shadow as dynamic, font as object, off as integer)
+    s.DrawText(text, x + off, y + off, shadow, font)
+    s.DrawText(text, x, y, color, font)
+end sub
+
+sub DrawShadowedRight(s as object, text as string, rx as integer, y as integer, color as dynamic, shadow as dynamic, font as object, off as integer)
+    DrawShadowed(s, text, rx - font.GetOneLineWidth(text, 99999), y, color, shadow, font, off)
+end sub
+
+' A filled triangle pointing right, w wide and h tall, with its left edge at x and top at y.
+sub DrawTriangleRight(s as object, x as integer, y as integer, w as integer, h as integer, color as dynamic)
+    for col = 0 to w - 1
+        tall = Int(h * (w - col) / w + 0.5)
+        if tall > 0 then s.DrawRect(x + col, y + (h - tall) \ 2, 1, tall, color)
+    end for
+end sub
+
 ' The remote's play key: a triangle pointing right, size pixels tall.
 sub DrawPlay(s as object, x as integer, cy as integer, size as integer, color as dynamic)
     w = Int(size * 0.87 + 0.5)

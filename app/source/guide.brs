@@ -1,30 +1,15 @@
 ' The late-night cable guide look: a preview window, the focused channel's details, a grid
 ' of channels and a bar of remote hints. Laid out on a 1280 x 720 grid and scaled by st.k.
+' Its colours are CableKit() in looks.brs.
 
-function GuideColors() as object
-    return {
-        bg: &h0A1640FF,
-        tile: &h0D1D52FF,
-        frame: &hC9D6FFFF,
-        text: &hEEF3FFFF,
-        soft: &hC9D6FFFF,
-        white: &hFFFFFFFF,
-        accent: &hFFD23FFF,
-        ink: &h0A1640FF,
-        cell1: &h173A9CFF,
-        cell2: &h1D46B8FF,
-        cell3: &h122F86FF,
-        bar: &h06102EFF
-    }
-end function
-
-' How many channel rows the grid shows at once.
-function GuideRows() as integer
-    return 6
+' How many channel rows each look's guide shows at once.
+function GuideRowsFor(st as object) as integer
+    if st.look = "cable" then return 6
+    return 12
 end function
 
 ' This look's fonts, at the screen's scale.
-function GuideFonts(st as object) as object
+function CableFonts(st as object) as object
     k = st.k
     return {
         logo: Barlow(st, "extrabold", Z(46, k)),
@@ -45,15 +30,18 @@ function GuideFonts(st as object) as object
         bar: Barlow(st, "bold", Z(21, k)),
         barNum: Vt323(st, Z(26, k)),
         pageTitle: Barlow(st, "extrabold", Z(30, k)),
+        pageRow: Barlow(st, "semibold", Z(25, k)),
+        pageChoice: Barlow(st, "bold", Z(25, k)),
         pageLabel: Barlow(st, "semibold", Z(23, k)),
-        pageValue: Vt323(st, Z(27, k))
+        pageInfo: Vt323(st, Z(27, k)),
+        banner: Barlow(st, "bold", Z(23, k))
     }
 end function
 
-sub DrawGuide(st as object)
+sub DrawCableGuide(st as object)
     s = st.screen
     f = st.fonts
-    c = GuideColors()
+    c = st.kit
     k = st.k
     count = st.channels.Count()
     ch = invalid
@@ -90,7 +78,7 @@ sub DrawGuide(st as object)
     s.DrawRect(bx, by, bw, bh, c.accent)
     DrawCentered(s, "TV", bx, by, bw, bh, c.ink, f.badge)
     timeY = Z(28, k)
-    DrawRight(s, st.clock.time, right, timeY, c.white, f.time)
+    DrawRight(s, ClockText(st, false), right, timeY, c.white, f.time)
     DrawRightSpaced(s, st.clock.date, right, timeY + f.time.GetOneLineHeight() + Z(2, k), c.soft, f.date, Z(2, k))
     if ch <> invalid then
         ny = Z(97, k)
@@ -107,7 +95,7 @@ sub DrawGuide(st as object)
     if ch <> invalid then hint = "OK opens " + ch.name
     if st.note <> "" then hint = st.note
     s.DrawText(TrimToWidth(hint, f.hint, rukusX - x - Z(12, k)), x, Z(322, k) - f.hint.GetOneLineHeight(), c.accent, f.hint)
-    DrawSprite(s, RukusLoaf(), RukusColors(), rukusX, Z(322, k) - 9 * sc, sc)
+    DrawSprite(s, RukusLoaf(), RukusColorsFor(st), rukusX, Z(322, k) - 9 * sc, sc)
 
     ' The grid: a header, then one row per channel, scrolling with the highlight.
     gx = Z(40, k)
@@ -123,8 +111,8 @@ sub DrawGuide(st as object)
     s.DrawRect(x3, hy, w3, hh, c.frame)
     DrawCenteredSpaced(s, "CH", gx, hy, w1, hh, c.ink, f.head, Z(2, k))
     DrawMiddleSpaced(s, "CALL", x2 + Z(14, k), hy, hh, c.ink, f.head, Z(2, k))
-    DrawMiddleSpaced(s, "ON NOW · " + st.clock.time, x3 + Z(16, k), hy, hh, c.ink, f.head, Z(2, k))
-    rows = GuideRows()
+    DrawMiddleSpaced(s, "ON NOW · " + ClockText(st, false), x3 + Z(16, k), hy, hh, c.ink, f.head, Z(2, k))
+    rows = GuideRowsFor(st)
     first = TopRow(st.focus, count, rows)
     for r = 0 to rows - 1
         i = first + r
@@ -166,7 +154,7 @@ end function
 sub DrawGuideBar(st as object, ch as dynamic, count as integer)
     s = st.screen
     f = st.fonts
-    c = GuideColors()
+    c = st.kit
     k = st.k
     top = Z(668, k)
     s.DrawRect(0, top, st.w, st.h - top, c.bar)
@@ -190,12 +178,7 @@ sub DrawGuideBar(st as object, ch as dynamic, count as integer)
     hx = DrawRun(s, hx, ty, "TUNE IN", c.soft, f.bar, sp, far)
     DrawStar(s, hx + Z(8, k), mid, Z(8, k), Z(3, k), c.white)
     hx = hx + Z(16, k) + gap
-    hx = DrawRun(s, hx, ty, "TEST PAGE", c.soft, f.bar, sp, far)
-    DrawPlay(s, hx, mid, Z(16, k), c.white)
-    hx = hx + Z(14, k) + gap
-    shown = "720P"
-    if st.h >= 1080 then shown = "1080P"
-    DrawRun(s, hx, ty, shown, c.soft, f.bar, sp, 0)
+    DrawRun(s, hx, ty, "SETTINGS", c.soft, f.bar, sp, 0)
 
     right = Z(1240, k)
     nty = top + (st.h - top - f.barNum.GetOneLineHeight()) \ 2
