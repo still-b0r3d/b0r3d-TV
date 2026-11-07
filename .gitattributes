@@ -1,0 +1,14 @@
+# Text files are stored and checked out with LF line endings
+* text=auto eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ttf binary
+*.otf binary
+*.wav binary
+*.mp3 binary
+*.zip binary
