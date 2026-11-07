@@ -15,9 +15,20 @@ And two games: a falling-block game and a brick breaker.
 
 ## Status
 
-Just started. There's nothing to install yet.
+0.1 is a first test build: the home screen in the late-night cable guide look, with three channels (your PC on HDMI 1, antenna TV and YouTube). The other looks and the games come next.
 
-When there is, it will install through Roku's developer mode, which lets a TV hold one app you add yourself. It won't be in Roku's store.
+## Trying it
+
+b0r3d TV installs through Roku's developer mode, which lets a TV hold one app you add yourself. It won't be in Roku's store.
+
+1. Turn on developer mode on your Roku TV (Roku's developer documentation shows how).
+2. Zip everything inside the `app` folder, so `manifest` sits at the top of the zip.
+3. In a browser, open your TV's address (for example `http://192.168.1.20`), sign in as `rokudev` with the password you chose, and install the zip.
+
+## What's here
+
+- `app/`: the Roku app: `manifest`, the BrightScript code in `source/`, the pictures in `images/`
+- `tools/make-images.js`: makes the home-screen tile and the splash picture (`node tools/make-images.js`)
 
 ## License
 
