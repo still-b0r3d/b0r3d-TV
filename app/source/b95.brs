@@ -145,15 +145,17 @@ sub DrawB95Guide(st as object)
     if count = 1 then counted = "1 channel"
     B95Text(s, counted, c1x + Z(8, k), textY, c.black, f.small, k, false)
     hint = ""
-    if ch <> invalid then hint = "OK opens " + ch.name
+    if ch <> invalid then hint = OkWord(ch)
     if st.note <> "" then hint = st.note
     B95Text(s, B95Trim(hint, f.small, c2w - Z(16, k), k, false), c2x + Z(8, k), textY, c.black, f.small, k, false)
     B95Text(s, B95Trim(st.version, f.small, c3w - Z(16, k), k, false), c3x + Z(8, k), textY, c.black, f.small, k, false)
     s.SwapBuffers()
 end sub
 
-' The desktop behind every b0r3d 95 screen: an icon for each shown input (up to four) and one
-' for Settings, the focused channel's label lit, Rukus by the taskbar, and the taskbar itself.
+' The desktop behind every b0r3d 95 screen: an icon for each shown input (up to four, less one
+' for each game), one for each game and one for Settings, the focused channel's label lit (or
+' the open game's, or Settings'), Rukus by the taskbar, and the taskbar itself. While a game is
+' being played Rukus stays away: in a game he only comes on while it's paused.
 sub DrawB95Desktop(st as object, ch as dynamic, task as string)
     s = st.screen
     c = st.kit
@@ -162,18 +164,32 @@ sub DrawB95Desktop(st as object, ch as dynamic, task as string)
     y = Z(22, k)
     colW = Z(148, k)
     isz = Z(56, k)
+    games = 0
+    for each item in st.channels
+        if item.kind = "game" then games = games + 1
+    end for
     shown = 0
     for each item in st.channels
-        if item.kind = "input" and shown < 4 then
+        if item.kind = "input" and shown < 4 - games then
             shown = shown + 1
             lit = false
             if ch <> invalid and st.mode = "guide" then lit = (ch.id = item.id)
             y = DrawB95DesktopIcon(st, B95IconFor(st, item), item.name, x, y, colW, isz, lit) + Z(20, k)
         end if
     end for
-    DrawB95DesktopIcon(st, "settings", "Settings", x, y, colW, isz, st.mode <> "guide")
-    sc = Z(6, k)
-    DrawSprite(s, RukusLoaf(), RukusColorsFor(st), Z(34, k), Z(682, k) - 9 * sc, sc)
+    for each item in st.channels
+        if item.kind = "game" then
+            lit = (st.mode = "stuck" and item.id = "game.stuck")
+            if ch <> invalid and st.mode = "guide" then lit = (ch.id = item.id)
+            y = DrawB95DesktopIcon(st, B95IconFor(st, item), item.name, x, y, colW, isz, lit) + Z(20, k)
+        end if
+    end for
+    DrawB95DesktopIcon(st, "settings", "Settings", x, y, colW, isz, st.mode <> "guide" and st.mode <> "stuck")
+    playing = (st.mode = "stuck" and StuckBusy(st))
+    if not playing then
+        sc = Z(6, k)
+        DrawSprite(s, RukusLoaf(), RukusColorsFor(st), Z(34, k), Z(682, k) - 9 * sc, sc)
+    end if
     DrawB95Taskbar(st, task)
 end sub
 
@@ -282,6 +298,10 @@ sub DrawB95Preview(st as object, ch as dynamic, x as integer, y as integer, w as
     s.DrawRect(x, y, w, h, c.teal)
     if ch = invalid then
         B95Centered(st, "No channels yet", x, y, w, h, f.body)
+        return
+    end if
+    if ch.kind = "game" then
+        DrawStuckPreview(st, x, y, w, h)
         return
     end if
     if ch.kind = "input" then
@@ -485,8 +505,9 @@ sub DrawB95Banner(st as object, ch as object)
 end sub
 
 ' Which picture goes with a channel: a monitor for the PC's input, a TV for other inputs, a
-' window for apps.
+' stack of pixels for Stuck Pixels, a window for apps.
 function B95IconFor(st as object, ch as object) as string
+    if ch.kind = "game" then return "stuck"
     if ch.kind <> "input" then return "app"
     if st.tvf <> invalid then
         if ch.id = st.tvf.pc then return "pc"
@@ -495,10 +516,18 @@ function B95IconFor(st as object, ch as object) as string
 end function
 
 ' A small picture on a 28 x 26 grid, size pixels wide: "pc" (a monitor), "tv" (a TV with rabbit
-' ears), "settings" (a panel of sliders) or "app" (a window with a play button).
+' ears), "settings" (a panel of sliders), "stuck" (a stack of pixels with a stuck yellow one)
+' or "app" (a window with a play button).
 sub DrawB95Icon(s as object, kind as string, x as integer, y as integer, size as integer, c as object)
     u = size / 28
-    if kind = "pc" then
+    if kind = "stuck" then
+        B95GridBox(s, x, y, u, 10, 2, 6, 6, c.teal, c.black)
+        B95GridBox(s, x, y, u, 10, 8, 6, 6, c.teal, c.black)
+        B95GridBox(s, x, y, u, 4, 14, 6, 6, c.navy, c.black)
+        B95GridBox(s, x, y, u, 10, 14, 6, 6, c.navy, c.black)
+        B95GridBox(s, x, y, u, 16, 14, 6, 6, &hFFFF00FF, c.black)
+        B95GridBox(s, x, y, u, 4, 20, 18, 4, c.navy, c.black)
+    else if kind = "pc" then
         B95GridBox(s, x, y, u, 2, 2, 24, 16, c.face, c.black)
         B95Grid(s, x, y, u, 5, 5, 18, 10, c.teal)
         B95Grid(s, x, y, u, 10, 19, 8, 3, c.shadow)

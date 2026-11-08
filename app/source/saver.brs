@@ -602,8 +602,11 @@ sub SaverProbes(st as object)
 end sub
 
 ' How long Main's loop waits for a key: what's left of a frame (about 30 a second) while Rukus
-' is on, else a second. Never 0, which would mean "wait for ever".
+' is on, the game's own frames while it's open, the demo's next step while the guide's preview
+' plays one, else a second. Never 0, which would mean "wait for ever".
 function LoopWaitMs(st as object) as integer
+    if st.mode = "stuck" then return StuckWaitMs(st)
+    if GuideShowsGame(st) then return DemoWaitMs(st)
     if st.mode <> "saver" or st.saver = invalid then return 1000
     left = 33 - st.saver.frame.TotalMilliseconds()
     if left < 1 then return 1
@@ -649,6 +652,8 @@ function SaverChores(st as object) as boolean
         if st.saverPick = "hand" and tvTime > 0 and not st.handTried and idle >= tvTime - 5 then StepAside(st)
         return false
     end if
+    ' in a game, Rukus only comes on while it's paused (or on its menus)
+    if st.mode = "stuck" and StuckBusy(st) then return false
     if idle < SaverStartSeconds(st) then return false
     StartSaver(st)
     return true

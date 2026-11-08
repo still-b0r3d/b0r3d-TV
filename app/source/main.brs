@@ -1,8 +1,9 @@
 ' b0r3d TV: a home screen for Roku TVs that looks like an old cable box.
 ' Everything is drawn on one 2D screen: 1920 x 1080 where the TV allows it, else 1280 x 720.
-' Screens (st.mode): the guide, Settings, the channel list, the TV check, the Screensaver check
-' and About; "saver" while Rukus is on, "aside" while b0r3d TV steps aside for the TV's own
-' screensaver (saver.brs).
+' Screens (st.mode): the guide, Settings, the channel list, the TV check, the Screensaver check,
+' About and clearing the high scores; "stuck" while Stuck Pixels (channel 20) is open
+' (stuckplay.brs); "saver" while Rukus is on, "aside" while b0r3d TV steps aside for the TV's
+' own screensaver (saver.brs).
 
 sub Main(args as dynamic)
     st = {
@@ -19,7 +20,12 @@ sub Main(args as dynamic)
         version: AppVersionLine(),
         sel: 0,
         csel: 0,
-        guideMs: -1
+        confirmSel: 0,
+        guideMs: -1,
+        sp: invalid,
+        demo: invalid,
+        demoTimer: invalid,
+        demoClock: invalid
     }
     ' TVFollow's hello comes as an input event (see tvfollow.brs). Listening starts first, since
     ' the hello can come while the rest is still starting.
@@ -45,7 +51,7 @@ sub Main(args as dynamic)
     while true
         msg = wait(LoopWaitMs(st), st.port)
         if msg = invalid then
-            if st.mode <> "saver" then Tick(st)
+            if st.mode <> "saver" and st.mode <> "stuck" then Tick(st)
         else if type(msg) = "roUniversalControlEvent" then
             code = msg.GetInt()
             if code < 100 then
@@ -60,6 +66,9 @@ sub Main(args as dynamic)
                 else if not HandleKey(st, code) then
                     exit while
                 end if
+            else if st.mode = "stuck" and st.screen <> invalid then
+                ' a key let go: the game stops sliding or dropping faster
+                StuckKey(st, code)
             end if
         else if type(msg) = "roInputEvent" then
             if TakeTvFollowHello(st, msg.GetInfo()) then
@@ -75,6 +84,7 @@ sub Main(args as dynamic)
             ComeBack(st)
         end if
         if st.mode = "saver" then SaverTurn(st)
+        if st.mode = "stuck" then StuckTurn(st)
         if st.quit then exit while
     end while
 end sub
@@ -83,7 +93,13 @@ end sub
 function HandleKey(st as object, code as integer) as boolean
     ' no 2D screen (stepping aside): nothing to act on
     if st.screen = invalid then return true
-    if st.mode = "settings" then
+    if st.mode = "stuck" then
+        StuckKey(st, code)
+        return true
+    else if st.mode = "clearscores" then
+        ClearScoresKey(st, code)
+        return true
+    else if st.mode = "settings" then
         SettingsKey(st, code)
         return true
     else if st.mode = "channels" then
@@ -156,13 +172,19 @@ sub JumpLast(st as object)
 end sub
 
 ' OK tunes in: a burst of static and the channel banner, then the Roku's app manager opens the
-' app, or TVFollow switches to the input. The channel is remembered first, because b0r3d TV
-' closes as the other app opens.
+' app, TVFollow switches to the input, or the game starts. The channel is remembered first,
+' because b0r3d TV closes as the other app opens.
 sub OpenChannel(st as object)
     if st.channels.Count() = 0 then return
     ch = st.channels[st.focus]
     RememberOpened(ch.id)
     TuneIn(st, ch)
+    if ch.kind = "game" then
+        st.note = ""
+        st.noteTimer = invalid
+        OpenGame(st, ch.id)
+        return
+    end if
     st.noteName = ch.name
     st.noteTimer = CreateObject("roTimespan")
     st.noteInput = (ch.kind = "input")
@@ -186,9 +208,9 @@ sub OpenChannel(st as object)
     end try
 end sub
 
-' Once a second: the clock moves on, a channel that didn't open says so, Rukus comes on when
-' b0r3d TV has sat idle long enough, and the screen is drawn again, since Roku's own
-' screensaver can wipe it while b0r3d TV is open.
+' Once a second (five times while the preview box plays a game's demo): the clock moves on, a
+' channel that didn't open says so, Rukus comes on when b0r3d TV has sat idle long enough, and
+' the screen is drawn again, since Roku's own screensaver can wipe it while b0r3d TV is open.
 sub Tick(st as object)
     st.clock = ClockNow()
     ' no hello yet: TVFollow may have connected before b0r3d TV was listening, so ask again
@@ -219,6 +241,10 @@ sub Redraw(st as object)
     if st.screen = invalid then return
     if st.mode = "saver" then
         DrawSaver(st)
+    else if st.mode = "stuck" then
+        DrawStuck(st)
+    else if st.mode = "clearscores" then
+        DrawClearScores(st)
     else if st.mode = "settings" then
         DrawSettings(st)
     else if st.mode = "channels" then

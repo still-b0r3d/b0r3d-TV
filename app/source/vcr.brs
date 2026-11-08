@@ -76,7 +76,11 @@ sub DrawVcrGuide(st as object)
     s.DrawRect(px, py, pw, ph, c.white)
     b = Z(6, k)
     s.DrawRect(px + b, py + b, pw - 2 * b, ph - 2 * b, c.pip)
-    if ch <> invalid then
+    if ch = invalid then
+        DrawCentered(s, "NO CHANNELS", px, py, pw, ph, c.white, f.name)
+    else if ch.kind = "game" then
+        DrawStuckPreview(st, px + b, py + b, pw - 2 * b, ph - 2 * b)
+    else
         bigH = f.big.GetOneLineHeight()
         hintH = f.pipHint.GetOneLineHeight()
         gap = Z(16, k)
@@ -86,8 +90,6 @@ sub DrawVcrGuide(st as object)
         hint = TrimToWidth("OK: OPEN " + UCase(ch.name), f.pipHint, pw - 2 * b - Z(24, k))
         hw = f.pipHint.GetOneLineWidth(hint, 99999)
         DrawShadowed(s, hint, px + (pw - hw) \ 2, top + bigH + gap, c.white, c.shadow, f.pipHint, sh)
-    else
-        DrawCentered(s, "NO CHANNELS", px, py, pw, ph, c.white, f.name)
     end if
     sc = Z(6.5, k)
     DrawSprite(s, RukusLoaf(), RukusColorsFor(st), Z(740, k), Z(174, k) - 9 * sc, sc)

@@ -56,15 +56,17 @@ sub DrawCableGuide(st as object)
     pw = Z(556, k) - px
     ph = Z(318, k) - py
     s.DrawRect(px, py, pw, ph, c.tile)
-    if ch <> invalid then
+    if ch = invalid then
+        DrawCentered(s, "NO CHANNELS YET", px, py, pw, ph, c.white, f.name)
+    else if ch.kind = "game" then
+        DrawStuckPreview(st, px, py, pw, ph)
+    else
         bigH = f.big.GetOneLineHeight()
         hintH = f.bigHint.GetOneLineHeight()
         gap = Z(10, k)
         top = py + (ph - bigH - gap - hintH) \ 2
         DrawCenteredSpaced(s, ch.sign, px, top, pw, bigH, c.white, f.big, Z(6, k))
         DrawCentered(s, TrimToWidth("OK opens " + ch.name, f.bigHint, pw - Z(24, k)), px, top + bigH + gap, pw, hintH, c.soft, f.bigHint)
-    else
-        DrawCentered(s, "NO CHANNELS YET", px, py, pw, ph, c.white, f.name)
     end if
 
     ' The focused channel's details, the logo and the clock.
@@ -93,7 +95,7 @@ sub DrawCableGuide(st as object)
     sc = Z(7, k)
     rukusX = right - 16 * sc
     hint = ""
-    if ch <> invalid then hint = "OK opens " + ch.name
+    if ch <> invalid then hint = OkWord(ch)
     if st.note <> "" then hint = st.note
     s.DrawText(TrimToWidth(hint, f.hint, rukusX - x - Z(12, k)), x, Z(322, k) - f.hint.GetOneLineHeight(), c.accent, f.hint)
     DrawSprite(s, RukusLoaf(), RukusColorsFor(st), rukusX, Z(322, k) - 9 * sc, sc)

@@ -55,8 +55,10 @@ function MakeChannel(id as string, name as string, sign as string, now as string
 end function
 
 ' Puts the channels in the saved order (new inputs go in front, new apps at the end), marks
-' which are shown, and numbers the shown ones 01, 02... The highlight stays on the same channel
-' where it can.
+' which are shown, and numbers the shown ones 01, 02..., skipping the games' numbers; each game
+' then sits at its own number (20 for Stuck Pixels). The games aren't in the channel list
+' (st.all), so they can't be hidden or moved. The highlight stays on the same channel where it
+' can.
 sub ApplyChannelPrefs(st as object)
     focusId = ""
     if st.DoesExist("channels") then
@@ -64,16 +66,36 @@ sub ApplyChannelPrefs(st as object)
     end if
     st.all = InOrder(st.built.list, RegRead("order", ""))
     vis = ReadVisibility()
-    st.channels = []
+    shown = []
     for each c in st.all
         c.n = "--"
         c.shown = (c.kind = "app" or c.kind = "input")
         if vis.DoesExist(c.id) then c.shown = vis[c.id]
-        if c.shown then st.channels.Push(c)
+        if c.shown then shown.Push(c)
     end for
-    for i = 0 to st.channels.Count() - 1
-        st.channels[i].n = TwoDigits(i + 1)
+    n = 0
+    for each c in shown
+        n = n + 1
+        while IsGameNumber(n)
+            n = n + 1
+        end while
+        c.n = TwoDigits(n)
     end for
+    games = GameChannels()
+    st.channels = []
+    gi = 0
+    for each c in shown
+        while gi < games.Count()
+            if games[gi].n.ToInt() > c.n.ToInt() then exit while
+            st.channels.Push(games[gi])
+            gi = gi + 1
+        end while
+        st.channels.Push(c)
+    end for
+    while gi < games.Count()
+        st.channels.Push(games[gi])
+        gi = gi + 1
+    end while
     i = IndexOfId(st.channels, focusId)
     if i >= 0 then
         st.focus = i

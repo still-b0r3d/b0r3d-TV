@@ -1,6 +1,6 @@
 title=b0r3d TV
 major_version=0
-minor_version=3
+minor_version=35
 build_version=0
 mm_icon_focus_fhd=pkg:/images/icon_focus_fhd.png
 mm_icon_focus_hd=pkg:/images/icon_focus_hd.png
@@ -11,3 +11,4 @@ splash_min_time=0
 ui_resolutions=hd,fhd
 screensaver_title=b0r3d TV
 supports_input_launch=1
+game=1

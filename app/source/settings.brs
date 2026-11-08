@@ -1,5 +1,6 @@
-' Settings (the options key) and the screens it opens: the channel list, the TV check, the
-' Screensaver check and About. Every change is saved on the TV at once.
+' Settings (the options key) and the screens it opens: the channel list, clearing the high
+' scores (stuckplay.brs), the TV check, the Screensaver check and About. Every change is saved
+' on the TV at once.
 
 function SettingsRows(st as object) as object
     rows = []
@@ -7,7 +8,11 @@ function SettingsRows(st as object) as object
     names = LookColourNames(st.look)
     if names.Count() > 0 then rows.Push({ id: "colour", label: "Colour", value: names[st.colour], kind: "choice" })
     if st.look = "phosphor" then rows.Push({ id: "scan", label: "Scanlines", value: OnOffWord(st.scan), kind: "choice" })
-    shown = st.channels.Count()
+    ' the games' channels are always there, so only the apps and inputs are counted
+    shown = 0
+    for each c in st.all
+        if c.shown then shown = shown + 1
+    end for
     hidden = st.all.Count() - shown
     rows.Push({ id: "channels", label: "Channels", value: shown.ToStr() + " shown, " + hidden.ToStr() + " hidden", kind: "open" })
     clock = "12-hour"
@@ -19,6 +24,7 @@ function SettingsRows(st as object) as object
     size = st.w.ToStr() + " x " + st.h.ToStr()
     if st.fhdRefused then size = size + " (the TV said no to 1920 x 1080)"
     rows.Push({ id: "screen", label: "Screen size", value: size, kind: "choice" })
+    rows.Push({ id: "scores", label: "High scores", value: StuckScoresWord(), kind: "open" })
     rows.Push({ id: "check", label: "TV check", value: "What this TV allows", kind: "open" })
     rows.Push({ id: "savercheck", label: "Screensaver check", value: "What the tries did", kind: "open" })
     rows.Push({ id: "about", label: "About", value: st.version, kind: "open" })
@@ -104,6 +110,10 @@ sub OpenSetting(st as object, id as string)
     if id = "channels" then
         st.mode = "channels"
         st.csel = 0
+    else if id = "scores" then
+        ' asks first; "Keep them" is highlighted
+        st.mode = "clearscores"
+        st.confirmSel = 0
     else if id = "check" then
         st.mode = "check"
         PrintAnswers(st)

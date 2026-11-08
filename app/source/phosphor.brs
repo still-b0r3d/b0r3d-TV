@@ -83,6 +83,12 @@ sub DrawPhosphorGuide(st as object)
         ht = by + (hh - f.head.GetOneLineHeight()) \ 2
         DrawGlow(s, "PREVIEW :: CH " + ch.n, bx + Z(12, k), ht, c.full, c.glow, f.head, glow)
         DrawGlow(s, ch.sign, bx + bw - Z(12, k) - f.head.GetOneLineWidth(ch.sign, 99999), ht, c.full, c.glow, f.head, glow)
+    end if
+    if ch = invalid then
+        DrawCentered(s, "NO CHANNELS YET", bx, by + hh, bw, bh - hh, c.full, f.detail)
+    else if ch.kind = "game" then
+        DrawStuckPreview(st, bx + line, by + hh, bw - 2 * line, bh - hh - line)
+    else
         bigH = f.big.GetOneLineHeight()
         hintH = f.hint.GetOneLineHeight()
         top = by + hh + (bh - hh - bigH - Z(6, k) - hintH) \ 2
@@ -91,8 +97,6 @@ sub DrawPhosphorGuide(st as object)
         DrawGlowSpaced(s, ch.sign, sx, top, c.full, c.glow, f.big, glow, Z(6, k))
         hint = TrimToWidth(UCase("OK opens " + ch.name), f.hint, bw - Z(24, k))
         DrawCentered(s, hint, bx, top + bigH + Z(6, k), bw, hintH, c.dim, f.hint)
-    else
-        DrawCentered(s, "NO CHANNELS YET", bx, by + hh, bw, bh - hh, c.full, f.detail)
     end if
 
     ' The focused channel, its line of what's on, and the hint with a blinking cursor.
@@ -104,7 +108,7 @@ sub DrawPhosphorGuide(st as object)
         dy = dy + f.detail.GetOneLineHeight() + Z(6, k)
         s.DrawText(TrimToWidth("  " + UCase(ch.now), f.detailSmall, dw), dx, dy, c.dim, f.detailSmall)
         dy = dy + f.detailSmall.GetOneLineHeight() + Z(6, k)
-        hint = "OK OPENS " + UCase(ch.name)
+        hint = UCase(OkWord(ch))
         if st.note <> "" then hint = UCase(st.note)
         hint = TrimToWidth("  " + hint, f.detailSmall, dw - Z(30, k))
         DrawGlow(s, hint, dx, dy, c.full, c.glow, f.detailSmall, glow)

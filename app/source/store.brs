@@ -4,6 +4,8 @@
 '   order, vis                                       the channels' order and which are shown
 '   last, prev                                       the last two channels opened
 '   idlereset, handover, blank, tvsaver, tvsavers    what the screensaver tries did (saver.brs)
+'   sp.mode, sp.level, sp.rows, sp.initials          Stuck Pixels' menu picks and last initials
+'   sp.best.marathon, sp.best.sprint, sp.best.cleanup  its high scores (stuckplay.brs)
 
 function RegRead(key as string, fallback as string) as string
     sec = CreateObject("roRegistrySection", "b0r3dtv")
