@@ -1,8 +1,9 @@
 // Makes b0r3d TV's sounds: app/sounds/tune.wav, the burst of TV static heard when a channel
-// opens, and Stuck Pixels' effects (app/sounds/sp-*.wav): a turn, putting a piece on hold, a
-// piece setting, a line, three lines or more, a stuck pixel popping, a new level, the screen
-// losing its signal and a finished run. The noise comes from fixed seeds, so every run writes
-// the same files.
+// opens, Stuck Pixels' effects (app/sounds/sp-*.wav): a turn, putting a piece on hold, a piece
+// setting, a line, three lines or more, a stuck pixel popping, a new level, the screen losing
+// its signal and a finished run, and Test Pattern's (app/sounds/tp-*.wav): the ball off the
+// paddle, a brick, a bomb, a capsule caught, a ball lost and a wall cleared. The noise comes
+// from fixed seeds, so every run writes the same files.
 //   node tools/make-sounds.js
 // 16-bit PCM, mono, 44.1 kHz WAV, the format Roku's roAudioResource plays.
 
@@ -135,6 +136,23 @@ const stuck = {
   done: () => notes([[784, 0.1], [1047, 0.1], [1319, 0.1], [1568, 0.32]], 0.42, true)
 };
 
+// --- Test Pattern ---
+
+const test = {
+  // the ball off the paddle: a soft, low bop
+  paddle: () => voice(0.06, (t) => 330 + 400 * t, 0.5, 0.002, false),
+  // a brick: a short bright tink
+  brick: () => voice(0.04, () => 1046, 0.32, 0.002, true),
+  // a bomb: a burst of static over a low thud
+  bomb: () => mixIn(hiss(0xb0b, 0.3, 0.65, 0.3), voice(0.25, (t) => 120 - 200 * t, 0.6, 0.003, false)),
+  // a capsule caught: two notes up
+  catch: () => notes([[880, 0.07], [1320, 0.12]], 0.42, true),
+  // a ball lost: a tone falling away
+  lost: () => voice(0.45, (t) => 600 * Math.pow(0.3, t / 0.45), 0.42, 0.005, true),
+  // a wall cleared: a quick run of notes up
+  clear: () => notes([[784, 0.06], [988, 0.06], [1175, 0.06], [1568, 0.2]], 0.42, true)
+};
+
 const dir = path.join(__dirname, '..', 'app', 'sounds');
 fs.mkdirSync(dir, { recursive: true });
 fs.writeFileSync(path.join(dir, 'tune.wav'), wav(tune()));
@@ -142,4 +160,8 @@ console.log('wrote app/sounds/tune.wav');
 for (const name of Object.keys(stuck)) {
   fs.writeFileSync(path.join(dir, 'sp-' + name + '.wav'), wav(stuck[name]()));
   console.log('wrote app/sounds/sp-' + name + '.wav');
+}
+for (const name of Object.keys(test)) {
+  fs.writeFileSync(path.join(dir, 'tp-' + name + '.wav'), wav(test[name]()));
+  console.log('wrote app/sounds/tp-' + name + '.wav');
 }
