@@ -31,7 +31,7 @@ end function
 ' The channels again, with the TV's inputs from TVFollow's hello in front of the apps.
 sub AddInputChannels(st as object)
     editing = ""
-    if st.mode = "channels" and st.csel >= 0 and st.csel < st.all.Count() then editing = st.all[st.csel].id
+    if st.csel >= 0 and st.csel < st.all.Count() then editing = st.all[st.csel].id
     channels = InputChannels(st.tvf)
     channels.Append(st.apps)
     st.built.list = channels
@@ -41,7 +41,7 @@ sub AddInputChannels(st as object)
         i = IndexOfId(st.channels, RegRead("last", ""))
         if i >= 0 then st.focus = i
     end if
-    ' the channel list being edited keeps its place
+    ' the channel list being edited keeps its place, also while Rukus or the stand-in is over it
     if editing <> "" then st.csel = IndexOfId(st.all, editing)
     if st.csel > st.all.Count() - 1 then st.csel = st.all.Count() - 1
     if st.csel < 0 then st.csel = 0
