@@ -8,7 +8,9 @@
 '   hint    the line of remote hints at the bottom
 
 sub DrawPanel(st as object, spec as object)
-    if st.look = "phosphor" then
+    if st.look = "b95" then
+        DrawB95Panel(st, spec)
+    else if st.look = "phosphor" then
         DrawPhosphorPanel(st, spec)
     else if st.look = "vcr" then
         DrawVcrPanel(st, spec)

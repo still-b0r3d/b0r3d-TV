@@ -156,7 +156,7 @@ sub DrawAbout(st as object)
         { label: "Made by", value: "b0r3d.org" },
         { label: "Code", value: "MIT License with the Commons Clause" },
         { label: "Rukus and the art", value: "All rights reserved, with the sound and the writing" },
-        { label: "Fonts", value: "Barlow Condensed, VT323 and Silkscreen, under the SIL Open Font License 1.1" }
+        { label: "Fonts", value: "Barlow Condensed, VT323, Silkscreen and W95FA, under the SIL Open Font License 1.1" }
     ]
     DrawPanel(st, { title: "About", rows: rows, sel: -1, info: true, hint: "Back goes back to Settings" })
 end sub

@@ -2,7 +2,7 @@
 ' the TV check) shares one layout painted in the look's own colours and fonts (panel.brs).
 
 function LookList() as object
-    return ["cable", "phosphor", "vcr"]
+    return ["cable", "b95", "phosphor", "vcr"]
 end function
 
 function IsLook(look as string) as boolean
@@ -13,6 +13,7 @@ function IsLook(look as string) as boolean
 end function
 
 function LookTitle(look as string) as string
+    if look = "b95" then return "b0r3d 95"
     if look = "phosphor" then return "Phosphor terminal"
     if look = "vcr" then return "VCR menu"
     return "Late-night cable guide"
@@ -20,6 +21,7 @@ end function
 
 ' The colour choices of a look. The cable guide has its one blue.
 function LookColourNames(look as string) as object
+    if look = "b95" then return ["Teal", "Blue", "Slate"]
     if look = "phosphor" then return ["Green", "Amber", "Cyan"]
     if look = "vcr" then return ["Blue", "Black", "Green"]
     return []
@@ -29,7 +31,10 @@ end function
 sub LoadLook(st as object)
     st.colour = ColourIndex(st.look)
     st.scanBmp = invalid
-    if st.look = "phosphor" then
+    if st.look = "b95" then
+        st.kit = B95Kit(st.colour)
+        st.fonts = B95Fonts(st)
+    else if st.look = "phosphor" then
         st.kit = PhosphorKit(st.colour)
         st.fonts = PhosphorFonts(st)
     else if st.look = "vcr" then
@@ -42,7 +47,9 @@ sub LoadLook(st as object)
 end sub
 
 sub DrawGuideFor(st as object)
-    if st.look = "phosphor" then
+    if st.look = "b95" then
+        DrawB95Guide(st)
+    else if st.look = "phosphor" then
         DrawPhosphorGuide(st)
     else if st.look = "vcr" then
         DrawVcrGuide(st)

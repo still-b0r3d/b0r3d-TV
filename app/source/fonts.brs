@@ -1,6 +1,6 @@
-' The fonts: Barlow Condensed in four weights, VT323 and Silkscreen, all free under the SIL Open
-' Font License (each folder in fonts/ carries its OFL.txt). Roku's own font stands in for any
-' that doesn't load.
+' The fonts: Barlow Condensed in four weights, VT323, Silkscreen and W95FA, all free under the
+' SIL Open Font License (each folder in fonts/ carries its OFL.txt). Roku's own font stands in
+' for any that doesn't load.
 
 function RegisterFonts() as object
     reg = CreateObject("roFontRegistry")
@@ -18,7 +18,8 @@ function FontFiles() as object
         "pkg:/fonts/barlow-condensed/BarlowCondensed-ExtraBold.ttf",
         "pkg:/fonts/vt323/VT323-Regular.ttf",
         "pkg:/fonts/silkscreen/Silkscreen-Regular.ttf",
-        "pkg:/fonts/silkscreen/Silkscreen-Bold.ttf"
+        "pkg:/fonts/silkscreen/Silkscreen-Bold.ttf",
+        "pkg:/fonts/w95fa/W95FA.otf"
     ]
 end function
 
@@ -60,6 +61,13 @@ end function
 
 function Vt323(st as object, size as integer) as object
     font = FontOf(st, "VT323", size, false)
+    if font = invalid then font = st.fontReg.GetDefaultFont(size, false, false)
+    return font
+end function
+
+' W95FA, the b0r3d 95 look's pixel font. It has one weight.
+function W95(st as object, size as integer) as object
+    font = FontOf(st, "W95FA", size, false)
     if font = invalid then font = st.fontReg.GetDefaultFont(size, false, false)
     return font
 end function

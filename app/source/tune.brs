@@ -18,6 +18,7 @@ end sub
 sub TuneIn(st as object, ch as object)
     if st.sound then PlayTuneSound(st)
     timer = CreateObject("roTimespan")
+    st.tuneTimer = timer
     while timer.TotalMilliseconds() < 450
         DrawStatic(st, ch)
     end while
@@ -49,7 +50,9 @@ sub DrawTuneBanner(st as object, ch as object)
     f = st.fonts
     c = st.kit
     k = st.k
-    if st.look = "phosphor" then
+    if st.look = "b95" then
+        DrawB95Banner(st, ch)
+    else if st.look = "phosphor" then
         text = "TUNING :: CH " + ch.n + " :: " + ch.sign
         w = f.banner.GetOneLineWidth(text, 99999) + Z(48, k)
         h = f.banner.GetOneLineHeight() + Z(32, k)

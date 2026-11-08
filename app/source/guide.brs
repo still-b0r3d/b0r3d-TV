@@ -5,6 +5,7 @@
 ' How many channel rows each look's guide shows at once.
 function GuideRowsFor(st as object) as integer
     if st.look = "cable" then return 6
+    if st.look = "b95" then return 13
     return 12
 end function
 
