@@ -15,9 +15,16 @@ And two games: **Stuck Pixels**, a falling-block game, and **Test Pattern**, a b
 
 ## Status
 
-0.25 is a test build. Every app on your TV gets a channel, and the guide remembers the channel you opened last. Settings (the ✱ key) picks the look (the late-night cable guide, b0r3d 95 on a teal, blue or slate desktop, the phosphor terminal in green, amber or cyan, or the VCR menu in blue, black or green), shows, hides and reorders the channels, and sets the clock, the sound and the screen size. Its TV check page shows what your TV allows. Opening a channel tunes in with a burst of static and the channel's banner. The Rukus screensaver and the games come next.
+0.3 is a test build. Every app on your TV gets a channel, and the guide remembers the channel you opened last. Settings (the ✱ key) picks the look (the late-night cable guide, b0r3d 95 on a teal, blue or slate desktop, the phosphor terminal in green, amber or cyan, or the VCR menu in blue, black or green), shows, hides and reorders the channels, and sets the clock, the sound, the screensaver and the screen size. Its TV check page shows what your TV allows. Opening a channel tunes in with a burst of static and the channel's banner. The games come next.
 
 Roku TVs don't let an app switch the TV's inputs. [TVFollow](https://github.com/still-b0r3d/TVFollow) can do it for b0r3d TV: with TVFollow 1.3 (coming soon) running on your PC and **Let the app switch the TV's inputs** ticked in its developer tools, your TV's inputs (HDMI, the antenna) show up as channels a few seconds after b0r3d TV opens, and opening one switches the TV. Without TVFollow, b0r3d TV leaves the inputs to Roku's own home screen. And when you leave an app you opened from b0r3d TV, the TV goes to Roku's home screen, not back to b0r3d TV. To come back quickly, move b0r3d TV to the first spot on the home screen: highlight it there, press ✱ and move it.
+
+## The screensaver
+
+Rukus wanders a dark screen: he walks on, sits, grooms, loafs, naps, stretches, chases a stuck pixel now and then, and wanders off. A clock in the look's lettering drifts slowly, so nothing stays in one spot.
+
+- **On the whole TV:** pick **b0r3d TV** in the TV's Settings → Theme → Screensavers. It comes on whenever the TV sits idle outside b0r3d TV.
+- **Inside b0r3d TV:** Roku shows no screensaver over an app drawn like b0r3d TV; at the TV's screensaver time the screen just goes black. So b0r3d TV brings Rukus on itself, 30 seconds before that time, and any key brings back the screen you were on. Settings → Screensaver picks what happens at the TV's time: b0r3d TV keeps the TV awake so Rukus stays on (with an old Roku call that resets the TV's idle clock, for up to 2 hours), hands over to the TV's own screensaver, or lets the screen go black. Settings → Screensaver check shows how each of those went on your TV.
 
 ## The remote
 
@@ -27,6 +34,7 @@ Roku TVs don't let an app switch the TV's inputs. [TVFollow](https://github.com/
 - **Replay:** jump back to the channel you opened before, like a cable remote's LAST key
 - **✱:** Settings
 - **Back:** leave b0r3d TV
+- **Any key while Rukus is on:** back to the screen you were on
 
 ## Trying it
 
@@ -38,7 +46,7 @@ b0r3d TV installs through Roku's developer mode, which lets a TV hold one app yo
 
 ## What's here
 
-- `app/`: the Roku app: `manifest`, the BrightScript code in `source/`, the pictures in `images/`, the fonts in `fonts/` and the sounds in `sounds/`
+- `app/`: the Roku app: `manifest`, the BrightScript code in `source/`, the stand-in screen in `components/` (shown while b0r3d TV hands over to the TV's own screensaver), the pictures in `images/`, the fonts in `fonts/` and the sounds in `sounds/`
 - `tools/make-images.js`: makes the home-screen tile and the splash picture (`node tools/make-images.js`)
 - `tools/make-sounds.js`: makes the burst of static heard when a channel opens (`node tools/make-sounds.js`)
 - `tools/font-family-names.js`: the one change made to the Barlow Condensed files (see License)

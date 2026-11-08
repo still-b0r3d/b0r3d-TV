@@ -24,7 +24,12 @@ sub OpenScreen(st as object, want as string)
         end if
         if screen = invalid then st.fhdRefused = true
     end if
-    if screen = invalid then screen = CreateObject("roScreen", true, 1280, 720)
+    if screen = invalid then screen = TryScreen(1280, 720)
+    ' none at all: only when coming back from stepping aside fails (see ComeBack)
+    if screen = invalid then
+        print "b0r3d TV: the TV wouldn't open a 2D screen"
+        return
+    end if
     screen.SetMessagePort(st.port)
     screen.SetAlphaEnable(true)
     st.screen = screen

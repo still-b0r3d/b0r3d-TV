@@ -11,8 +11,6 @@ function TvAnswers(st as object) as object
         { label: "Installed check", value: AskInstalled(am) },
         { label: "Guide built from", value: st.built.source + ", " + st.all.Count().ToStr() + " apps" },
         { label: "TV menus", value: AskMenus(di) },
-        { label: "Screensaver wait", value: AskScreensaverWait(am) },
-        { label: "Idle-clock reset", value: AskIdleReset(am) },
         { label: "Sounds at once", value: AskSounds() },
         { label: "Fonts", value: JoinNames(st.families) },
         { label: "This TV", value: AskTv(di) }
@@ -95,25 +93,6 @@ function AskMenus(di as object) as string
     catch e
     end try
     return text
-end function
-
-function AskScreensaverWait(am as object) as string
-    try
-        minutes = am.GetScreensaverTimeout()
-        if minutes = 0 then return "0: the TV's screensaver is off"
-        return minutes.ToStr() + " minutes"
-    catch e
-        return NotHere(e)
-    end try
-end function
-
-function AskIdleReset(am as object) as string
-    try
-        am.UpdateLastKeyPressTime()
-        return "the call exists (step D tests what it does)"
-    catch e
-        return NotHere(e)
-    end try
 end function
 
 function AskSounds() as string

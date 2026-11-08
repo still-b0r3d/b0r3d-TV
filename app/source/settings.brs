@@ -1,5 +1,5 @@
-' Settings (the options key) and the screens it opens: the channel list, the TV check and
-' About. Every change is saved on the TV at once.
+' Settings (the options key) and the screens it opens: the channel list, the TV check, the
+' Screensaver check and About. Every change is saved on the TV at once.
 
 function SettingsRows(st as object) as object
     rows = []
@@ -14,10 +14,13 @@ function SettingsRows(st as object) as object
     if st.clock24 then clock = "24-hour"
     rows.Push({ id: "clock", label: "Clock", value: clock, kind: "choice" })
     rows.Push({ id: "sound", label: "Sound", value: OnOffWord(st.sound), kind: "choice" })
+    rows.Push({ id: "saver", label: "Screensaver", value: SaverPickWord(st.saverPick), kind: "choice" })
+    rows.Push(TvWaitRow(st))
     size = st.w.ToStr() + " x " + st.h.ToStr()
     if st.fhdRefused then size = size + " (the TV said no to 1920 x 1080)"
     rows.Push({ id: "screen", label: "Screen size", value: size, kind: "choice" })
     rows.Push({ id: "check", label: "TV check", value: "What this TV allows", kind: "open" })
+    rows.Push({ id: "savercheck", label: "Screensaver check", value: "What the tries did", kind: "open" })
     rows.Push({ id: "about", label: "About", value: st.version, kind: "open" })
     return rows
 end function
@@ -84,6 +87,12 @@ sub ChangeSetting(st as object, id as string, delta as integer)
         st.sound = not st.sound
         RegWrite("sound", OnOff(st.sound))
         if st.sound then PlayTuneSound(st)
+    else if id = "saver" then
+        st.saverPick = NextIn(SaverPicks(), st.saverPick, delta)
+        RegWrite("saver", st.saverPick)
+    else if id = "tvwait" then
+        st.tvWaitPref = NextIn(TvWaitChoices(), st.tvWaitPref, delta)
+        RegWrite("tvwait", st.tvWaitPref.ToStr())
     else if id = "screen" then
         want = "fhd"
         if st.res = "fhd" then want = "hd"
@@ -98,6 +107,8 @@ sub OpenSetting(st as object, id as string)
     else if id = "check" then
         st.mode = "check"
         PrintAnswers(st)
+    else if id = "savercheck" then
+        st.mode = "savercheck"
     else if id = "about" then
         st.mode = "about"
     end if
@@ -148,6 +159,11 @@ end sub
 
 sub DrawTvCheck(st as object)
     DrawPanel(st, { title: "TV check", rows: AllAnswers(st), sel: -1, info: true, hint: "Back goes back to Settings" })
+end sub
+
+' What the screensaver tries did, redrawn every second (its idle counts tick along).
+sub DrawSaverCheck(st as object)
+    DrawPanel(st, { title: "Screensaver check", rows: SaverCheckRows(st), sel: -1, info: true, hint: "Back goes back to Settings" })
 end sub
 
 sub DrawAbout(st as object)

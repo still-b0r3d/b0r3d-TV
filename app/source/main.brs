@@ -1,6 +1,8 @@
 ' b0r3d TV: a home screen for Roku TVs that looks like an old cable box.
 ' Everything is drawn on one 2D screen: 1920 x 1080 where the TV allows it, else 1280 x 720.
-' Screens (st.mode): the guide, Settings, the channel list, the TV check and About.
+' Screens (st.mode): the guide, Settings, the channel list, the TV check, the Screensaver check
+' and About; "saver" while Rukus is on, "aside" while b0r3d TV steps aside for the TV's own
+' screensaver (saver.brs).
 
 sub Main(args as dynamic)
     st = {
@@ -24,6 +26,7 @@ sub Main(args as dynamic)
     st.input = CreateObject("roInput")
     st.input.SetMessagePort(st.port)
     LoadPrefs(st)
+    SaverProbes(st)
     st.clock = ClockNow()
     st.fontReg = RegisterFonts()
     st.families = FontFamilies(st.fontReg)
@@ -40,32 +43,53 @@ sub Main(args as dynamic)
     Redraw(st)
 
     while true
-        msg = wait(1000, st.port)
+        msg = wait(LoopWaitMs(st), st.port)
         if msg = invalid then
-            Tick(st)
+            if st.mode <> "saver" then Tick(st)
         else if type(msg) = "roUniversalControlEvent" then
             code = msg.GetInt()
             if code < 100 then
-                if not HandleKey(st, code) then exit while
+                st.idle.Mark()
+                st.handTried = false
+                if st.mode = "aside" then
+                    ' a key the 2D screen passed on just as b0r3d TV stepped aside
+                    ComeBack(st)
+                else if st.mode = "saver" then
+                    ' a key while Rukus is on only ends Rukus
+                    StopSaver(st)
+                else if not HandleKey(st, code) then
+                    exit while
+                end if
             end if
         else if type(msg) = "roInputEvent" then
             if TakeTvFollowHello(st, msg.GetInfo()) then
                 AddInputChannels(st)
                 Redraw(st)
             end if
+        else if type(msg) = "roDeviceInfoEvent" then
+            ScreensaverEvent(st, msg.GetInfo())
+        else if type(msg) = "roSGNodeEvent" or type(msg) = "roSGScreenEvent" then
+            ' a key on the stand-in screen, or that screen closing: back from stepping aside
+            ' (the event lets go of the stand-in first, so nothing holds it open)
+            msg = invalid
+            ComeBack(st)
         end if
+        if st.mode = "saver" then SaverTurn(st)
+        if st.quit then exit while
     end while
 end sub
 
 ' One key press. Returns false when b0r3d TV should close.
 function HandleKey(st as object, code as integer) as boolean
+    ' no 2D screen (stepping aside): nothing to act on
+    if st.screen = invalid then return true
     if st.mode = "settings" then
         SettingsKey(st, code)
         return true
     else if st.mode = "channels" then
         ChannelsKey(st, code)
         return true
-    else if st.mode = "check" or st.mode = "about" then
+    else if st.mode = "check" or st.mode = "about" or st.mode = "savercheck" then
         if code = 0 or code = 10 then
             st.mode = "settings"
             Redraw(st)
@@ -162,8 +186,9 @@ sub OpenChannel(st as object)
     end try
 end sub
 
-' Once a second: the clock moves on, a channel that didn't open says so, and the screen is
-' drawn again, since Roku's own screensaver can wipe it while b0r3d TV is open.
+' Once a second: the clock moves on, a channel that didn't open says so, Rukus comes on when
+' b0r3d TV has sat idle long enough, and the screen is drawn again, since Roku's own
+' screensaver can wipe it while b0r3d TV is open.
 sub Tick(st as object)
     st.clock = ClockNow()
     ' no hello yet: TVFollow may have connected before b0r3d TV was listening, so ask again
@@ -185,11 +210,16 @@ sub Tick(st as object)
             st.noteTimer = invalid
         end if
     end if
+    if SaverChores(st) then return
     Redraw(st)
 end sub
 
 sub Redraw(st as object)
-    if st.mode = "settings" then
+    ' no 2D screen while b0r3d TV steps aside
+    if st.screen = invalid then return
+    if st.mode = "saver" then
+        DrawSaver(st)
+    else if st.mode = "settings" then
         DrawSettings(st)
     else if st.mode = "channels" then
         DrawChannelList(st)
@@ -197,6 +227,8 @@ sub Redraw(st as object)
         DrawTvCheck(st)
     else if st.mode = "about" then
         DrawAbout(st)
+    else if st.mode = "savercheck" then
+        DrawSaverCheck(st)
     else
         timer = CreateObject("roTimespan")
         DrawGuideFor(st)
