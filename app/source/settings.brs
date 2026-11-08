@@ -24,7 +24,7 @@ function SettingsRows(st as object) as object
     size = st.w.ToStr() + " x " + st.h.ToStr()
     if st.fhdRefused then size = size + " (the TV said no to 1920 x 1080)"
     rows.Push({ id: "screen", label: "Screen size", value: size, kind: "choice" })
-    rows.Push({ id: "scores", label: "High scores", value: StuckScoresWord(), kind: "open" })
+    rows.Push({ id: "scores", label: "High scores", value: GameScoresWord(), kind: "open" })
     rows.Push({ id: "check", label: "TV check", value: "What this TV allows", kind: "open" })
     rows.Push({ id: "savercheck", label: "Screensaver check", value: "What the tries did", kind: "open" })
     rows.Push({ id: "about", label: "About", value: st.version, kind: "open" })

@@ -10,7 +10,9 @@
 function GameChannels() as object
     stuck = MakeChannel("game.stuck", "Stuck Pixels", "STUCK", "Falling blocks, made by b0r3d", "game")
     stuck.n = "20"
-    return [stuck]
+    test = MakeChannel("game.test", "Test Pattern", "TEST", "Brick breaker, made by b0r3d", "game")
+    test.n = "21"
+    return [stuck, test]
 end function
 
 function IsGameNumber(n as integer) as boolean
@@ -26,6 +28,7 @@ end function
 ' OK on a game's channel, after tuning in.
 sub OpenGame(st as object, id as string)
     if id = "game.stuck" then OpenStuckPixels(st)
+    if id = "game.test" then OpenTestPattern(st)
 end sub
 
 sub OpenStuckPixels(st as object)
@@ -293,9 +296,9 @@ sub SaveStuckScores(mode as string, list as object)
     RegWrite("sp.best." + mode, FormatJson(list))
 end sub
 
-' Settings' "High scores" line: how many are kept.
-function StuckScoresWord() as string
-    n = 0
+' Settings' "High scores" line: how many the two games keep.
+function GameScoresWord() as string
+    n = TpScoresCount()
     for each mode in SpModes()
         n = n + LoadStuckScores(mode).Count()
     end for
@@ -704,7 +707,7 @@ end function
 function ClearScoresRows() as object
     return [
         { id: "keep", label: "Keep them", value: "", kind: "open" },
-        { id: "clear", label: "Clear them all", value: "Every Stuck Pixels mode", kind: "open" }
+        { id: "clear", label: "Clear them all", value: "Stuck Pixels and Test Pattern, every mode", kind: "open" }
     ]
 end function
 
@@ -721,7 +724,10 @@ sub ClearScoresKey(st as object, code as integer)
         if code = 2 then delta = -1
         st.confirmSel = PanelStep(rows, st.confirmSel, delta)
     else if code = 6 then
-        if rows[st.confirmSel].id = "clear" then ClearStuckScores()
+        if rows[st.confirmSel].id = "clear" then
+            ClearStuckScores()
+            ClearTpScores()
+        end if
         st.mode = "settings"
     end if
     Redraw(st)

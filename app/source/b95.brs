@@ -179,13 +179,14 @@ sub DrawB95Desktop(st as object, ch as dynamic, task as string)
     end for
     for each item in st.channels
         if item.kind = "game" then
-            lit = (st.mode = "stuck" and item.id = "game.stuck")
+            lit = (st.mode = "stuck" and item.id = "game.stuck") or (st.mode = "testpat" and item.id = "game.test")
             if ch <> invalid and st.mode = "guide" then lit = (ch.id = item.id)
             y = DrawB95DesktopIcon(st, B95IconFor(st, item), item.name, x, y, colW, isz, lit) + Z(20, k)
         end if
     end for
-    DrawB95DesktopIcon(st, "settings", "Settings", x, y, colW, isz, st.mode <> "guide" and st.mode <> "stuck")
-    playing = (st.mode = "stuck" and StuckBusy(st))
+    inGame = (st.mode = "stuck" or st.mode = "testpat")
+    DrawB95DesktopIcon(st, "settings", "Settings", x, y, colW, isz, st.mode <> "guide" and not inGame)
+    playing = (st.mode = "stuck" and StuckBusy(st)) or (st.mode = "testpat" and TpBusy(st))
     if not playing then
         sc = Z(6, k)
         DrawSprite(s, RukusLoaf(), RukusColorsFor(st), Z(34, k), Z(682, k) - 9 * sc, sc)
@@ -301,7 +302,7 @@ sub DrawB95Preview(st as object, ch as dynamic, x as integer, y as integer, w as
         return
     end if
     if ch.kind = "game" then
-        DrawStuckPreview(st, x, y, w, h)
+        DrawGamePreview(st, ch, x, y, w, h)
         return
     end if
     if ch.kind = "input" then
@@ -505,8 +506,9 @@ sub DrawB95Banner(st as object, ch as object)
 end sub
 
 ' Which picture goes with a channel: a monitor for the PC's input, a TV for other inputs, a
-' stack of pixels for Stuck Pixels, a window for apps.
+' stack of pixels for Stuck Pixels, colour bars for Test Pattern, a window for apps.
 function B95IconFor(st as object, ch as object) as string
+    if ch.id = "game.test" then return "test"
     if ch.kind = "game" then return "stuck"
     if ch.kind <> "input" then return "app"
     if st.tvf <> invalid then
@@ -516,11 +518,19 @@ function B95IconFor(st as object, ch as object) as string
 end function
 
 ' A small picture on a 28 x 26 grid, size pixels wide: "pc" (a monitor), "tv" (a TV with rabbit
-' ears), "settings" (a panel of sliders), "stuck" (a stack of pixels with a stuck yellow one)
-' or "app" (a window with a play button).
+' ears), "settings" (a panel of sliders), "stuck" (a stack of pixels with a stuck yellow one),
+' "test" (colour bars on a little stand) or "app" (a window with a play button).
 sub DrawB95Icon(s as object, kind as string, x as integer, y as integer, size as integer, c as object)
     u = size / 28
-    if kind = "stuck" then
+    if kind = "test" then
+        B95Grid(s, x, y, u, 1, 1, 26, 15, c.black)
+        bars = [&hC0C0C0FF, &hC0C000FF, &h00C0C0FF, &h00C000FF, &hC000C0FF, &hC00000FF]
+        for i = 0 to 5
+            B95Grid(s, x, y, u, 2 + i * 4, 2, 4, 13, bars[i])
+        end for
+        B95Grid(s, x, y, u, 12, 16, 4, 4, c.shadow)
+        B95GridBox(s, x, y, u, 7, 20, 14, 4, c.face, c.black)
+    else if kind = "stuck" then
         B95GridBox(s, x, y, u, 10, 2, 6, 6, c.teal, c.black)
         B95GridBox(s, x, y, u, 10, 8, 6, 6, c.teal, c.black)
         B95GridBox(s, x, y, u, 4, 14, 6, 6, c.navy, c.black)

@@ -59,7 +59,7 @@ sub DrawCableGuide(st as object)
     if ch = invalid then
         DrawCentered(s, "NO CHANNELS YET", px, py, pw, ph, c.white, f.name)
     else if ch.kind = "game" then
-        DrawStuckPreview(st, px, py, pw, ph)
+        DrawGamePreview(st, ch, px, py, pw, ph)
     else
         bigH = f.big.GetOneLineHeight()
         hintH = f.bigHint.GetOneLineHeight()

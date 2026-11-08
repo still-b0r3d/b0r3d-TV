@@ -124,8 +124,10 @@ function StuckArt(st as object) as object
             return sp.art
         end if
     end if
+    ' the old pictures go first, so the TV never holds two whole-screen pictures at once
+    sp.art = invalid
     k = st.k
-    a = { key: key, kit: StuckKit(st), fonts: StuckFonts(st), vals: {}, banners: {}, special: [], stack: invalid, fpsPic: invalid }
+    a = { key: key, kit: StuckKit(st), fonts: StuckFonts(st), vals: {}, banners: {}, lastBanner: invalid, special: [], stack: invalid, fpsPic: invalid }
     a.P = Z(28, k)
     a.B = Z(26, k)
     a.mP = Z(22, k)
@@ -393,6 +395,13 @@ sub DrawStuckPlay(st as object)
             DrawTile(s, t, "noise", t.noise[(noiseStep + cell[0] * 3 + cell[1] * 5) mod 4], x, y)
         end if
     end for
+    ' a new level's banner goes under the falling piece, so the piece never goes out of sight
+    bannerX = wx + (g.cols * a.P) \ 2
+    bannerY = 0
+    if banner <> invalid then
+        bannerY = wy + (g.rows * a.P - banner.h) \ 2 + banner.pad
+        if sp.view <> "signal" then DrawPic(s, banner, bannerX, bannerY, "c")
+    end if
     if g.state = "play" then
         cells = SpCells(g)
         for i = 0 to cells.Count() - 1
@@ -414,8 +423,11 @@ sub DrawStuckPlay(st as object)
     end for
     s.SetAlphaEnable(true)
     DrawStuckFx(st, a, wx, wy)
-    if sp.view = "signal" then DrawStuckSignal(st, a, wx, wy, g)
-    if banner <> invalid then DrawPic(s, banner, wx + (g.cols * a.P) \ 2, wy + (g.rows * a.P - banner.h) \ 2 + banner.pad, "c")
+    if sp.view = "signal" then
+        DrawStuckSignal(st, a, wx, wy, g)
+        ' "NO SIGNAL" goes over the static
+        if banner <> invalid then DrawPic(s, banner, bannerX, bannerY, "c")
+    end if
     if a.scanTile <> invalid then s.DrawObject(wx, wy, a.scanTile)
     if a.fpsPic <> invalid then DrawPic(s, a.fpsPic, Z(a.fpsSlot.x, k), Z(a.fpsSlot.y, k), a.fpsSlot.align)
     s.SwapBuffers()
@@ -512,6 +524,17 @@ function StuckBannerPic(st as object, a as object) as dynamic
         end if
     end if
     if text = "" then return invalid
+    ' a level's words (and a sprint's time) are new each time: they have one place, which the
+    ' next one takes, so a long run doesn't pile up pictures
+    if text <> "NO SIGNAL" and text <> "ALL CLEAR" then
+        if a.lastBanner <> invalid then
+            if a.lastBanner.text = text then return a.lastBanner.pic
+        end if
+        a.lastBanner = invalid
+        pic = TextPicture(st, " " + text + " ", a.fonts.banner, a.kit.bannerFg, a.kit.bannerBg, true)
+        if pic <> invalid then a.lastBanner = { text: text, pic: pic }
+        return pic
+    end if
     pic = a.banners[text]
     if pic = invalid then
         pic = TextPicture(st, " " + text + " ", a.fonts.banner, a.kit.bannerFg, a.kit.bannerBg, true)
@@ -879,24 +902,44 @@ function StuckDemo(st as object) as object
     return st.demo
 end function
 
-' How often the guide is drawn again while its preview plays the demo: five times a second, or
-' less on a TV that takes long to draw the guide (never more than half the time spent drawing).
+' How often the guide is drawn again while its preview plays a demo: five times a second for
+' Stuck Pixels, ten for Test Pattern (its ball moves), or less on a TV that takes long to draw
+' the guide (never more than half the time spent drawing).
 function DemoRedrawMs(st as object) as integer
     ms = 2 * st.guideMs
-    if ms < 200 then ms = 200
+    base = 200
+    if PreviewGameId(st) = "game.test" then base = 100
+    if ms < base then ms = base
     if ms > 1000 then ms = 1000
     return ms
 end function
 
-' How long Main's loop waits while the guide's preview shows the demo: until it's drawn again.
+' How long Main's loop waits while the guide's preview shows a demo: until it's drawn again.
 function DemoWaitMs(st as object) as integer
     interval = DemoRedrawMs(st)
-    if st.demoTimer = invalid then return interval
-    left = interval - st.demoTimer.TotalMilliseconds()
+    timer = st.demoTimer
+    if PreviewGameId(st) = "game.test" then timer = st.tpDemoTimer
+    if timer = invalid then return interval
+    left = interval - timer.TotalMilliseconds()
     if left < 1 then return 1
     if left > interval then return interval
     return left
 end function
+
+' The game whose channel the guide's highlight is on, or "".
+function PreviewGameId(st as object) as string
+    if not GuideShowsGame(st) then return ""
+    return st.channels[st.focus].id
+end function
+
+' A game channel's demo in the guide's preview box.
+sub DrawGamePreview(st as object, ch as object, x as integer, y as integer, w as integer, h as integer)
+    if ch.id = "game.test" then
+        DrawTpPreview(st, x, y, w, h)
+    else
+        DrawStuckPreview(st, x, y, w, h)
+    end if
+end sub
 
 ' Whether the guide's highlight is on a game, so the preview box plays its demo.
 function GuideShowsGame(st as object) as boolean

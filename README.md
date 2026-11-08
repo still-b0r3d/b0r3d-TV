@@ -15,7 +15,7 @@ And two games: **Stuck Pixels**, a falling-block game, and **Test Pattern**, a b
 
 ## Status
 
-0.35 is a test build. Every app on your TV gets a channel, and the guide remembers the channel you opened last. Settings (the ✱ key) picks the look (the late-night cable guide, b0r3d 95 on a teal, blue or slate desktop, the phosphor terminal in green, amber or cyan, or the VCR menu in blue, black or green), shows, hides and reorders the channels, and sets the clock, the sound, the screensaver and the screen size. Its TV check page shows what your TV allows. Opening a channel tunes in with a burst of static and the channel's banner. Stuck Pixels, the first game, is on channel 20; Test Pattern comes next.
+0.4 is a test build. Every app on your TV gets a channel, and the guide remembers the channel you opened last. Settings (the ✱ key) picks the look (the late-night cable guide, b0r3d 95 on a teal, blue or slate desktop, the phosphor terminal in green, amber or cyan, or the VCR menu in blue, black or green), shows, hides and reorders the channels, and sets the clock, the sound, the screensaver and the screen size. Its TV check page shows what your TV allows. Opening a channel tunes in with a burst of static and the channel's banner. The two games are on channels 20 and 21: Stuck Pixels and Test Pattern.
 
 Roku TVs don't let an app switch the TV's inputs. [TVFollow](https://github.com/still-b0r3d/TVFollow) can do it for b0r3d TV: with TVFollow 1.3 (coming soon) running on your PC and **Let the app switch the TV's inputs** ticked in its developer tools, your TV's inputs (HDMI, the antenna) show up as channels a few seconds after b0r3d TV opens, and opening one switches the TV. Without TVFollow, b0r3d TV leaves the inputs to Roku's own home screen. And when you leave an app you opened from b0r3d TV, the TV goes to Roku's home screen, not back to b0r3d TV. To come back quickly, move b0r3d TV to the first spot on the home screen: highlight it there, press ✱ and move it.
 
@@ -30,6 +30,16 @@ Now and then a piece comes with a stuck pixel in it, flickering. Its row has to 
 - **Cleanup:** 25 lines, starting over rows of TV static
 
 Each mode keeps its top 10 on the TV, with three-letter initials. Settings → High scores clears them (it asks first). When channel 20 is highlighted in the guide, its preview plays a demo. Rukus comes on only while the game is paused or on its menus.
+
+## Test Pattern
+
+A brick breaker on channel 21, on a field as wide as the TV. Every wall is a TV test card's colour bars, the ball is a square pixel, and the paddle speeds up the longer you hold a direction. Bricks of static are bombs that blow up the bricks around them, and bricks with a little TV on them drop a capsule, a little TV of its own: two more balls, a wider paddle, a sticky paddle for 12 seconds, a slower ball for 8 seconds, a life, or a surprise.
+
+- **Campaign:** six walls, each a little faster than the last
+- **Endless:** new walls that never stop, faster each time up to twice the speed
+- **Easy, normal or hard:** 5, 3 or 2 lives, a wider or narrower paddle, a slower or faster ball, and half, normal or one and a half times the points
+
+Each mode keeps its top 10 on the TV, with initials, and its preview in the guide plays a demo. As in Stuck Pixels, Rukus comes on only while the game is paused or on its menus.
 
 ## The screensaver
 
@@ -57,6 +67,12 @@ In Stuck Pixels:
 - **Replay:** put the piece on hold, or swap it back (once a piece)
 - **Play, Back or ✱:** pause, with a menu to carry on, start again or go back to the guide
 
+In Test Pattern:
+
+- **Left and right:** move the paddle while held; it speeds up the longer you hold
+- **OK:** serve the ball, let go of a stuck one, or go on to the next wall
+- **Play, Back or ✱:** pause, with the same menu
+
 ## Trying it
 
 b0r3d TV installs through Roku's developer mode, which lets a TV hold one app you add yourself. It won't be in Roku's store.
@@ -69,9 +85,9 @@ b0r3d TV installs through Roku's developer mode, which lets a TV hold one app yo
 
 - `app/`: the Roku app: `manifest`, the BrightScript code in `source/`, the stand-in screen in `components/` (shown while b0r3d TV hands over to the TV's own screensaver), the pictures in `images/`, the fonts in `fonts/` and the sounds in `sounds/`
 - `tools/make-images.js`: makes the home-screen tile and the splash picture (`node tools/make-images.js`)
-- `tools/make-sounds.js`: makes the burst of static heard when a channel opens and Stuck Pixels' sounds (`node tools/make-sounds.js`)
+- `tools/make-sounds.js`: makes the burst of static heard when a channel opens and the games' sounds (`node tools/make-sounds.js`)
 - `tools/font-family-names.js`: the one change made to the Barlow Condensed files (see License)
-- `tests/stuck-tests.brs` and `tools/test-games.sh`: Stuck Pixels' rules played on a PC by a BrightScript simulator (brs-node), test by test (`bash tools/test-games.sh`)
+- `tests/stuck-tests.brs`, `tests/tp-tests.brs` and `tools/test-games.sh`: the games' rules played on a PC by a BrightScript simulator (brs-node), test by test (`bash tools/test-games.sh`)
 - `tools/check.sh` and `.github/workflows/check.yml`: the check every push to main gets (the app compiles, the games' rules pass their tests, every commit carries the project's name, nothing private slipped in)
 
 ## License

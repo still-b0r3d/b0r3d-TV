@@ -6,6 +6,8 @@
 '   idlereset, handover, blank, tvsaver, tvsavers    what the screensaver tries did (saver.brs)
 '   sp.mode, sp.level, sp.rows, sp.initials          Stuck Pixels' menu picks and last initials
 '   sp.best.marathon, sp.best.sprint, sp.best.cleanup  its high scores (stuckplay.brs)
+'   tp.mode, tp.diff, tp.initials                    Test Pattern's menu picks and last initials
+'   tp.best.campaign, tp.best.endless                its high scores (tpplay.brs)
 
 function RegRead(key as string, fallback as string) as string
     sec = CreateObject("roRegistrySection", "b0r3dtv")
