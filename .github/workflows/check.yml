@@ -20,6 +20,9 @@ jobs:
       - name: Compile the app
         run: npx --yes --package brighterscript@0.73.8 bsc --cwd app --root-dir . --create-package false --staging-dir "$RUNNER_TEMP/stage"
 
+      - name: Play the games' rules
+        run: bash tools/test-games.sh
+
       - name: Check the commits and files
         env:
           LEAK_TERMS: ${{ secrets.LEAK_TERMS }}
