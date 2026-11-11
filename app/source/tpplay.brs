@@ -400,15 +400,28 @@ sub TpPauseKey(st as object, code as integer)
         if id = "resume" then
             ResumeTp(st)
         else if id = "restart" then
-            StartTpRun(st)
+            if TpScoreRanks(tp.g) then
+                FinishTpSignal(st)
+            else
+                StartTpRun(st)
+            end if
         else if id = "howto" then
             tp.howtoFrom = "pause"
             tp.view = "howto"
         else if id = "guide" then
-            CloseTestPattern(st)
+            if TpScoreRanks(tp.g) then
+                FinishTpSignal(st)
+            else
+                CloseTestPattern(st)
+            end if
         end if
     end if
 end sub
+
+function TpScoreRanks(g as object) as boolean
+    if g = invalid or g.score <= 0 then return false
+    return ScoreRank(LoadTpScores(g.mode), g.score, false) >= 0
+end function
 
 sub TpResultsKey(st as object, code as integer)
     tp = st.tp
@@ -530,11 +543,18 @@ end function
 
 function TpPauseRows(st as object) as object
     g = st.tp.g
+    again = TpModeTitle(g.mode)
+    leave = "This run ends"
+    ' a run whose score makes the table goes to the initials first (TpPauseKey)
+    if TpScoreRanks(g) then
+        again = "Your score goes on the table first"
+        leave = again
+    end if
     rows = [
         { id: "resume", label: "Carry on", value: "", kind: "open" },
-        { id: "restart", label: "Start again", value: TpModeTitle(g.mode), kind: "open" },
+        { id: "restart", label: "Start again", value: again, kind: "open" },
         { id: "howto", label: "How to play", value: "", kind: "open" },
-        { id: "guide", label: "Back to the guide", value: "This run ends", kind: "open" }
+        { id: "guide", label: "Back to the guide", value: leave, kind: "open" }
     ]
     rows.Append(TpRunRows(g.mode, g.difficulty, g.score, g.wall + 1, g.lives, g.elapsed))
     return rows

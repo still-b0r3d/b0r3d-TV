@@ -447,15 +447,33 @@ sub StuckPauseKey(st as object, code as integer)
         if id = "resume" then
             ResumeStuck(st)
         else if id = "restart" then
-            StartStuckRun(st)
+            if StuckScoreRanks(sp.g) then
+                FinishSignal(st)
+            else
+                StartStuckRun(st)
+            end if
         else if id = "howto" then
             sp.howtoFrom = "pause"
             sp.view = "howto"
         else if id = "guide" then
-            CloseStuckPixels(st)
+            if StuckScoreRanks(sp.g) then
+                FinishSignal(st)
+            else
+                CloseStuckPixels(st)
+            end if
         end if
     end if
 end sub
+
+' Whether leaving a run from the pause menu would put it on its table, by FinishSignal's rule:
+' Marathon always counts, Sprint 40 and Cleanup only once finished.
+function StuckScoreRanks(g as object) as boolean
+    if g = invalid or g.score <= 0 then return false
+    if g.mode <> "marathon" and g.state <> "done" then return false
+    val = g.score
+    if g.mode = "sprint" then val = g.elapsed
+    return ScoreRank(LoadStuckScores(g.mode), val, g.mode = "sprint") >= 0
+end function
 
 sub StuckResultsKey(st as object, code as integer)
     sp = st.sp
@@ -600,11 +618,18 @@ end function
 
 function StuckPauseRows(st as object) as object
     g = st.sp.g
+    again = StuckModeTitle(g.mode)
+    leave = "This run ends"
+    ' a run whose score makes the table goes to the initials first (StuckPauseKey)
+    if StuckScoreRanks(g) then
+        again = "Your score goes on the table first"
+        leave = again
+    end if
     rows = [
         { id: "resume", label: "Carry on", value: "", kind: "open" },
-        { id: "restart", label: "Start again", value: StuckModeTitle(g.mode), kind: "open" },
+        { id: "restart", label: "Start again", value: again, kind: "open" },
         { id: "howto", label: "How to play", value: "", kind: "open" },
-        { id: "guide", label: "Back to the guide", value: "This run ends", kind: "open" }
+        { id: "guide", label: "Back to the guide", value: leave, kind: "open" }
     ]
     rows.Append(StuckRunRows(g.mode, g.score, g.lines, g.level, g.elapsed, g.fixed))
     return rows
