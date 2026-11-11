@@ -949,8 +949,8 @@ end function
 
 ' How often the guide is drawn again while its preview plays a demo: five times a second for
 ' Stuck Pixels, ten for Test Pattern (its ball moves), about nine for Snake, ten for b0r3d FM's
-' bars, or less on a TV that takes long to draw the guide (never more than half the time spent
-' drawing).
+' bars, twice for Commercial Breaks (its card turns over every 8 s), or less on a TV that takes
+' long to draw the guide (never more than half the time spent drawing).
 function DemoRedrawMs(st as object) as integer
     id = PreviewGameId(st)
     ms = 2 * st.guideMs
@@ -958,14 +958,14 @@ function DemoRedrawMs(st as object) as integer
     if id = "game.test" then base = 100
     if id = "game.snake" then base = 110
     if id = "radio.fm" then base = 100
+    if id = "promo.breaks" then base = 500
     if ms < base then ms = base
     if ms > 1000 then ms = 1000
     return ms
 end function
 
 ' How long Main's loop waits while the guide's preview shows a demo: until it's due again. Each
-' preview marks its own timer when it moves on (or, for b0r3d FM's, which doesn't step, when
-' drawn).
+' preview marks its own timer when it moves on (or, for the two that don't step, when drawn).
 function DemoWaitMs(st as object) as integer
     id = PreviewGameId(st)
     interval = DemoRedrawMs(st)
@@ -973,6 +973,7 @@ function DemoWaitMs(st as object) as integer
     if id = "game.test" then timer = st.tpDemoTimer
     if id = "game.snake" then timer = st.snakeDemoTimer
     if id = "radio.fm" then timer = st.fmDemoTimer
+    if id = "promo.breaks" then timer = st.promoDemoTimer
     if timer = invalid then return interval
     left = interval - timer.TotalMilliseconds()
     if left < 10 then return 10
@@ -994,14 +995,17 @@ sub DrawGamePreview(st as object, ch as object, x as integer, y as integer, w as
         DrawFmPreview(st, x, y, w, h)
     else if ch.id = "game.snake" then
         DrawSnakePreview(st, x, y, w, h)
+    else if ch.id = "promo.breaks" then
+        DrawPromoPreview(st, x, y, w, h)
     else
         DrawStuckPreview(st, x, y, w, h)
     end if
 end sub
 
-' Whether a channel's preview box plays a demo of it: the games and b0r3d FM, in every look.
+' Whether a channel's preview box plays a demo of it: the games, b0r3d FM and Commercial
+' Breaks, in every look.
 function HasPreview(ch as object) as boolean
-    return ch.kind = "game" or ch.kind = "radio"
+    return ch.kind = "game" or ch.kind = "radio" or ch.kind = "promo"
 end function
 
 ' Whether the guide's highlight is on a channel with a demo in its preview box.

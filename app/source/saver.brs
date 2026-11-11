@@ -619,6 +619,7 @@ function LoopWaitMs(st as object) as integer
     if st.mode = "testpat" then return TpWaitMs(st)
     if st.mode = "snake" then return SnakeWaitMs(st)
     if st.mode = "fm" then return 33
+    if st.mode = "promo" then return PromoWaitMs(st)
     if st.mode = "saver" and st.saver <> invalid then
         left = 33 - st.saver.frame.TotalMilliseconds()
         if left < 1 then return 1
@@ -692,7 +693,7 @@ function SaverChores(st as object) as boolean
     return true
 end function
 
-' The chores for a channel that plays on its own (the radio station), about once a second.
+' The chores for a channel that plays on its own (a radio station, the ads), about once a second.
 ' While it plays, Rukus doesn't come on over it, but the TV is kept awake as SaverChores does
 ' for the "keep" pick (without that, the TV turns the screen black at its screensaver time, as
 ' over any 2D app, even mid-song). Paused, it's like a paused game: the usual chores, Rukus

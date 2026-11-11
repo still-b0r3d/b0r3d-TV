@@ -32,6 +32,7 @@ function ShowForChannel(ch as object, hour as integer, slotIndex as integer) as 
     if ch.id = "game.test" then return PickShow(TestPatternShows(), slot)
     if ch.id = "game.snake" then return "Snake: Twenty by Twenty, Wraparound"
     if ch.id = "radio.fm" then return "b0r3d FM: Sixteen Songs on a Loop"
+    if ch.id = "promo.breaks" then return PickShow(PromoShows(), slot)
     if Left(ch.id, 8) = "tvinput." then return PickShow(InputShows(), slot)
     ' the apps it knows
     id = ch.id
@@ -53,6 +54,17 @@ end function
 
 function PickShow(shows as object, slot as integer) as string
     return shows[slot mod shows.Count()]
+end function
+
+function PromoShows() as object
+    return [
+        "Station Promos: Chainsaw Squirrel and Friends",
+        "Infomercial Hour: b0r3d 95",
+        "Late-Night Broadcast: As Seen on Channel 24",
+        "b0r3d Public Access: Station Bumpers and PSAs",
+        "Now Showing: z0mbie crystal",
+        "The Midnight Reel: Ads for Games You Can Play"
+    ]
 end function
 
 function StuckShows() as object

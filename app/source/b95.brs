@@ -156,8 +156,9 @@ end sub
 ' up to four, then b0r3d's own channels in their order, then Settings), the focused channel's
 ' label lit (or the open channel's, or Settings'), Rukus by the taskbar, and the taskbar itself.
 ' The column has to end above Rukus: when it wouldn't, the icons move closer together, then
-' b0r3d FM leaves the desktop (it's in the guide), then inputs, from the last. While a game is
-' being played Rukus stays away: in a game he only comes on while it's paused.
+' b0r3d FM and Commercial Breaks leave the desktop (they're in the guide), then inputs, from the
+' last. While a game is being played Rukus stays away: in a game he only comes on while it's
+' paused.
 sub DrawB95Desktop(st as object, ch as dynamic, task as string)
     s = st.screen
     c = st.kit
@@ -215,6 +216,7 @@ function B95OpenId(st as object) as string
     if st.mode = "testpat" then return "game.test"
     if st.mode = "snake" then return "game.snake"
     if st.mode = "fm" then return "radio.fm"
+    if st.mode = "promo" then return "promo.breaks"
     return ""
 end function
 
