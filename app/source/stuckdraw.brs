@@ -294,7 +294,11 @@ sub UpdateStuckValues(st as object, a as object, g as object)
             old = a.vals[name]
             fresh = (old = invalid)
             if not fresh then fresh = (old.text <> text)
-            if fresh then a.vals[name] = TextPicture(st, text, slot.font, slot.color, slot.bg, false)
+            if fresh then
+                bg = slot.bg
+                if st.look = "phosphor" and st.scan then bg = &h00000000
+                a.vals[name] = TextPicture(st, text, slot.font, slot.color, bg, false)
+            end if
         end if
     end for
 end sub
@@ -310,7 +314,9 @@ sub UpdateStuckFps(st as object, a as object)
     f.frames = 0
     f.timer.Mark()
     slot = a.fpsSlot
-    a.fpsPic = TextPicture(st, shown.ToStr() + " FPS", slot.font, slot.color, slot.bg, false)
+    bg = slot.bg
+    if st.look = "phosphor" and st.scan then bg = &h00000000
+    a.fpsPic = TextPicture(st, shown.ToStr() + " FPS", slot.font, slot.color, bg, false)
 end sub
 
 ' --- A frame ---
@@ -388,11 +394,11 @@ sub DrawStuckPlay(st as object)
     end if
     DrawStuckMini(st, a, g.upcoming, a.nextBox, lit)
     DrawStuckMini(st, a, g.held, a.holdBox, lit)
+    s.SetAlphaEnable(true)
     for each name in StuckSlotNames()
         slot = a.slots[name]
         if slot <> invalid then DrawPic(s, a.vals[name], Z(slot.x, k), Z(slot.y, k), slot.align)
     end for
-    s.SetAlphaEnable(true)
     DrawStuckFx(st, a, wx, wy)
     if sp.view = "signal" then
         DrawStuckSignal(st, a, wx, wy, g)

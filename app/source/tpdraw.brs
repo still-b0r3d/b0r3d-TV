@@ -361,7 +361,9 @@ sub UpdateTpValues(st as object, a as object, g as object)
                 if text = "" then
                     a.vals[name] = { text: "", pic: invalid }
                 else
-                    a.vals[name] = { text: text, pic: TextPicture(st, text, slot.font, slot.color, slot.bg, false) }
+                    bg = slot.bg
+                    if st.look = "phosphor" and st.scan then bg = &h00000000
+                    a.vals[name] = { text: text, pic: TextPicture(st, text, slot.font, slot.color, bg, false) }
                 end if
             end if
         end if
@@ -377,7 +379,9 @@ sub UpdateTpFps(st as object, a as object)
     f.frames = 0
     f.timer.Mark()
     slot = a.fpsSlot
-    a.fpsPic = TextPicture(st, shown.ToStr() + " FPS", slot.font, slot.color, slot.bg, false)
+    bg = slot.bg
+    if st.look = "phosphor" and st.scan then bg = &h00000000
+    a.fpsPic = TextPicture(st, shown.ToStr() + " FPS", slot.font, slot.color, bg, false)
 end sub
 
 ' A line of words in a box over the field, made once and kept for the run. A cleared wall's
@@ -454,6 +458,7 @@ sub DrawTpPlay(st as object)
         end if
     end for
     ' the words go under everything that moves, so the ball is never hidden behind them
+    s.SetAlphaEnable(true)
     for each name in ["score", "lives", "wall", "best", "effects"]
         slot = a.slots[name]
         v = a.vals[name]
