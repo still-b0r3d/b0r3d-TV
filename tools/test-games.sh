@@ -11,6 +11,7 @@ cd "$(dirname "$0")/.."
 SUITES=(
   "tests/stuck-tests.brs app/source/stuck.brs app/source/games.brs"
   "tests/tp-tests.brs app/source/testpattern.brs app/source/games.brs"
+  "tests/snake-tests.brs app/source/snake.brs app/source/games.brs"
 )
 OUT=$(mktemp)
 trap 'rm -f "$OUT"' EXIT
