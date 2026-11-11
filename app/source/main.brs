@@ -303,7 +303,7 @@ sub PrintAnswers(st as object)
     end for
 end sub
 
-' "v0.2 · Build: dev": the version from the manifest, the build from BuildStamp().
+' "v<version> · Build: <build>": the version from the manifest, the build from BuildStamp().
 function AppVersionLine() as string
     info = CreateObject("roAppInfo")
     return "v" + info.GetValue("major_version") + "." + info.GetValue("minor_version") + " · Build: " + BuildStamp()

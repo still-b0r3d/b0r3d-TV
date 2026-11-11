@@ -371,7 +371,7 @@ sub UpdateTpValues(st as object, a as object, g as object)
 end sub
 
 sub UpdateTpFps(st as object, a as object)
-    if BuildStamp() <> "dev" or a.fpsSlot = invalid then return
+    if not ShowsFps() or a.fpsSlot = invalid then return
     f = st.tp.fps
     ms = f.timer.TotalMilliseconds()
     if ms < 1000 then return

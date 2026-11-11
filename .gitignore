@@ -2,6 +2,9 @@
 *.zip
 /out/
 
+# The build stamp a local git hook writes for the app (the commit's short hash)
+/app/build.txt
+
 # Operating system and editor files
 Thumbs.db
 desktop.ini

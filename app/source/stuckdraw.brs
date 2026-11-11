@@ -305,7 +305,7 @@ end sub
 
 ' The frames-per-second counter test builds carry, so speed can be read on the TV.
 sub UpdateStuckFps(st as object, a as object)
-    if BuildStamp() <> "dev" or a.fpsSlot = invalid then return
+    if not ShowsFps() or a.fpsSlot = invalid then return
     f = st.sp.fps
     ms = f.timer.TotalMilliseconds()
     if ms < 1000 then return
