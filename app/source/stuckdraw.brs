@@ -26,6 +26,10 @@ function StuckKit(st as object) as object
     if st.look = "b95" then
         return { wellBg: &h808080FF, empty: &h000000FF, block: &h000080FF, stuckOn: &hFFFF00FF, stuckOff: &h404000FF, mini: &h000000FF, flash: &hFFFFFFFF, bannerBg: c.navy, bannerFg: c.white, noise: c.noise, light: &h5A5AE0FF, dark: &h00004AFF, stuckLight: &hFFFFC0FF, stuckDark: &h8A8A00FF }
     end if
+    ' each look has its own branch: a kit only has the colour names its own look uses
+    if st.look = "rgb" then
+        return { wellBg: c.well, empty: c.card, block: c.blue, stuckOn: c.accent, stuckOff: c.dim, mini: c.well, flash: c.white, bannerBg: c.card, bannerFg: c.accent, noise: c.noise, light: 0, dark: 0, stuckLight: 0, stuckDark: 0 }
+    end if
     return { wellBg: &h050B22FF, empty: &h0B1740FF, block: &h8FB4FFFF, stuckOn: c.accent, stuckOff: &h484640FF, mini: &h050B22FF, flash: c.white, bannerBg: c.ink, bannerFg: c.accent, noise: c.noise, light: 0, dark: 0, stuckLight: 0, stuckDark: 0, cabinet: &h1F3170FF, bezel: &h03081AFF }
 end function
 
@@ -40,6 +44,9 @@ function StuckFonts(st as object) as object
     end if
     if st.look = "b95" then
         return { title: W95(st, Z(26, k)), line: W95(st, Z(19, k)), label: W95(st, Z(21, k)), value: W95(st, Z(21, k)), box: W95(st, Z(19, k)), banner: W95(st, Z(36, k)), bar: W95(st, Z(18, k)), small: W95(st, Z(18, k)) }
+    end if
+    if st.look = "rgb" then
+        return { title: Silk(st, Z(32, k), true), line: Barlow(st, "bold", Z(22, k)), label: Silk(st, Z(18, k), true), value: Silk(st, Z(30, k), true), box: Silk(st, Z(18, k), false), banner: Silk(st, Z(42, k), true), bar: Silk(st, Z(18, k), false), small: Silk(st, Z(18, k), false) }
     end if
     return { title: Barlow(st, "extrabold", Z(44, k)), line: Barlow(st, "semibold", Z(22, k)), label: Barlow(st, "bold", Z(20, k)), value: Vt323(st, Z(44, k)), box: Barlow(st, "bold", Z(20, k)), banner: Barlow(st, "extrabold", Z(48, k)), bar: Barlow(st, "bold", Z(21, k)), small: Vt323(st, Z(26, k)), chin: Barlow(st, "extrabold", Z(22, k)) }
 end function
@@ -163,6 +170,7 @@ function StuckChromeFor(st as object, s as object, a as object) as object
     if st.look = "b95" then return StuckChromeB95(st, s, a)
     if st.look = "phosphor" then return StuckChromePhosphor(st, s, a)
     if st.look = "vcr" then return StuckChromeVcr(st, s, a)
+    if st.look = "rgb" then return StuckChromeRgb(st, s, a)
     return StuckChromeCable(st, s, a)
 end function
 
@@ -771,6 +779,66 @@ function StuckBoxVcr(st as object, s as object, a as object, label as string, x 
     bx = Z(x, k)
     by = Z(y + 28, k)
     return [bx + inset, by + inset, Z(x + w, k) - bx - 2 * inset, Z(y + 28 + h, k) - by - 2 * inset]
+end function
+
+function StuckChromeRgb(st as object, s as object, a as object) as object
+    c = st.kit
+    k = st.k
+    f = a.fonts
+    s.Clear(c.bg)
+
+    headY = Z(38, k)
+    left = Z(48, k)
+    right = Z(1232, k)
+    triadW = Z(36, k)
+    triadH = Z(14, k)
+    DrawRgbTriad(s, left, headY + Z(6, k), triadW, triadH, c)
+    s.DrawText("STUCK PIXELS", left + triadW + Z(14, k), headY, c.white, f.title)
+    s.DrawText(TrimToWidth(StuckModeLine(st), f.line, Z(430, k) - left - triadW), left + triadW + Z(14, k), headY + Z(36, k), c.green, f.line)
+
+    wx = Z(462, k)
+    wy = Z(102, k)
+    ww = Z(818, k) - wx
+    wh = Z(626, k) - wy
+    s.DrawRect(wx, wy, ww, wh, c.well)
+    DrawRgbBrackets(s, wx, wy, ww, wh, Z(2, k), Z(20, k), c.green)
+
+    ' the numbers' labels and places: the same names as the other looks', so each gets its number
+    names = StuckSlotNames()
+    labels = StuckSlotLabels(st.sp.g.mode)
+    slots = {}
+    ry = 112
+    for i = 0 to 5
+        s.DrawText(labels[i], left + Z(12, k), Z(ry, k), c.green, f.label)
+        slots[names[i]] = { x: 420, y: ry + 22, align: "r", font: f.value, color: c.white, bg: c.bg }
+        ry = ry + 78
+    end for
+
+    nextBox = StuckBoxRgb(st, s, a, "NEXT PIECE", 860, 104, 260, 160)
+    holdBox = StuckBoxRgb(st, s, a, "HOLD PIECE", 860, 316, 260, 160)
+    s.DrawText(labels[6], Z(872, k), Z(520, k), c.green, f.label)
+    slots.best = { x: 1232, y: 544, align: "r", font: f.value, color: c.accent, bg: c.bg }
+
+    s.DrawRect(left, Z(646, k), right - left, Z(2, k), c.rule)
+    ty = Z(650, k) + (Z(698, k) - Z(650, k) - f.bar.GetOneLineHeight()) \ 2
+    hints = "[<>] MOVE   [OK] TURN   [^] DROP   [V] DROP FASTER   [REPLAY] HOLD   [PLAY] PAUSE"
+    s.DrawText(hints, left, ty, c.dim, f.bar)
+    fpsX = right / k
+    return { wellX: 472, wellY: 112, slots: slots, nextBox: nextBox, holdBox: holdBox, fps: { x: fpsX, y: ty / k, align: "r", font: f.bar, color: c.dim, bg: c.bg } }
+end function
+
+function StuckBoxRgb(st as object, s as object, a as object, label as string, x as integer, y as integer, w as integer, h as integer) as object
+    c = st.kit
+    k = st.k
+    bx = Z(x, k)
+    by = Z(y + 26, k)
+    bw = Z(x + w, k) - bx
+    bh = Z(y + 26 + h, k) - by
+    s.DrawText(label, bx + Z(8, k), Z(y, k), c.green, a.fonts.label)
+    s.DrawRect(bx, by, bw, bh, c.well)
+    DrawRgbBrackets(s, bx, by, bw, bh, Z(2, k), Z(14, k), c.blue)
+    inset = Z(8, k)
+    return [bx + inset, by + inset, bw - 2 * inset, bh - 2 * inset]
 end function
 
 function StuckChromeB95(st as object, s as object, a as object) as object

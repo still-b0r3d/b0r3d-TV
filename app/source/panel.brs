@@ -14,6 +14,8 @@ sub DrawPanel(st as object, spec as object)
         DrawPhosphorPanel(st, spec)
     else if st.look = "vcr" then
         DrawVcrPanel(st, spec)
+    else if st.look = "rgb" then
+        DrawRgbPanel(st, spec)
     else
         DrawCablePanel(st, spec)
     end if

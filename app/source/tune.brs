@@ -70,12 +70,25 @@ sub DrawTuneBanner(st as object, ch as object)
         w = Z(1240, k) - x
         h = Z(176, k) - y
         s.DrawRect(x, y, w, h, c.bg)
-        DrawFrame(s, x, y, w, h, Z(4, k), c.frame)
+        frameColor = c.frame
+        if frameColor = invalid then frameColor = c.rule
+        if frameColor = invalid then frameColor = &hFFFFFFFF
+        DrawFrame(s, x, y, w, h, Z(4, k), frameColor)
         nx = x + Z(24, k)
         ny = y + Z(14, k)
-        s.DrawText(ch.n, nx, ny, c.accent, f.num)
-        sx = nx + f.num.GetOneLineWidth(ch.n, 99999) + Z(18, k)
-        s.DrawText(ch.sign, sx, ny + f.num.GetAscent() - f.sign.GetAscent(), c.white, f.sign)
-        s.DrawText(TrimToWidth("TUNING IN " + UCase(ch.name), f.banner, w - Z(48, k)), nx, ny + f.num.GetOneLineHeight() + Z(6, k), c.soft, f.banner)
+        fn = f.num
+        if fn = invalid then fn = f.brand
+        if fn = invalid then fn = f.name
+        fs = f.sign
+        if fs = invalid then fs = f.sub
+        if fs = invalid then fs = f.name
+        fb = f.banner
+        if fb = invalid then fb = f.bar
+        if fb = invalid then fb = f.now
+
+        s.DrawText(ch.n, nx, ny, c.accent, fn)
+        sx = nx + fn.GetOneLineWidth(ch.n, 99999) + Z(18, k)
+        s.DrawText(ch.sign, sx, ny + fn.GetAscent() - fs.GetAscent(), c.white, fs)
+        s.DrawText(TrimToWidth("TUNING IN " + UCase(ch.name), fb, w - Z(48, k)), nx, ny + fn.GetOneLineHeight() + Z(6, k), c.soft, fb)
     end if
 end sub

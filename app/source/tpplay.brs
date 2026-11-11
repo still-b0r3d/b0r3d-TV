@@ -1,7 +1,7 @@
 ' Test Pattern on the TV, channel 21: its menu, the run, the pause menu, the end of a run,
 ' initials for the high scores, the tables and how to play. The rules are in testpattern.brs
 ' and the play screen in tpdraw.brs; every other screen here is a page in the shared layout
-' (panel.brs), so they all come in the four looks.
+' (panel.brs), so they all come in every look.
 '
 ' Kept on the TV (registry): tp.mode and tp.diff (the menu's picks), tp.initials (the last
 ' initials typed) and tp.best.<mode> (each mode's top 10).

@@ -1,7 +1,7 @@
 ' Stuck Pixels on the TV, channel 20: its menu, the run, the pause menu, the end of a run,
 ' initials for the high scores, the tables and how to play. The rules are in stuck.brs and the
 ' play screen in stuckdraw.brs; every other screen here is a page in the shared layout
-' (panel.brs), so they all come in the four looks.
+' (panel.brs), so they all come in every look.
 '
 ' Kept on the TV (registry): sp.mode, sp.level and sp.rows (the menu's picks), sp.initials
 ' (the last initials typed) and sp.best.<mode> (each mode's top 10).

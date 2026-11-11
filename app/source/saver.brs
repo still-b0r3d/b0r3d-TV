@@ -79,16 +79,18 @@ function SaverFonts(st as object) as object
     k = st.k
     if st.look = "b95" then return { time: W95(st, Z(72, k)), date: W95(st, Z(26, k)) }
     if st.look = "phosphor" then return { time: Vt323(st, Z(112, k)), date: Vt323(st, Z(36, k)) }
-    if st.look = "vcr" then return { time: Silk(st, Z(64, k), true), date: Silk(st, Z(24, k), false) }
+    if st.look = "vcr" or st.look = "rgb" then return { time: Silk(st, Z(64, k), true), date: Silk(st, Z(24, k), false) }
     return { time: Vt323(st, Z(104, k)), date: Barlow(st, "semibold", Z(28, k)) }
 end function
 
-' The clock's colours on the dark screen, and the soft one for his z's.
+' The clock's colours on the dark screen, and the soft one for his z's. Each look has its own
+' branch: a kit only has the colour names its own look uses.
 function SaverColors(st as object) as object
     c = st.kit
     if st.look = "b95" then return { time: &hFFFFFFFF, date: &hC0C0C0FF, soft: &hC0C0C0FF, glow: 0 }
     if st.look = "phosphor" then return { time: c.full, date: c.dim, soft: c.dim, glow: c.glow }
     if st.look = "vcr" then return { time: c.white, date: c.yellow, soft: c.white, glow: 0 }
+    if st.look = "rgb" then return { time: c.white, date: c.accent, soft: c.soft, glow: 0 }
     return { time: c.text, date: c.soft, soft: c.dimText, glow: 0 }
 end function
 
@@ -609,16 +611,36 @@ end sub
 
 ' How long Main's loop waits for a key: what's left of a frame (about 30 a second) while Rukus
 ' is on, the game's own frames while it's open, the demo's next step while the guide's preview
-' plays one, else a second. Never 0, which would mean "wait for ever".
+' plays one, else a second. The RGB look's lights move, so its guide and pages are drawn again
+' up to 20 times a second, but, as with the demos, never more than half the time goes to
+' drawing (RgbWaitMs). Never 0, which would mean "wait for ever".
 function LoopWaitMs(st as object) as integer
     if st.mode = "stuck" then return StuckWaitMs(st)
     if st.mode = "testpat" then return TpWaitMs(st)
-    if GuideShowsGame(st) then return DemoWaitMs(st)
-    if st.mode <> "saver" or st.saver = invalid then return 1000
-    left = 33 - st.saver.frame.TotalMilliseconds()
-    if left < 1 then return 1
-    if left > 33 then return 33
-    return left
+    if st.mode = "saver" and st.saver <> invalid then
+        left = 33 - st.saver.frame.TotalMilliseconds()
+        if left < 1 then return 1
+        if left > 33 then return 33
+        return left
+    end if
+    ms = 1000
+    if GuideShowsGame(st) then ms = DemoWaitMs(st)
+    if st.look = "rgb" and st.mode <> "saver" and st.mode <> "aside" then
+        led = RgbWaitMs(st)
+        if ms > led then ms = led
+    end if
+    return ms
+end function
+
+' The RGB look's wait between drawings: 50 ms, or twice as long as the last one took to draw
+' (Tick measures it), up to a second.
+function RgbWaitMs(st as object) as integer
+    ms = 50
+    if st.tickMs <> invalid then
+        if 2 * st.tickMs > ms then ms = 2 * st.tickMs
+    end if
+    if ms > 1000 then ms = 1000
+    return ms
 end function
 
 ' Main's loop calls this on every turn while Rukus is on: a frame when one is due (whether the

@@ -2,7 +2,7 @@
 ' the TV check) shares one layout painted in the look's own colours and fonts (panel.brs).
 
 function LookList() as object
-    return ["cable", "b95", "phosphor", "vcr"]
+    return ["cable", "b95", "phosphor", "vcr", "rgb"]
 end function
 
 function IsLook(look as string) as boolean
@@ -16,6 +16,7 @@ function LookTitle(look as string) as string
     if look = "b95" then return "b0r3d 95"
     if look = "phosphor" then return "Phosphor terminal"
     if look = "vcr" then return "VCR menu"
+    if look = "rgb" then return "RGB LED lights"
     return "Late-night cable guide"
 end function
 
@@ -24,6 +25,7 @@ function LookColourNames(look as string) as object
     if look = "b95" then return ["Teal", "Blue", "Slate"]
     if look = "phosphor" then return ["Green", "Amber", "Cyan"]
     if look = "vcr" then return ["Blue", "Black", "Green"]
+    if look = "rgb" then return ["Rainbow Wave", "Neon Pulse", "Aurora Wave", "Spectrum Cycle"]
     return []
 end function
 
@@ -40,6 +42,9 @@ sub LoadLook(st as object)
     else if st.look = "vcr" then
         st.kit = VcrKit(st.colour)
         st.fonts = VcrFonts(st)
+    else if st.look = "rgb" then
+        st.kit = RgbKit(st.colour)
+        st.fonts = RgbFonts(st)
     else
         st.kit = CableKit()
         st.fonts = CableFonts(st)
@@ -53,6 +58,8 @@ sub DrawGuideFor(st as object)
         DrawPhosphorGuide(st)
     else if st.look = "vcr" then
         DrawVcrGuide(st)
+    else if st.look = "rgb" then
+        DrawRgbGuide(st)
     else
         DrawCableGuide(st)
     end if
@@ -102,6 +109,83 @@ function VcrKit(index as integer) as object
         grey: &hA8A8A8FF,
         noise: [&h1A1A1AFF, &h555555FF, &h9A9A9AFF, &hE6E6E6FF]
     }
+end function
+
+' The RGB LED lights look's four colourways: Rainbow Wave, Neon Pulse, Aurora Wave, Spectrum Cycle.
+function RgbKit(index as integer) as object
+    sets = [
+        {
+            bg: &h07090EFF,
+            well: &h020306FF,
+            card: &h0E1320FF,
+            highlight: &h182236FF,
+            track: &h141A28FF,
+            rule: &h1E283CFF,
+            frame: &h1E283CFF,
+            red: &hFF0033FF,
+            green: &h00FF66FF,
+            blue: &h0088FFFF,
+            accent: &hFFCC00FF,
+            white: &hF4F8FFFF,
+            soft: &hC8D4E8FF,
+            dim: &h64748CFF,
+            noise: [&h07090EFF, &h1E283CFF, &h0088FFFF, &hF4F8FFFF]
+        },
+        {
+            bg: &h0A0612FF,
+            well: &h040208FF,
+            card: &h160D26FF,
+            highlight: &h281642FF,
+            track: &h221238FF,
+            rule: &h3A1E60FF,
+            frame: &h3A1E60FF,
+            red: &hFF007FFF,
+            green: &h39FF14FF,
+            blue: &h00F0FFFF,
+            accent: &hFFD700FF,
+            white: &hFFFFFFFF,
+            soft: &hE0D0F8FF,
+            dim: &h7C5E9EFF,
+            noise: [&h0A0612FF, &h3A1E60FF, &hFF007FFF, &h00F0FFFF]
+        },
+        {
+            bg: &h050D12FF,
+            well: &h020608FF,
+            card: &h0B1820FF,
+            highlight: &h122632FF,
+            track: &h0F202AFF,
+            rule: &h1A3644FF,
+            frame: &h1A3644FF,
+            red: &h00FFAAFF,
+            green: &h00FF66FF,
+            blue: &h0088FFFF,
+            accent: &h00EEFFFF,
+            white: &hE8F8FAFF,
+            soft: &hB4D8E2FF,
+            dim: &h587888FF,
+            noise: [&h050D12FF, &h1A3644FF, &h00FFAAFF, &hE8F8FAFF]
+        },
+        {
+            bg: &h06070AFF,
+            well: &h020204FF,
+            card: &h0C0E16FF,
+            highlight: &h161A28FF,
+            track: &h121520FF,
+            rule: &h1E2232FF,
+            frame: &h1E2232FF,
+            red: &hFF3333FF,
+            green: &h33FF66FF,
+            blue: &h3388FFFF,
+            accent: &hFFAA00FF,
+            white: &hF0F4FCFF,
+            soft: &hC0C8D8FF,
+            dim: &h606878FF,
+            noise: [&h06070AFF, &h1E2232FF, &hFFAA00FF, &hF0F4FCFF]
+        }
+    ]
+    idx = index mod sets.Count()
+    if idx < 0 then idx = idx + sets.Count()
+    return sets[idx]
 end function
 
 ' Rukus in the look's colours: his own fur, or shades of the phosphor.

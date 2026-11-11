@@ -28,7 +28,8 @@ sub Main(args as dynamic)
         demoTimer: invalid,
         demoClock: invalid,
         tpDemo: invalid,
-        tpDemoTimer: invalid
+        tpDemoTimer: invalid,
+        tickMs: 0
     }
     ' TVFollow's hello comes as an input event (see tvfollow.brs). Listening starts first, since
     ' the hello can come while the rest is still starting.
@@ -218,9 +219,10 @@ sub OpenChannel(st as object)
     end try
 end sub
 
-' Once a second (five times while the preview box plays a game's demo): the clock moves on, a
-' channel that didn't open says so, Rukus comes on when b0r3d TV has sat idle long enough, and
-' the screen is drawn again, since Roku's own screensaver can wipe it while b0r3d TV is open.
+' Once a second (more often while the preview box plays a demo, or the RGB look's lights move):
+' the clock moves on, a channel that didn't open says so, Rukus comes on when b0r3d TV has sat
+' idle long enough, and the screen is drawn again, since Roku's own screensaver can wipe it while
+' b0r3d TV is open.
 sub Tick(st as object)
     st.clock = ClockNow()
     ' no hello yet: TVFollow may have connected before b0r3d TV was listening, so ask again
@@ -243,7 +245,10 @@ sub Tick(st as object)
         end if
     end if
     if SaverChores(st) then return
+    ' how long this takes to draw sets how often the RGB look's lights may move (RgbWaitMs)
+    timer = CreateObject("roTimespan")
     Redraw(st)
+    st.tickMs = timer.TotalMilliseconds()
 end sub
 
 sub Redraw(st as object)
