@@ -752,7 +752,7 @@ function TpChromeVcr(st as object, s as object, a as object) as object
     sh = Z(3, k)
     s.Clear(c.bg)
     DrawVcrTitle(st, "TEST PATTERN")
-    DrawVcrChannel(st, GameChannels()[1], Z(26, k))
+    DrawVcrChannel(st, GameChannel("game.test"), Z(26, k))
     slots = {}
     slots.score = { x: 420, y: 40, align: "l", font: f.value, color: c.white, bg: c.bg, prefix: "SCORE " }
     slots.lives = { x: 420, y: 80, align: "l", font: f.value, color: c.white, bg: c.bg, prefix: "LIVES " }

@@ -728,7 +728,7 @@ function StuckChromeVcr(st as object, s as object, a as object) as object
     sh = Z(3, k)
     s.Clear(c.bg)
     DrawVcrTitle(st, "STUCK PIXELS")
-    DrawVcrChannel(st, GameChannels()[0], Z(26, k))
+    DrawVcrChannel(st, GameChannel("game.stuck"), Z(26, k))
 
     ' left: each number's label, the number under it
     x = Z(56, k)
@@ -949,8 +949,9 @@ end function
 
 ' How often the guide is drawn again while its preview plays a demo: five times a second for
 ' Stuck Pixels, ten for Test Pattern (its ball moves), about nine for Snake, ten for b0r3d FM's
-' bars, twice for Commercial Breaks (its card turns over every 8 s), or less on a TV that takes
-' long to draw the guide (never more than half the time spent drawing).
+' bars, twice for Commercial Breaks (its card turns over every 8 s) and for the VCR (its 12:00
+' blinks), or less on a TV that takes long to draw the guide (never more than half the time
+' spent drawing).
 function DemoRedrawMs(st as object) as integer
     id = PreviewGameId(st)
     ms = 2 * st.guideMs
@@ -959,6 +960,7 @@ function DemoRedrawMs(st as object) as integer
     if id = "game.snake" then base = 110
     if id = "radio.fm" then base = 100
     if id = "promo.breaks" then base = 500
+    if id = "video.vcr" then base = 500
     if ms < base then ms = base
     if ms > 1000 then ms = 1000
     return ms
@@ -974,6 +976,7 @@ function DemoWaitMs(st as object) as integer
     if id = "game.snake" then timer = st.snakeDemoTimer
     if id = "radio.fm" then timer = st.fmDemoTimer
     if id = "promo.breaks" then timer = st.promoDemoTimer
+    if id = "video.vcr" then timer = st.deckDemoTimer
     if timer = invalid then return interval
     left = interval - timer.TotalMilliseconds()
     if left < 10 then return 10
@@ -997,15 +1000,17 @@ sub DrawGamePreview(st as object, ch as object, x as integer, y as integer, w as
         DrawSnakePreview(st, x, y, w, h)
     else if ch.id = "promo.breaks" then
         DrawPromoPreview(st, x, y, w, h)
+    else if ch.id = "video.vcr" then
+        DrawDeckPreview(st, x, y, w, h)
     else
         DrawStuckPreview(st, x, y, w, h)
     end if
 end sub
 
-' Whether a channel's preview box plays a demo of it: the games, b0r3d FM and Commercial
-' Breaks, in every look.
+' Whether a channel's preview box plays a demo of it: the games, b0r3d FM, Commercial Breaks
+' and the VCR, in every look.
 function HasPreview(ch as object) as boolean
-    return ch.kind = "game" or ch.kind = "radio" or ch.kind = "promo"
+    return ch.kind = "game" or ch.kind = "radio" or ch.kind = "promo" or ch.kind = "vcr"
 end function
 
 ' Whether the guide's highlight is on a channel with a demo in its preview box.

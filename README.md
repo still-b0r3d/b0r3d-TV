@@ -12,13 +12,19 @@ It comes in five looks:
 - **VCR menu:** an on-screen menu with a picture-in-picture box
 - **RGB LED lights:** a dark case lit by strips of colour-changing LEDs
 
-b0r3d's own channels are three games, **Stuck Pixels** (a falling-block game), **Test Pattern** (a brick breaker) and **Snake**, a radio station, **b0r3d FM**, and **Commercial Breaks**, late-night ads for b0r3d's games.
+b0r3d's own channels are a **VCR**, three games, **Stuck Pixels** (a falling-block game), **Test Pattern** (a brick breaker) and **Snake**, a radio station, **b0r3d FM**, and **Commercial Breaks**, late-night ads for b0r3d's games.
 
 ## Status
 
-0.71 is a test build. Every app on your TV gets a channel, and the guide remembers the channel you opened last. Its ON NOW column lists a made-up late-night show for each channel, changing every half hour. Settings (the ✱ key) picks the look (the late-night cable guide, b0r3d 95 on a teal, blue or slate desktop, the phosphor terminal in green, amber or cyan, the VCR menu in blue, black or green, or the RGB LED lights in four colourways), shows, hides and reorders the channels, and sets the clock, the sound, the screensaver and the screen size. Its TV check page shows what your TV allows. Opening a channel tunes in with a burst of static and the channel's banner. b0r3d's own channels are 20 to 24: Stuck Pixels, Test Pattern, b0r3d FM, Snake and Commercial Breaks. Each one's preview box in the guide plays a demo of it.
+0.71 is a test build. Every app on your TV gets a channel, and the guide remembers the channel you opened last. Its ON NOW column lists a made-up late-night show for each channel, changing every half hour. Settings (the ✱ key) picks the look (the late-night cable guide, b0r3d 95 on a teal, blue or slate desktop, the phosphor terminal in green, amber or cyan, the VCR menu in blue, black or green, or the RGB LED lights in four colourways), shows, hides and reorders the channels, and sets the clock, the sound, the screensaver and the screen size. Its TV check page shows what your TV allows. Opening a channel tunes in with a burst of static and the channel's banner. b0r3d's own channels are 3 and 20 to 24: the VCR, Stuck Pixels, Test Pattern, b0r3d FM, Snake and Commercial Breaks. Each one's preview box in the guide plays a demo of it, or for the VCR a small copy of its screen.
 
 Roku TVs don't let an app switch the TV's inputs. [TVFollow](https://github.com/still-b0r3d/TVFollow) can do it for b0r3d TV: with TVFollow 1.3 (coming soon) running on your PC and **Let the app switch the TV's inputs** ticked in its developer tools, your TV's inputs (HDMI, the antenna) show up as channels a few seconds after b0r3d TV opens, and opening one switches the TV. Without TVFollow, b0r3d TV leaves the inputs to Roku's own home screen. And when you leave an app you opened from b0r3d TV, the TV goes to Roku's home screen, not back to b0r3d TV. To come back quickly, move b0r3d TV to the first spot on the home screen: highlight it there, press ✱ and move it.
+
+## VCR
+
+A VCR on channel 3, where old VCRs played. It has no tape yet: its blue screen says STOP and NO TAPE, and its clock blinks 12:00, the time nobody ever set. It looks the same in every look.
+
+A tape goes in with the launch parameter `tape`, set to a video's address: an `http://` or `https://` address of up to 2000 characters, of an MP4 file or of an HLS stream ending in `.m3u8`. Sent while b0r3d TV is open (as an input command), it does the same. The VCR comes on and plays the tape full screen, showing PLAY and the tape counter for 5 seconds. The tape isn't kept: when b0r3d TV closes, it's gone. Like b0r3d FM, the VCR keeps Rukus away while a tape plays, and keeps the TV awake only with Settings → Screensaver on its first pick.
 
 ## Stuck Pixels
 
@@ -100,6 +106,12 @@ On b0r3d FM and Commercial Breaks:
 - **OK or Play:** pause, and carry on from the same spot
 - **Left and right, rewind and fast-forward:** skip (on b0r3d FM, up and down too)
 - **Back:** back to the guide
+
+On the VCR:
+
+- **OK or Play:** pause, and carry on; at the end of the tape, or after NO SIGNAL, play it again
+- **✱:** show or hide PLAY and the tape counter
+- **Back:** stop the tape and go back to the guide
 
 On a game's high-score page, **up and down** switch between the TV's table and the online one.
 

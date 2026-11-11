@@ -1,11 +1,13 @@
 ' b0r3d TV: a home screen for Roku TVs that looks like an old cable box.
 ' Everything is drawn on one 2D screen: 1920 x 1080 where the TV allows it, else 1280 x 720.
 ' Screens (st.mode): the guide, Settings, the channel list, the TV check, the Screensaver check,
-' About and clearing the high scores; "stuck" while Stuck Pixels (channel 20) is open
-' (stuckplay.brs), "testpat" while Test Pattern (channel 21) is open (tpplay.brs), "fm" for
-' b0r3d FM (22, fm.brs), "snake" for Snake (23, snakeplay.brs), "promo" for Commercial Breaks
-' (24, promos.brs); "hijack" while Agent Ø's signal is on (hijack.brs); "saver" while Rukus is
-' on, "aside" while b0r3d TV steps aside for the TV's own screensaver (saver.brs).
+' About and clearing the high scores; "deck" while the VCR (channel 3, deck.brs) is on, "stuck"
+' while Stuck Pixels (channel 20) is open (stuckplay.brs), "testpat" while Test Pattern
+' (channel 21) is open (tpplay.brs), "fm" for b0r3d FM (22, fm.brs), "snake" for Snake (23,
+' snakeplay.brs), "promo" for Commercial Breaks (24, promos.brs); "hijack" while Agent Ø's
+' signal is on (hijack.brs); "saver" while Rukus is on, "aside" while b0r3d TV steps aside for
+' the TV's own screensaver (saver.brs). A deep link with a tape (tape=<a video's address>), at
+' launch or later, turns the VCR on and plays it (deck.brs).
 
 sub Main(args as dynamic)
     st = {
@@ -59,11 +61,13 @@ sub Main(args as dynamic)
     PrintAnswers(st)
     GreetTvFollow(st)
     Redraw(st)
+    ' launched with a tape: the VCR comes on and plays it
+    if DeckHasTape(args) then DeckTakeTape(st, args.tape)
 
     while true
         msg = wait(LoopWaitMs(st), st.port)
         if msg = invalid then
-            if st.mode <> "saver" and st.mode <> "stuck" and st.mode <> "testpat" and st.mode <> "snake" and st.mode <> "fm" and st.mode <> "promo" and st.mode <> "hijack" then Tick(st)
+            if st.mode <> "saver" and st.mode <> "stuck" and st.mode <> "testpat" and st.mode <> "snake" and st.mode <> "fm" and st.mode <> "promo" and st.mode <> "deck" and st.mode <> "hijack" then Tick(st)
         else if type(msg) = "roUniversalControlEvent" then
             code = msg.GetInt()
             if code < 100 then
@@ -88,14 +92,19 @@ sub Main(args as dynamic)
                 SnakeKey(st, code)
             end if
         else if type(msg) = "roInputEvent" then
-            if TakeTvFollowHello(st, msg.GetInfo()) then
+            ' TVFollow's hello, or a tape for the VCR
+            params = msg.GetInfo()
+            if TakeTvFollowHello(st, params) then
                 AddInputChannels(st)
                 Redraw(st)
             end if
+            if DeckHasTape(params) then DeckTakeTape(st, params.tape)
         else if type(msg) = "roDeviceInfoEvent" then
             ScreensaverEvent(st, msg.GetInfo())
         else if type(msg) = "roAudioPlayerEvent" then
             if st.fm <> invalid then FmAudioEvent(st, msg)
+        else if type(msg) = "roVideoPlayerEvent" then
+            DeckEvent(st, msg)
         else if type(msg) = "roUrlEvent" then
             BoardUrlEvent(st, msg)
         else if type(msg) = "roSGNodeEvent" or type(msg) = "roSGScreenEvent" then
@@ -110,6 +119,7 @@ sub Main(args as dynamic)
         if st.mode = "snake" then SnakeTurn(st)
         if st.mode = "fm" then FmTurn(st)
         if st.mode = "promo" then PromoTurn(st)
+        if st.mode = "deck" then DeckTurn(st)
         if st.mode = "hijack" then HijackTurn(st)
         if st.quit then exit while
     end while
@@ -139,6 +149,9 @@ function HandleKey(st as object, code as integer) as boolean
         return true
     else if st.mode = "promo" then
         PromoKey(st, code)
+        return true
+    else if st.mode = "deck" then
+        DeckKey(st, code)
         return true
     else if st.mode = "clearscores" then
         ClearScoresKey(st, code)
@@ -225,7 +238,7 @@ sub OpenChannel(st as object)
     ch = st.channels[st.focus]
     RememberOpened(ch.id)
     TuneIn(st, ch)
-    if ch.kind = "game" or ch.kind = "radio" or ch.kind = "promo" then
+    if ch.kind = "game" or ch.kind = "radio" or ch.kind = "promo" or ch.kind = "vcr" then
         st.note = ""
         st.noteTimer = invalid
         OpenGame(st, ch.id)
@@ -303,6 +316,8 @@ sub Redraw(st as object)
         DrawFmScreen(st)
     else if st.mode = "promo" then
         DrawPromoScreen(st)
+    else if st.mode = "deck" then
+        DrawDeckScreen(st)
     else if st.mode = "clearscores" then
         DrawClearScores(st)
     else if st.mode = "settings" then

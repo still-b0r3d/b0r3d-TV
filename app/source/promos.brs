@@ -34,8 +34,8 @@ function PromoSpots() as object
         {
             tag: "A PUBLIC SERVICE ANNOUNCEMENT",
             title: "DON'T TOUCH THAT DIAL",
-            sub: "b0r3d TV'S OWN CHANNELS: 20 TO 24.",
-            bullet1: "Three games, a radio station and these commercials.",
+            sub: "b0r3d TV'S OWN CHANNELS: 3 AND 20 TO 24.",
+            bullet1: "A VCR, three games, a radio station and these commercials.",
             bullet2: "Leave the remote alone for a while and Rukus comes by.",
             cta: "THIS HAS BEEN A TEST. STAY TUNED.",
             accent: &hFFD700FF
