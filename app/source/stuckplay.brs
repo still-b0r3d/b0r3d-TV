@@ -75,6 +75,7 @@ function NewStuckPixels() as object
         fps: { frames: 0, shown: -1, timer: CreateObject("roTimespan") },
         result: invalid,
         scoresMode: "marathon",
+        scoresOnline: false,
         scoresFrom: "menu",
         howtoFrom: "menu",
         sounds: LoadStuckSounds()
@@ -232,6 +233,7 @@ sub StartStuckRun(st as object)
     sp.view = "play"
     sp.clock.Mark()
     sp.lastMs = 0
+    RequestRunToken(st, BoardKeyFor("stuck", sp.mode))
     Redraw(st)
 end sub
 
@@ -282,6 +284,7 @@ sub SaveStuckInitials(st as object)
     r.place = ScoreInsert(list, entry, r.mode = "sprint")
     r.saved = (r.place >= 0)
     SaveStuckScores(r.mode, list)
+    SubmitOnlineScore(st, BoardKeyFor("stuck", r.mode), initials, r.score)
     sp.initials = initials
     RegWrite("sp.initials", initials)
     sp.view = "results"
@@ -339,10 +342,17 @@ sub StuckKey(st as object, code as integer)
     else if v = "initials" then
         StuckInitialsKey(st, code)
     else if v = "scores" then
+        board = BoardKeyFor("stuck", sp.scoresMode)
         if code = 4 or code = 5 then
             delta = 1
             if code = 4 then delta = -1
             sp.scoresMode = NextIn(SpModes(), sp.scoresMode, delta)
+            board = BoardKeyFor("stuck", sp.scoresMode)
+            if board = "" then sp.scoresOnline = false
+            FetchOnlineScores(st, board)
+        else if (code = 2 or code = 3) and board <> "" then
+            ' up and down: the TV's own table or the online one, for a mode that has one
+            sp.scoresOnline = not sp.scoresOnline
         else if code = 0 or code = 6 then
             sp.view = sp.scoresFrom
         end if
@@ -420,9 +430,7 @@ sub StuckMenuKey(st as object, code as integer)
         if id = "play" then
             StartStuckRun(st)
         else if id = "scores" then
-            sp.scoresMode = sp.mode
-            sp.scoresFrom = "menu"
-            sp.view = "scores"
+            ShowStuckScores(st, sp.mode, "menu")
         else if id = "howto" then
             sp.howtoFrom = "menu"
             sp.view = "howto"
@@ -491,9 +499,7 @@ sub StuckResultsKey(st as object, code as integer)
         if id = "again" then
             StartStuckRun(st)
         else if id = "scores" then
-            sp.scoresMode = sp.result.mode
-            sp.scoresFrom = "results"
-            sp.view = "scores"
+            ShowStuckScores(st, sp.result.mode, "results")
         else if id = "menu" then
             sp.view = "menu"
             sp.sel = 0
@@ -548,7 +554,13 @@ sub DrawStuck(st as object)
     else if v = "initials" then
         DrawPanel(st, { title: "New high score", rows: StuckInitialsRows(st), sel: sp.sel, info: false, hint: "Left and right pick a letter · OK goes on · Back saves" })
     else if v = "scores" then
-        DrawPanel(st, { title: "High scores: " + StuckModeTitle(sp.scoresMode), rows: StuckScoreRows(st), sel: -1, info: true, hint: "Left and right switch the mode · Back goes back" })
+        title = "High scores: " + StuckModeTitle(sp.scoresMode)
+        hint = "Left and right switch the mode · Back goes back"
+        if BoardKeyFor("stuck", sp.scoresMode) <> "" then
+            if sp.scoresOnline then title = "Online board: " + StuckModeTitle(sp.scoresMode)
+            hint = "Left and right switch the mode · Up and down: this TV or online · Back goes back"
+        end if
+        DrawPanel(st, { title: title, rows: StuckScoreRows(st), sel: -1, info: true, hint: hint })
     else if v = "howto" then
         DrawPanel(st, { title: "How to play", rows: StuckHowToRows(), sel: -1, info: true, hint: "Back goes back" })
     end if
@@ -684,10 +696,24 @@ function StuckInitialsRows(st as object) as object
     ]
 end function
 
-' A mode's table: place and initials, then the score (Sprint 40: the time) and more.
+' The scores page opens on the TV's own table for the mode and asks still.b0r3d.org for the
+' mode's online one (Marathon only).
+sub ShowStuckScores(st as object, mode as string, from as string)
+    sp = st.sp
+    sp.scoresMode = mode
+    sp.scoresFrom = from
+    sp.scoresOnline = false
+    sp.view = "scores"
+    FetchOnlineScores(st, BoardKeyFor("stuck", mode))
+end sub
+
+' A mode's table: place and initials, then the score (Sprint 40: the time) and more. With up
+' or down, the mode's online board instead.
 function StuckScoreRows(st as object) as object
     sp = st.sp
     mode = sp.scoresMode
+    board = BoardKeyFor("stuck", mode)
+    if sp.scoresOnline and board <> "" then return OnlineScoreRows(st, board)
     list = LoadStuckScores(mode)
     rows = []
     newPlace = -1

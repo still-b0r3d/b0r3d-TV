@@ -50,6 +50,7 @@ function NewTestPattern() as object
         result: invalid,
         bestText: "---",
         scoresMode: "campaign",
+        scoresOnline: false,
         scoresFrom: "menu",
         howtoFrom: "menu",
         sounds: LoadTpSounds()
@@ -210,6 +211,7 @@ sub StartTpRun(st as object)
     tp.view = "play"
     tp.clock.Mark()
     tp.lastMs = 0
+    RequestRunToken(st, BoardKeyFor("testpat", tp.mode))
     Redraw(st)
 end sub
 
@@ -258,6 +260,7 @@ sub SaveTpInitials(st as object)
     r.place = ScoreInsert(list, entry, false)
     r.saved = (r.place >= 0)
     SaveTpScores(r.mode, list)
+    SubmitOnlineScore(st, BoardKeyFor("testpat", r.mode), initials, r.score)
     tp.initials = initials
     RegWrite("tp.initials", initials)
     tp.view = "results"
@@ -322,6 +325,10 @@ sub TpKey(st as object, code as integer)
             delta = 1
             if code = 4 then delta = -1
             tp.scoresMode = NextIn(TpModes(), tp.scoresMode, delta)
+            FetchOnlineScores(st, BoardKeyFor("testpat", tp.scoresMode))
+        else if code = 2 or code = 3 then
+            ' up and down: the TV's own table or the online one
+            tp.scoresOnline = not tp.scoresOnline
         else if code = 0 or code = 6 then
             tp.view = tp.scoresFrom
         end if
@@ -373,9 +380,7 @@ sub TpMenuKey(st as object, code as integer)
         if id = "play" then
             StartTpRun(st)
         else if id = "scores" then
-            tp.scoresMode = tp.mode
-            tp.scoresFrom = "menu"
-            tp.view = "scores"
+            ShowTpScores(st, tp.mode, "menu")
         else if id = "howto" then
             tp.howtoFrom = "menu"
             tp.view = "howto"
@@ -439,9 +444,7 @@ sub TpResultsKey(st as object, code as integer)
         if id = "again" then
             StartTpRun(st)
         else if id = "scores" then
-            tp.scoresMode = tp.result.mode
-            tp.scoresFrom = "results"
-            tp.view = "scores"
+            ShowTpScores(st, tp.result.mode, "results")
         else if id = "menu" then
             tp.view = "menu"
             tp.sel = 0
@@ -496,7 +499,9 @@ sub DrawTestPattern(st as object)
     else if v = "initials" then
         DrawPanel(st, { title: "New high score", rows: TpInitialsRows(st), sel: tp.sel, info: false, hint: "Left and right pick a letter · OK goes on · Back saves" })
     else if v = "scores" then
-        DrawPanel(st, { title: "High scores: " + TpModeTitle(tp.scoresMode), rows: TpScoreRows(st), sel: -1, info: true, hint: "Left and right switch the mode · Back goes back" })
+        title = "High scores: " + TpModeTitle(tp.scoresMode)
+        if tp.scoresOnline then title = "Online board: " + TpModeTitle(tp.scoresMode)
+        DrawPanel(st, { title: title, rows: TpScoreRows(st), sel: -1, info: true, hint: "Left and right switch the mode · Up and down: this TV or online · Back goes back" })
     else if v = "howto" then
         DrawPanel(st, { title: "How to play", rows: TpHowToRows(), sel: -1, info: true, hint: "Back goes back" })
     end if
@@ -606,10 +611,23 @@ function TpInitialsRows(st as object) as object
     ]
 end function
 
-' A mode's table: place and initials, then the score, the wall reached and the difficulty.
+' The scores page opens on the TV's own table for the mode and asks still.b0r3d.org for the
+' mode's online one.
+sub ShowTpScores(st as object, mode as string, from as string)
+    tp = st.tp
+    tp.scoresMode = mode
+    tp.scoresFrom = from
+    tp.scoresOnline = false
+    tp.view = "scores"
+    FetchOnlineScores(st, BoardKeyFor("testpat", mode))
+end sub
+
+' A mode's table: place and initials, then the score, the wall reached and the difficulty. With
+' up or down, the mode's online board instead.
 function TpScoreRows(st as object) as object
     tp = st.tp
     mode = tp.scoresMode
+    if tp.scoresOnline then return OnlineScoreRows(st, BoardKeyFor("testpat", mode))
     list = LoadTpScores(mode)
     rows = []
     newPlace = -1

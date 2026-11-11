@@ -29,6 +29,9 @@ sub Main(args as dynamic)
         demoClock: invalid,
         tpDemo: invalid,
         tpDemoTimer: invalid,
+        boardReqs: {},
+        boardAsk: {},
+        runTokens: {},
         tickMs: 0
     }
     ' TVFollow's hello comes as an input event (see tvfollow.brs). Listening starts first, since
@@ -84,6 +87,8 @@ sub Main(args as dynamic)
             end if
         else if type(msg) = "roDeviceInfoEvent" then
             ScreensaverEvent(st, msg.GetInfo())
+        else if type(msg) = "roUrlEvent" then
+            BoardUrlEvent(st, msg)
         else if type(msg) = "roSGNodeEvent" or type(msg) = "roSGScreenEvent" then
             ' a key on the stand-in screen, or that screen closing: back from stepping aside
             ' (the event lets go of the stand-in first, so nothing holds it open)
