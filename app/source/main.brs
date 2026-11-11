@@ -4,8 +4,8 @@
 ' About and clearing the high scores; "stuck" while Stuck Pixels (channel 20) is open
 ' (stuckplay.brs), "testpat" while Test Pattern (channel 21) is open (tpplay.brs), "fm" for
 ' b0r3d FM (22, fm.brs), "snake" for Snake (23, snakeplay.brs), "promo" for Commercial Breaks
-' (24, promos.brs); "saver" while Rukus is on, "aside" while b0r3d TV steps aside for the TV's
-' own screensaver (saver.brs).
+' (24, promos.brs); "hijack" while Agent Ø's signal is on (hijack.brs); "saver" while Rukus is
+' on, "aside" while b0r3d TV steps aside for the TV's own screensaver (saver.brs).
 
 sub Main(args as dynamic)
     st = {
@@ -63,7 +63,7 @@ sub Main(args as dynamic)
     while true
         msg = wait(LoopWaitMs(st), st.port)
         if msg = invalid then
-            if st.mode <> "saver" and st.mode <> "stuck" and st.mode <> "testpat" and st.mode <> "snake" and st.mode <> "fm" and st.mode <> "promo" then Tick(st)
+            if st.mode <> "saver" and st.mode <> "stuck" and st.mode <> "testpat" and st.mode <> "snake" and st.mode <> "fm" and st.mode <> "promo" and st.mode <> "hijack" then Tick(st)
         else if type(msg) = "roUniversalControlEvent" then
             code = msg.GetInt()
             if code < 100 then
@@ -110,6 +110,7 @@ sub Main(args as dynamic)
         if st.mode = "snake" then SnakeTurn(st)
         if st.mode = "fm" then FmTurn(st)
         if st.mode = "promo" then PromoTurn(st)
+        if st.mode = "hijack" then HijackTurn(st)
         if st.quit then exit while
     end while
 end sub
@@ -118,6 +119,12 @@ end sub
 function HandleKey(st as object, code as integer) as boolean
     ' no 2D screen (stepping aside): nothing to act on
     if st.screen = invalid then return true
+    if st.mode = "hijack" then
+        HijackKey(st, code)
+        return true
+    end if
+    ' Agent Ø's code counts only keys pressed on the guide
+    if st.mode <> "guide" then st.keyBuffer = invalid
     if st.mode = "stuck" then
         StuckKey(st, code)
         return true
@@ -149,6 +156,8 @@ function HandleKey(st as object, code as integer) as boolean
         end if
         return true
     end if
+    ' the guide; the key that completes Agent Ø's code does nothing else (hijack.brs)
+    if CheckHijackTrigger(st, code) then return true
     if code = 0 then
         return false
     else if code = 2 then
@@ -282,6 +291,8 @@ sub Redraw(st as object)
     if st.screen = invalid then return
     if st.mode = "saver" then
         DrawSaver(st)
+    else if st.mode = "hijack" then
+        DrawHijack(st)
     else if st.mode = "stuck" then
         DrawStuck(st)
     else if st.mode = "testpat" then

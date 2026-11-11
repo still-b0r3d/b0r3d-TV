@@ -40,6 +40,9 @@ function NewSaver(st as object) as object
     k = st.k
     sv = {
         frame: CreateObject("roTimespan"),
+        onTimer: CreateObject("roTimespan"),
+        hijackTimer: CreateObject("roTimespan"),
+        hijacked: false,
         tick: 0,
         u: Z(8, k),
         bg: &h000000FF,
@@ -585,6 +588,8 @@ sub SaverProbes(st as object)
     ' the idle-clock reset: does the call exist at all? (b0r3d TV has only just opened, so
     ' resetting the idle clock now changes nothing)
     st.canReset = true
+    ' whether this run has seen the reset work (FinishIdleTest)
+    st.keepWorks = false
     st.idleResult = RegRead("idlereset", "not tried yet: it runs 20 s into a wait, when Rukus keeps the TV awake")
     try
         st.am.UpdateLastKeyPressTime()
@@ -620,6 +625,7 @@ function LoopWaitMs(st as object) as integer
     if st.mode = "snake" then return SnakeWaitMs(st)
     if st.mode = "fm" then return 33
     if st.mode = "promo" then return PromoWaitMs(st)
+    if st.mode = "hijack" then return HijackWaitMs(st)
     if st.mode = "saver" and st.saver <> invalid then
         left = 33 - st.saver.frame.TotalMilliseconds()
         if left < 1 then return 1
@@ -647,11 +653,12 @@ function RgbWaitMs(st as object) as integer
 end function
 
 ' Main's loop calls this on every turn while Rukus is on: a frame when one is due (whether the
-' wait ran out or a message came), then the chores.
+' wait ran out or a message came), then the chores, and now and then Agent Ø (hijack.brs).
 sub SaverTurn(st as object)
     if st.saver = invalid then return
     if st.saver.frame.TotalMilliseconds() >= 30 then SaverFrame(st)
-    SaverChores(st)
+    if SaverChores(st) then return
+    MaybeIdleHijack(st)
 end sub
 
 ' The TV's screensaver wait in seconds (0: its screensaver is off), from the TV when it says,
@@ -762,6 +769,7 @@ sub FinishIdleTest(st as object)
     after = TvIdleSeconds(st)
     stamp = ", at " + ClockText(st, false)
     if after >= 0 and after < before then
+        st.keepWorks = true
         SaveIdleResult(st, "works: the TV's idle time went from " + before.ToStr() + " s to " + after.ToStr() + " s" + stamp)
     else
         SaveIdleResult(st, "the call ran, but the TV's idle time went on to " + after.ToStr() + " s" + stamp)
@@ -885,9 +893,13 @@ sub ScreensaverEvent(st as object, info as dynamic)
     ' the TV's own black screen came over b0r3d TV, so Rukus didn't stay on past its time
     during = ""
     if st.mode = "saver" then during = ", while Rukus was on"
+    if st.mode = "hijack" then during = ", while Agent Ø's signal was on"
     RegWrite("blank", "came on over b0r3d TV and went" + during + " (" + ClockText(st, false) + ")")
     if st.mode = "saver" then
         StopSaver(st)
+    else if st.mode = "hijack" then
+        ' as a key: the signal ends, and from Rukus so does he
+        StopHijack(st, true)
     else
         Redraw(st)
     end if
