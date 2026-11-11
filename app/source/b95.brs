@@ -116,7 +116,7 @@ sub DrawB95Guide(st as object)
     if ch <> invalid then
         iy = Z(448, k)
         B95Text(s, B95Trim(ch.n + "  " + ch.name, f.name, Z(1246, k) - ix, k, true), ix, iy, c.black, f.name, k, true)
-        B95Text(s, B95Trim(ch.now, f.now, Z(1246, k) - ix, k, false), ix, iy + f.name.GetOneLineHeight() + Z(8, k), c.black, f.now, k, false)
+        B95Text(s, B95Trim(ChannelListing(st, ch), f.now, Z(1246, k) - ix, k, false), ix, iy + f.name.GetOneLineHeight() + Z(8, k), c.black, f.now, k, false)
     end if
     bw = Z(150, k)
     bh = Z(44, k)

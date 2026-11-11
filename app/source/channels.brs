@@ -51,7 +51,7 @@ function BuildChannels() as object
 end function
 
 function MakeChannel(id as string, name as string, sign as string, now as string, kind as string) as object
-    return { id: id, name: name, sign: sign, now: now, kind: kind, n: "", shown: true }
+    return { id: id, name: name, sign: sign, now: now, tagline: now, kind: kind, n: "", shown: true }
 end function
 
 ' Puts the channels in the saved order (new inputs go in front, new apps at the end), marks

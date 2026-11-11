@@ -100,7 +100,7 @@ sub DrawVcrGuide(st as object)
         dy = Z(500, k)
         DrawShadowed(s, TrimToWidth(UCase(ch.name), f.name, pw), dx, dy, c.white, c.shadow, f.name, sh)
         dy = dy + f.name.GetOneLineHeight() + Z(8, k)
-        DrawShadowed(s, TrimToWidth(UCase(ch.now), f.now, pw), dx, dy, c.white, c.shadow, f.now, sh)
+        DrawShadowed(s, TrimToWidth(UCase(ChannelListing(st, ch)), f.now, pw), dx, dy, c.white, c.shadow, f.now, sh)
         if st.note <> "" then
             dy = dy + f.now.GetOneLineHeight() + Z(8, k)
             DrawShadowed(s, TrimToWidth(UCase(st.note), f.now, pw), dx, dy, c.yellow, c.shadow, f.now, sh)

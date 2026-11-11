@@ -337,6 +337,8 @@ function ClockNow() as object
         date: day + " " + months[dt.GetMonth() - 1] + " " + dt.GetDayOfMonth().ToStr(),
         isoDate: day + " " + dt.GetYear().ToStr() + "-" + TwoDigits(dt.GetMonth()) + "-" + TwoDigits(dt.GetDayOfMonth()),
         minute: hours * 60 + mins,
-        second: secs
+        second: secs,
+        hours: hours,
+        mins: mins
     }
 end function

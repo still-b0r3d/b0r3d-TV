@@ -106,7 +106,7 @@ sub DrawPhosphorGuide(st as object)
         dw = right - dx
         DrawGlow(s, TrimToWidth("> " + UCase(ch.name), f.detail, dw), dx, dy, c.full, c.glow, f.detail, glow)
         dy = dy + f.detail.GetOneLineHeight() + Z(6, k)
-        s.DrawText(TrimToWidth("  " + UCase(ch.now), f.detailSmall, dw), dx, dy, c.dim, f.detailSmall)
+        s.DrawText(TrimToWidth("  " + UCase(ChannelListing(st, ch)), f.detailSmall, dw), dx, dy, c.dim, f.detailSmall)
         dy = dy + f.detailSmall.GetOneLineHeight() + Z(6, k)
         hint = UCase(OkWord(ch))
         if st.note <> "" then hint = UCase(st.note)

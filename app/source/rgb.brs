@@ -313,7 +313,7 @@ sub DrawRgbGuide(st as object)
     if ch <> invalid then
         detY = pipY + pipH + Z(20, k)
         s.DrawText(ch.n + " · " + ch.name, pipX, detY, c.white, f.name)
-        nowText = ch.now
+        nowText = ChannelListing(st, ch)
         s.DrawText(TrimToWidth(nowText, f.now, pipW), pipX, detY + Z(40, k), c.soft, f.now)
 
         if st.note <> "" then

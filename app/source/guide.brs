@@ -90,7 +90,7 @@ sub DrawCableGuide(st as object)
         sy = ny + f.num.GetAscent() - f.sign.GetAscent()
         s.DrawText(ch.sign, sx, sy, c.white, f.sign)
         s.DrawText(TrimToWidth(ch.name, f.name, right - x), x, Z(181, k), c.text, f.name)
-        s.DrawText(TrimToWidth(ch.now, f.now, right - x), x, Z(227, k), c.soft, f.now)
+        s.DrawText(TrimToWidth(ChannelListing(st, ch), f.now, right - x), x, Z(227, k), c.soft, f.now)
     end if
     sc = Z(7, k)
     rukusX = right - 16 * sc
@@ -138,7 +138,7 @@ sub DrawCableGuide(st as object)
         s.DrawRect(x3, ry, w3, rh, b3)
         DrawCentered(s, row.n, gx, ry, w1, rh, fg, f.cellNum)
         DrawMiddleSpaced(s, row.sign, x2 + Z(14, k), ry, rh, fg, f.cellSign, Z(1, k))
-        DrawMiddle(s, TrimToWidth(row.now, f.cellNow, w3 - Z(32, k)), x3 + Z(16, k), ry, rh, fg, f.cellNow)
+        DrawMiddle(s, TrimToWidth(ChannelListing(st, row), f.cellNow, w3 - Z(32, k)), x3 + Z(16, k), ry, rh, fg, f.cellNow)
     end for
 
     DrawGuideBar(st, ch, count)
