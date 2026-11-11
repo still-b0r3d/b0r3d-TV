@@ -79,7 +79,7 @@ b0r3d TV installs through Roku's developer mode, which lets a TV hold one app yo
 
 1. Turn on developer mode on your Roku TV (Roku's developer documentation shows how).
 2. Zip everything inside the `app` folder, so `manifest` sits at the top of the zip.
-3. In a browser, open your TV's address (for example `http://192.168.1.20`), sign in as `rokudev` with the password you chose, and install the zip.
+3. In a browser, open your TV's address (the TV shows it in Settings → Network → About), sign in as `rokudev` with the password you chose, and install the zip.
 
 ## What's here
 
