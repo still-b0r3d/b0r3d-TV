@@ -231,7 +231,7 @@ sub Tick(st as object)
         end if
     end if
     if st.noteTimer <> invalid then
-        if st.noteTimer.TotalMilliseconds() > 4000 then
+        if st.noteTimer.TotalMilliseconds() > 6000 then
             if st.noteInput then
                 st.note = "Nothing yet: TVFollow didn't switch to " + st.noteName + "."
                 ' a fresh hello, in case TVFollow connected again and its new token didn't arrive
