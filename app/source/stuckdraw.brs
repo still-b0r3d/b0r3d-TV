@@ -948,22 +948,27 @@ function StuckDemo(st as object) as object
 end function
 
 ' How often the guide is drawn again while its preview plays a demo: five times a second for
-' Stuck Pixels, ten for Test Pattern (its ball moves), or less on a TV that takes long to draw
-' the guide (never more than half the time spent drawing).
+' Stuck Pixels, ten for Test Pattern (its ball moves), about nine for Snake, or less on a TV that
+' takes long to draw the guide (never more than half the time spent drawing).
 function DemoRedrawMs(st as object) as integer
+    id = PreviewGameId(st)
     ms = 2 * st.guideMs
     base = 200
-    if PreviewGameId(st) = "game.test" then base = 100
+    if id = "game.test" then base = 100
+    if id = "game.snake" then base = 110
     if ms < base then ms = base
     if ms > 1000 then ms = 1000
     return ms
 end function
 
-' How long Main's loop waits while the guide's preview shows a demo: until it's drawn again.
+' How long Main's loop waits while the guide's preview shows a demo: until it's due again. Each
+' preview marks its own timer when it moves on.
 function DemoWaitMs(st as object) as integer
+    id = PreviewGameId(st)
     interval = DemoRedrawMs(st)
     timer = st.demoTimer
-    if PreviewGameId(st) = "game.test" then timer = st.tpDemoTimer
+    if id = "game.test" then timer = st.tpDemoTimer
+    if id = "game.snake" then timer = st.snakeDemoTimer
     if timer = invalid then return interval
     left = interval - timer.TotalMilliseconds()
     if left < 10 then return 10
@@ -981,6 +986,8 @@ end function
 sub DrawGamePreview(st as object, ch as object, x as integer, y as integer, w as integer, h as integer)
     if ch.id = "game.test" then
         DrawTpPreview(st, x, y, w, h)
+    else if ch.id = "game.snake" then
+        DrawSnakePreview(st, x, y, w, h)
     else
         DrawStuckPreview(st, x, y, w, h)
     end if

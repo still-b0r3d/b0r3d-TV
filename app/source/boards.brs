@@ -20,6 +20,8 @@ function BoardKeyFor(game as string, mode as string) as string
     else if game = "testpat" then
         if mode = "endless" then return "b0r3dtv_test_pattern_endless"
         return "b0r3dtv_test_pattern"
+    else if game = "snake" then
+        return "b0r3dtv_snake"
     end if
     return ""
 end function
@@ -152,6 +154,9 @@ function ScoresPageVisible(st as object, boardKey as string) as boolean
     end if
     if st.mode = "testpat" and st.tp <> invalid then
         if st.tp.view = "scores" then return BoardKeyFor("testpat", st.tp.scoresMode) = boardKey
+    end if
+    if st.mode = "snake" and st.snake <> invalid then
+        if st.snake.view = "scores" then return BoardKeyFor("snake", "") = boardKey
     end if
     return false
 end function

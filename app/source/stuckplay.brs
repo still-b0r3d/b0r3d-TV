@@ -6,17 +6,19 @@
 ' Kept on the TV (registry): sp.mode, sp.level and sp.rows (the menu's picks), sp.initials
 ' (the last initials typed) and sp.best.<mode> (each mode's top 10).
 
-' The games' channels, at their own numbers (the apps' numbers skip 20 and 21).
+' The games' channels, at their own numbers (the apps' numbers skip 20, 21 and 23).
 function GameChannels() as object
     stuck = MakeChannel("game.stuck", "Stuck Pixels", "STUCK", "Falling blocks, made by b0r3d", "game")
     stuck.n = "20"
     test = MakeChannel("game.test", "Test Pattern", "TEST", "Brick breaker, made by b0r3d", "game")
     test.n = "21"
-    return [stuck, test]
+    snake = MakeChannel("game.snake", "Snake", "SNAKE", "Retro snake arcade, made by b0r3d", "game")
+    snake.n = "23"
+    return [stuck, test, snake]
 end function
 
 function IsGameNumber(n as integer) as boolean
-    return n = 20 or n = 21
+    return n = 20 or n = 21 or n = 23
 end function
 
 ' What OK does on a channel, for the guides' hints: "OK opens YouTube", "OK starts Stuck Pixels".
@@ -29,6 +31,7 @@ end function
 sub OpenGame(st as object, id as string)
     if id = "game.stuck" then OpenStuckPixels(st)
     if id = "game.test" then OpenTestPattern(st)
+    if id = "game.snake" then OpenSnake(st)
 end sub
 
 sub OpenStuckPixels(st as object)
@@ -299,9 +302,9 @@ sub SaveStuckScores(mode as string, list as object)
     RegWrite("sp.best." + mode, FormatJson(list))
 end sub
 
-' Settings' "High scores" line: how many the two games keep.
+' Settings' "High scores" line: how many the games keep.
 function GameScoresWord() as string
-    n = TpScoresCount()
+    n = TpScoresCount() + SnakeScoresCount()
     for each mode in SpModes()
         n = n + LoadStuckScores(mode).Count()
     end for
@@ -758,7 +761,7 @@ end function
 function ClearScoresRows() as object
     return [
         { id: "keep", label: "Keep them", value: "", kind: "open" },
-        { id: "clear", label: "Clear them all", value: "Stuck Pixels and Test Pattern, every mode", kind: "open" }
+        { id: "clear", label: "Clear them all", value: "Stuck Pixels, Test Pattern and Snake, every mode", kind: "open" }
     ]
 end function
 
@@ -778,6 +781,7 @@ sub ClearScoresKey(st as object, code as integer)
         if rows[st.confirmSel].id = "clear" then
             ClearStuckScores()
             ClearTpScores()
+            ClearSnakeScores()
         end if
         st.mode = "settings"
     end if

@@ -617,6 +617,7 @@ end sub
 function LoopWaitMs(st as object) as integer
     if st.mode = "stuck" then return StuckWaitMs(st)
     if st.mode = "testpat" then return TpWaitMs(st)
+    if st.mode = "snake" then return SnakeWaitMs(st)
     if st.mode = "saver" and st.saver <> invalid then
         left = 33 - st.saver.frame.TotalMilliseconds()
         if left < 1 then return 1
@@ -684,6 +685,7 @@ function SaverChores(st as object) as boolean
     ' in a game, Rukus only comes on while it's paused (or on its menus)
     if st.mode = "stuck" and StuckBusy(st) then return false
     if st.mode = "testpat" and TpBusy(st) then return false
+    if st.mode = "snake" and SnakeBusy(st) then return false
     if idle < SaverStartSeconds(st) then return false
     StartSaver(st)
     return true

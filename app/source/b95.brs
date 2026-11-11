@@ -179,14 +179,14 @@ sub DrawB95Desktop(st as object, ch as dynamic, task as string)
     end for
     for each item in st.channels
         if item.kind = "game" then
-            lit = (st.mode = "stuck" and item.id = "game.stuck") or (st.mode = "testpat" and item.id = "game.test")
+            lit = (st.mode = "stuck" and item.id = "game.stuck") or (st.mode = "testpat" and item.id = "game.test") or (st.mode = "snake" and item.id = "game.snake")
             if ch <> invalid and st.mode = "guide" then lit = (ch.id = item.id)
             y = DrawB95DesktopIcon(st, B95IconFor(st, item), item.name, x, y, colW, isz, lit) + Z(20, k)
         end if
     end for
-    inGame = (st.mode = "stuck" or st.mode = "testpat")
+    inGame = (st.mode = "stuck" or st.mode = "testpat" or st.mode = "snake")
     DrawB95DesktopIcon(st, "settings", "Settings", x, y, colW, isz, st.mode <> "guide" and not inGame)
-    playing = (st.mode = "stuck" and StuckBusy(st)) or (st.mode = "testpat" and TpBusy(st))
+    playing = (st.mode = "stuck" and StuckBusy(st)) or (st.mode = "testpat" and TpBusy(st)) or (st.mode = "snake" and SnakeBusy(st))
     if not playing then
         sc = Z(6, k)
         DrawSprite(s, RukusLoaf(), RukusColorsFor(st), Z(34, k), Z(682, k) - 9 * sc, sc)
@@ -509,6 +509,7 @@ end sub
 ' stack of pixels for Stuck Pixels, colour bars for Test Pattern, a window for apps.
 function B95IconFor(st as object, ch as object) as string
     if ch.id = "game.test" then return "test"
+    if ch.id = "game.snake" then return "snake"
     if ch.kind = "game" then return "stuck"
     if ch.kind <> "input" then return "app"
     if st.tvf <> invalid then
@@ -530,6 +531,14 @@ sub DrawB95Icon(s as object, kind as string, x as integer, y as integer, size as
         end for
         B95Grid(s, x, y, u, 12, 16, 4, 4, c.shadow)
         B95GridBox(s, x, y, u, 7, 20, 14, 4, c.face, c.black)
+    else if kind = "snake" then
+        B95GridBox(s, x, y, u, 2, 2, 24, 22, c.black, c.shadow)
+        B95Grid(s, x, y, u, 19, 5, 4, 4, &hFF2244FF)
+        B95Grid(s, x, y, u, 5, 17, 14, 4, &h00C000FF)
+        B95Grid(s, x, y, u, 15, 10, 4, 11, &h00C000FF)
+        B95Grid(s, x, y, u, 8, 10, 11, 4, &h00C000FF)
+        B95Grid(s, x, y, u, 8, 5, 4, 8, &h39FF88FF)
+        B95Grid(s, x, y, u, 10, 6, 2, 2, c.black)
     else if kind = "stuck" then
         B95GridBox(s, x, y, u, 10, 2, 6, 6, c.teal, c.black)
         B95GridBox(s, x, y, u, 10, 8, 6, 6, c.teal, c.black)
@@ -600,7 +609,7 @@ end sub
 
 ' A sunken field: grey then black on the top and left, white then light on the bottom and right.
 sub B95Sunken(s as object, x as integer, y as integer, w as integer, h as integer, t as integer, c as object, fill as dynamic)
-    s.DrawRect(x, y, w, h, fill)
+    if fill <> invalid then s.DrawRect(x, y, w, h, fill)
     B95Edge(s, x, y, w, h, t, c.shadow, c.white)
     B95Edge(s, x + t, y + t, w - 2 * t, h - 2 * t, t, c.dark, c.light)
 end sub

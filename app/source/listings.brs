@@ -30,6 +30,7 @@ function ShowForChannel(ch as object, hour as integer, slotIndex as integer) as 
     ' b0r3d's own channels
     if ch.id = "game.stuck" then return PickShow(StuckShows(), slot)
     if ch.id = "game.test" then return PickShow(TestPatternShows(), slot)
+    if ch.id = "game.snake" then return "Snake: Twenty by Twenty, Wraparound"
     if Left(ch.id, 8) = "tvinput." then return PickShow(InputShows(), slot)
     ' the apps it knows
     id = ch.id
