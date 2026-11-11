@@ -183,3 +183,15 @@ sub DrawPlay(s as object, x as integer, cy as integer, size as integer, color as
         if tall > 0 then s.DrawRect(x + col, cy - tall \ 2, 1, tall, color)
     end for
 end sub
+
+' Creates a picture (roBitmap) with or without alpha blending. Returns invalid when out of memory.
+function NewPicture(w as integer, h as integer, alpha as boolean) as dynamic
+    bmp = invalid
+    try
+        bmp = CreateObject("roBitmap", { width: w, height: h, AlphaEnable: alpha })
+    catch e
+        bmp = invalid
+    end try
+    if bmp = invalid then print "b0r3d TV: no picture memory left for a "; w; " x "; h; " picture"
+    return bmp
+end function

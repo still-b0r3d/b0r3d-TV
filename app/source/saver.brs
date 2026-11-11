@@ -469,7 +469,7 @@ sub DrawSaver(st as object)
     if sv.pop <> invalid then DrawPop(st, sv)
     DrawRukus(st, sv)
     DrawZs(st, sv)
-    if st.look = "phosphor" and st.scan then DrawScanlines(st)
+    if ScanlinesOn(st) then DrawScanlines(st)
     s.SwapBuffers()
 end sub
 

@@ -166,18 +166,6 @@ function StuckChromeFor(st as object, s as object, a as object) as object
     return StuckChromeCable(st, s, a)
 end function
 
-' A picture, or invalid when the TV has no picture memory left for it (said once in the app log).
-function NewPicture(w as integer, h as integer, alpha as boolean) as dynamic
-    bmp = invalid
-    try
-        bmp = CreateObject("roBitmap", { width: w, height: h, AlphaEnable: alpha })
-    catch e
-        bmp = invalid
-    end try
-    if bmp = invalid then print "b0r3d TV: no picture memory left for a "; w; " x "; h; " picture"
-    return bmp
-end function
-
 ' A pixel tile of size pixels: a block, the stuck pixel lit and dimmed, an empty cell and four
 ' frames of static. On b0r3d 95 the pixels have a raised edge. Each keeps its colour too, for
 ' drawing it as a plain square when there was no memory for the tile.
@@ -232,23 +220,6 @@ function NoiseTile(size as integer, noise as object) as dynamic
         for x = 0 to size - 1 step grain
             bmp.DrawRect(x, y, grain, grain, noise[Rnd(4) - 1])
         end for
-    end for
-    return bmp
-end function
-
-' The phosphor look's scanlines over the well, as one see-through picture the size of the well
-' (its height is a whole number of scanlines at both screen sizes), lined up with the ones the
-' chrome has. Made without blending, so its dark lines keep their own see-through colour.
-function ScanTile(st as object, width as integer, height as integer) as dynamic
-    k = st.k
-    period = Z(4, k)
-    thick = Z(1, k)
-    lines = height \ period
-    bmp = NewPicture(width, period * lines, false)
-    if bmp = invalid then return invalid
-    bmp.Clear(&h00000000)
-    for i = 0 to lines - 1
-        bmp.DrawRect(0, i * period + period - thick, width, thick, &h0000004D)
     end for
     return bmp
 end function
@@ -719,7 +690,7 @@ function StuckChromePhosphor(st as object, s as object, a as object) as object
     hints = "[<>] MOVE   [OK] TURN   [^] DROP   [V] FASTER   [REPLAY] HOLD   [PLAY] PAUSE"
     DrawGlow(s, hints, left, ty, c.full, c.glow, f.bar, glow)
     fpsX = right / k
-    if st.scan then DrawScanlines(st)
+    if st.scan then DrawScanlines(st, s)
     return { wellX: 472, wellY: 112, slots: slots, nextBox: nextBox, holdBox: holdBox, fps: { x: fpsX, y: ty / k, align: "r", font: f.bar, color: c.dim, bg: c.bg } }
 end function
 

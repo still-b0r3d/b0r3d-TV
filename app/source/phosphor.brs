@@ -188,15 +188,54 @@ sub DrawPhosphorBar(st as object, okHint as string, starHint as string, rightTex
     end if
 end sub
 
-' Dark lines over everything, like the gaps between a tube's scanlines.
-sub DrawScanlines(st as object)
-    s = st.screen
+' Whether the screens get scanlines: only the phosphor look has them, and its Scanlines
+' setting turns them off.
+function ScanlinesOn(st as object) as boolean
+    return st.look = "phosphor" and st.scan
+end function
+
+' The phosphor look's scanlines as one see-through picture of the given size (its height is a
+' whole number of scanlines at both screen sizes), lined up with the ones over the rest of the
+' screen when it's placed at a multiple of the scanline spacing. Made without blending, so its
+' dark lines keep their own see-through colour.
+function ScanTile(st as object, width as integer, height as integer) as dynamic
     k = st.k
     period = Z(4, k)
     thick = Z(1, k)
+    lines = height \ period
+    if lines < 1 then lines = 1
+    bmp = NewPicture(width, period * lines, false)
+    if bmp = invalid then return invalid
+    bmp.Clear(&h00000000)
+    for i = 0 to lines - 1
+        bmp.DrawRect(0, i * period + period - thick, width, thick, &h0000004D)
+    end for
+    return bmp
+end function
+
+' Dark lines over everything, like the gaps between a tube's scanlines: a strip of them as wide
+' as the screen (st.scanBmp, kept until the look or the screen size changes) drawn down the
+' whole target, so no frame draws hundreds of lines and no second whole-screen picture is
+' held next to a game's chrome. With no memory for the strip, the lines are drawn one by one.
+sub DrawScanlines(st as object, target = invalid as dynamic)
+    if target = invalid then target = st.screen
+    if target = invalid then return
+    k = st.k
+    period = Z(4, k)
+    thick = Z(1, k)
+    if st.scanBmp = invalid then st.scanBmp = ScanTile(st, st.w, 24 * period)
+    if st.scanBmp <> invalid then
+        stripH = st.scanBmp.GetHeight()
+        y = 0
+        while y < st.h
+            target.DrawObject(0, y, st.scanBmp)
+            y = y + stripH
+        end while
+        return
+    end if
     y = period - thick
     while y < st.h
-        s.DrawRect(0, y, st.w, thick, &h0000004D)
+        target.DrawRect(0, y, st.w, thick, &h0000004D)
         y = y + period
     end while
 end sub

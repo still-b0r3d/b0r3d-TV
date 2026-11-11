@@ -692,7 +692,7 @@ function TpChromePhosphor(st as object, s as object, a as object) as object
     s.DrawRect(left, Z(646, k), right - left, Z(2, k), c.full)
     by = Z(650, k) + (Z(698, k) - Z(650, k) - f.bar.GetOneLineHeight()) \ 2
     DrawGlow(s, "[<>] MOVE (HOLD FOR FASTER)   [OK] SERVE   [PLAY] PAUSE", left, by, c.full, c.glow, f.bar, glow)
-    if st.scan then DrawScanlines(st)
+    if st.scan then DrawScanlines(st, s)
     return { fs: fs, fieldX: fx, fieldY: fy, slots: slots, fps: { x: 1232, y: by / k, align: "r", font: f.bar, color: c.dim, bg: c.bg } }
 end function
 
