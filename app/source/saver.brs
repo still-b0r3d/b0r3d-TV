@@ -24,7 +24,13 @@ sub RunScreenSaver()
     RegWrite("tvsavers", (RegRead("tvsavers", "0").ToInt() + 1).ToStr())
     st.saver = NewSaver(st)
     while true
-        wait(LoopWaitMs(st), st.port)
+        msg = wait(LoopWaitMs(st), st.port)
+        if msg <> invalid then
+            ' any key on the remote ends the TV-wide screensaver
+            if type(msg) = "roUniversalControlEvent" then
+                if msg.GetInt() < 100 then return
+            end if
+        end if
         if st.saver.frame.TotalMilliseconds() >= 30 then SaverFrame(st)
     end while
 end sub
