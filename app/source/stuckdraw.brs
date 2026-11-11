@@ -867,9 +867,9 @@ function StuckDemo(st as object) as object
         st.demoClock = CreateObject("roTimespan")
     end if
     ms = st.demoTimer.TotalMilliseconds()
-    if ms >= 200 then
+    if ms >= 195 then
         ' a step every 200 ms; after the preview has been away a while, just one
-        n = ms \ 200
+        n = (ms + 5) \ 200
         if ms > 2000 then n = 1
         for i = 1 to n
             SpDemoStep(st.demo)
@@ -898,7 +898,7 @@ function DemoWaitMs(st as object) as integer
     if PreviewGameId(st) = "game.test" then timer = st.tpDemoTimer
     if timer = invalid then return interval
     left = interval - timer.TotalMilliseconds()
-    if left < 1 then return 1
+    if left < 10 then return 10
     if left > interval then return interval
     return left
 end function

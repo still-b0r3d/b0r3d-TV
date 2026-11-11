@@ -793,8 +793,8 @@ function TpDemo(st as object) as object
         st.tpDemoTimer = CreateObject("roTimespan")
     end if
     ms = st.tpDemoTimer.TotalMilliseconds()
-    if ms >= 100 then
-        n = ms \ 100
+    if ms >= 95 then
+        n = (ms + 5) \ 100
         if ms > 2000 then n = 1
         for i = 1 to n
             TpDemoStep(st.tpDemo, 100)
