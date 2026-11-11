@@ -152,47 +152,105 @@ sub DrawB95Guide(st as object)
     s.SwapBuffers()
 end sub
 
-' The desktop behind every b0r3d 95 screen: an icon for each shown input (up to four, less one
-' for each game), one for each game and one for Settings, the focused channel's label lit (or
-' the open game's, or Settings'), Rukus by the taskbar, and the taskbar itself. While a game is
+' The desktop behind every b0r3d 95 screen: one column of icons down the left (the TV's inputs,
+' up to four, then b0r3d's own channels in their order, then Settings), the focused channel's
+' label lit (or the open channel's, or Settings'), Rukus by the taskbar, and the taskbar itself.
+' The column has to end above Rukus: when it wouldn't, the icons move closer together, then
+' b0r3d FM leaves the desktop (it's in the guide), then inputs, from the last. While a game is
 ' being played Rukus stays away: in a game he only comes on while it's paused.
 sub DrawB95Desktop(st as object, ch as dynamic, task as string)
     s = st.screen
     c = st.kit
     k = st.k
     x = Z(14, k)
-    y = Z(22, k)
+    top = Z(22, k)
     colW = Z(148, k)
     isz = Z(56, k)
-    games = 0
+    sc = Z(6, k)
+    bottom = Z(682, k) - 9 * sc - Z(8, k)
+    openId = B95OpenId(st)
+    inputs = []
+    own = []
+    extras = 0
     for each item in st.channels
-        if item.kind = "game" then games = games + 1
-    end for
-    shown = 0
-    for each item in st.channels
-        if item.kind = "input" and shown < 4 - games then
-            shown = shown + 1
-            lit = false
-            if ch <> invalid and st.mode = "guide" then lit = (ch.id = item.id)
-            y = DrawB95DesktopIcon(st, B95IconFor(st, item), item.name, x, y, colW, isz, lit) + Z(20, k)
+        lit = (item.id = openId)
+        if ch <> invalid and st.mode = "guide" then lit = (ch.id = item.id)
+        icon = { kind: B95IconFor(st, item), label: item.name, lit: lit, extra: item.kind <> "game" }
+        if item.kind = "input" then
+            if inputs.Count() < 4 then inputs.Push(icon)
+        else if HasPreview(item) then
+            own.Push(icon)
+            if icon.extra then extras = extras + 1
         end if
     end for
-    for each item in st.channels
-        if item.kind = "game" then
-            lit = (st.mode = "stuck" and item.id = "game.stuck") or (st.mode = "testpat" and item.id = "game.test") or (st.mode = "snake" and item.id = "game.snake")
-            if ch <> invalid and st.mode = "guide" then lit = (ch.id = item.id)
-            y = DrawB95DesktopIcon(st, B95IconFor(st, item), item.name, x, y, colW, isz, lit) + Z(20, k)
+    gear = { kind: "settings", label: "Settings", lit: st.mode <> "guide" and openId = "", extra: false }
+    inputsKept = inputs.Count()
+    extrasKept = extras
+    gap = Z(20, k)
+    while true
+        icons = B95DesktopIcons(inputs, inputsKept, own, extrasKept, gear)
+        if top + B95IconsHeight(st, icons, colW, isz, gap) <= bottom then exit while
+        if gap > Z(6, k) then
+            gap = Z(6, k)
+        else if extrasKept > 0 then
+            extrasKept = extrasKept - 1
+        else if inputsKept > 0 then
+            inputsKept = inputsKept - 1
+        else
+            exit while
         end if
+    end while
+    y = top
+    for each icon in icons
+        y = DrawB95DesktopIcon(st, icon.kind, icon.label, x, y, colW, isz, icon.lit) + gap
     end for
-    inGame = (st.mode = "stuck" or st.mode = "testpat" or st.mode = "snake")
-    DrawB95DesktopIcon(st, "settings", "Settings", x, y, colW, isz, st.mode <> "guide" and not inGame)
     playing = (st.mode = "stuck" and StuckBusy(st)) or (st.mode = "testpat" and TpBusy(st)) or (st.mode = "snake" and SnakeBusy(st))
-    if not playing then
-        sc = Z(6, k)
-        DrawSprite(s, RukusLoaf(), RukusColorsFor(st), Z(34, k), Z(682, k) - 9 * sc, sc)
-    end if
+    if not playing then DrawSprite(s, RukusLoaf(), RukusColorsFor(st), Z(34, k), Z(682, k) - 9 * sc, sc)
     DrawB95Taskbar(st, task)
 end sub
+
+' The channel whose icon is lit while it's open, or "".
+function B95OpenId(st as object) as string
+    if st.mode = "stuck" then return "game.stuck"
+    if st.mode = "testpat" then return "game.test"
+    if st.mode = "snake" then return "game.snake"
+    if st.mode = "fm" then return "radio.fm"
+    return ""
+end function
+
+' The desktop's icons, top to bottom: the first inputsKept inputs, b0r3d's own channels (only the
+' first extrasKept of the ones that aren't games), and Settings.
+function B95DesktopIcons(inputs as object, inputsKept as integer, own as object, extrasKept as integer, gear as object) as object
+    icons = []
+    for i = 0 to inputsKept - 1
+        icons.Push(inputs[i])
+    end for
+    seen = 0
+    for each icon in own
+        if icon.extra then
+            seen = seen + 1
+            if seen <= extrasKept then icons.Push(icon)
+        else
+            icons.Push(icon)
+        end if
+    end for
+    icons.Push(gear)
+    return icons
+end function
+
+' How tall a column of these icons is, gap pixels apart (as DrawB95DesktopIcon draws them).
+function B95IconsHeight(st as object, icons as object, colW as integer, isz as integer, gap as integer) as integer
+    f = st.fonts
+    k = st.k
+    lineH = f.small.GetOneLineHeight() + Z(4, k)
+    total = 0
+    for each icon in icons
+        lines = WrapText(B95Clean(icon.label), f.small, colW - Z(12, k)).Count()
+        if lines > 2 then lines = 2
+        total = total + Int(isz * 26 / 28) + Z(6, k) + lines * lineH + gap
+    end for
+    return total - gap
+end function
 
 ' One desktop icon with its label under it (two lines at most). Returns where the next starts.
 function DrawB95DesktopIcon(st as object, kind as string, label as string, x as integer, y as integer, colW as integer, isz as integer, lit as boolean) as integer
@@ -301,7 +359,7 @@ sub DrawB95Preview(st as object, ch as dynamic, x as integer, y as integer, w as
         B95Centered(st, "No channels yet", x, y, w, h, f.body)
         return
     end if
-    if ch.kind = "game" then
+    if HasPreview(ch) then
         DrawGamePreview(st, ch, x, y, w, h)
         return
     end if
@@ -510,6 +568,7 @@ end sub
 function B95IconFor(st as object, ch as object) as string
     if ch.id = "game.test" then return "test"
     if ch.id = "game.snake" then return "snake"
+    if ch.id = "radio.fm" then return "radio"
     if ch.kind = "game" then return "stuck"
     if ch.kind <> "input" then return "app"
     if st.tvf <> invalid then
@@ -531,6 +590,14 @@ sub DrawB95Icon(s as object, kind as string, x as integer, y as integer, size as
         end for
         B95Grid(s, x, y, u, 12, 16, 4, 4, c.shadow)
         B95GridBox(s, x, y, u, 7, 20, 14, 4, c.face, c.black)
+    else if kind = "radio" then
+        B95Grid(s, x, y, u, 2, 6, 24, 16, c.shadow)
+        B95Grid(s, x, y, u, 3, 7, 22, 14, c.dark)
+        B95Grid(s, x, y, u, 6, 2, 16, 4, c.shadow)
+        B95Grid(s, x, y, u, 8, 4, 12, 3, c.face)
+        B95Grid(s, x, y, u, 5, 9, 6, 6, c.black)
+        B95Grid(s, x, y, u, 17, 9, 6, 6, c.black)
+        B95Grid(s, x, y, u, 12, 10, 4, 5, c.navy)
     else if kind = "snake" then
         B95GridBox(s, x, y, u, 2, 2, 24, 22, c.black, c.shadow)
         B95Grid(s, x, y, u, 19, 5, 4, 4, &hFF2244FF)

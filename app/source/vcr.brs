@@ -78,7 +78,7 @@ sub DrawVcrGuide(st as object)
     s.DrawRect(px + b, py + b, pw - 2 * b, ph - 2 * b, c.pip)
     if ch = invalid then
         DrawCentered(s, "NO CHANNELS", px, py, pw, ph, c.white, f.name)
-    else if ch.kind = "game" then
+    else if HasPreview(ch) then
         DrawGamePreview(st, ch, px + b, py + b, pw - 2 * b, ph - 2 * b)
     else
         bigH = f.big.GetOneLineHeight()

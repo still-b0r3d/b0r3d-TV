@@ -31,6 +31,7 @@ function ShowForChannel(ch as object, hour as integer, slotIndex as integer) as 
     if ch.id = "game.stuck" then return PickShow(StuckShows(), slot)
     if ch.id = "game.test" then return PickShow(TestPatternShows(), slot)
     if ch.id = "game.snake" then return "Snake: Twenty by Twenty, Wraparound"
+    if ch.id = "radio.fm" then return "b0r3d FM: Sixteen Songs on a Loop"
     if Left(ch.id, 8) = "tvinput." then return PickShow(InputShows(), slot)
     ' the apps it knows
     id = ch.id

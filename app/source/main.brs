@@ -2,9 +2,9 @@
 ' Everything is drawn on one 2D screen: 1920 x 1080 where the TV allows it, else 1280 x 720.
 ' Screens (st.mode): the guide, Settings, the channel list, the TV check, the Screensaver check,
 ' About and clearing the high scores; "stuck" while Stuck Pixels (channel 20) is open
-' (stuckplay.brs), "testpat" while Test Pattern (channel 21) is open (tpplay.brs), "snake" for
-' Snake (23, snakeplay.brs); "saver" while Rukus is on, "aside" while b0r3d TV steps aside for
-' the TV's own screensaver (saver.brs).
+' (stuckplay.brs), "testpat" while Test Pattern (channel 21) is open (tpplay.brs), "fm" for
+' b0r3d FM (22, fm.brs), "snake" for Snake (23, snakeplay.brs); "saver" while Rukus is on,
+' "aside" while b0r3d TV steps aside for the TV's own screensaver (saver.brs).
 
 sub Main(args as dynamic)
     st = {
@@ -62,7 +62,7 @@ sub Main(args as dynamic)
     while true
         msg = wait(LoopWaitMs(st), st.port)
         if msg = invalid then
-            if st.mode <> "saver" and st.mode <> "stuck" and st.mode <> "testpat" and st.mode <> "snake" then Tick(st)
+            if st.mode <> "saver" and st.mode <> "stuck" and st.mode <> "testpat" and st.mode <> "snake" and st.mode <> "fm" then Tick(st)
         else if type(msg) = "roUniversalControlEvent" then
             code = msg.GetInt()
             if code < 100 then
@@ -93,6 +93,8 @@ sub Main(args as dynamic)
             end if
         else if type(msg) = "roDeviceInfoEvent" then
             ScreensaverEvent(st, msg.GetInfo())
+        else if type(msg) = "roAudioPlayerEvent" then
+            if st.fm <> invalid then FmAudioEvent(st, msg)
         else if type(msg) = "roUrlEvent" then
             BoardUrlEvent(st, msg)
         else if type(msg) = "roSGNodeEvent" or type(msg) = "roSGScreenEvent" then
@@ -105,6 +107,7 @@ sub Main(args as dynamic)
         if st.mode = "stuck" then StuckTurn(st)
         if st.mode = "testpat" then TpTurn(st)
         if st.mode = "snake" then SnakeTurn(st)
+        if st.mode = "fm" then FmTurn(st)
         if st.quit then exit while
     end while
 end sub
@@ -121,6 +124,9 @@ function HandleKey(st as object, code as integer) as boolean
         return true
     else if st.mode = "snake" then
         SnakeKey(st, code)
+        return true
+    else if st.mode = "fm" then
+        FmKey(st, code)
         return true
     else if st.mode = "clearscores" then
         ClearScoresKey(st, code)
@@ -205,7 +211,7 @@ sub OpenChannel(st as object)
     ch = st.channels[st.focus]
     RememberOpened(ch.id)
     TuneIn(st, ch)
-    if ch.kind = "game" then
+    if ch.kind = "game" or ch.kind = "radio" then
         st.note = ""
         st.noteTimer = invalid
         OpenGame(st, ch.id)
@@ -277,6 +283,8 @@ sub Redraw(st as object)
         DrawTestPattern(st)
     else if st.mode = "snake" then
         DrawSnake(st)
+    else if st.mode = "fm" then
+        DrawFmScreen(st)
     else if st.mode = "clearscores" then
         DrawClearScores(st)
     else if st.mode = "settings" then

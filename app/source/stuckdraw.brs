@@ -948,27 +948,31 @@ function StuckDemo(st as object) as object
 end function
 
 ' How often the guide is drawn again while its preview plays a demo: five times a second for
-' Stuck Pixels, ten for Test Pattern (its ball moves), about nine for Snake, or less on a TV that
-' takes long to draw the guide (never more than half the time spent drawing).
+' Stuck Pixels, ten for Test Pattern (its ball moves), about nine for Snake, ten for b0r3d FM's
+' bars, or less on a TV that takes long to draw the guide (never more than half the time spent
+' drawing).
 function DemoRedrawMs(st as object) as integer
     id = PreviewGameId(st)
     ms = 2 * st.guideMs
     base = 200
     if id = "game.test" then base = 100
     if id = "game.snake" then base = 110
+    if id = "radio.fm" then base = 100
     if ms < base then ms = base
     if ms > 1000 then ms = 1000
     return ms
 end function
 
 ' How long Main's loop waits while the guide's preview shows a demo: until it's due again. Each
-' preview marks its own timer when it moves on.
+' preview marks its own timer when it moves on (or, for b0r3d FM's, which doesn't step, when
+' drawn).
 function DemoWaitMs(st as object) as integer
     id = PreviewGameId(st)
     interval = DemoRedrawMs(st)
     timer = st.demoTimer
     if id = "game.test" then timer = st.tpDemoTimer
     if id = "game.snake" then timer = st.snakeDemoTimer
+    if id = "radio.fm" then timer = st.fmDemoTimer
     if timer = invalid then return interval
     left = interval - timer.TotalMilliseconds()
     if left < 10 then return 10
@@ -982,10 +986,12 @@ function PreviewGameId(st as object) as string
     return st.channels[st.focus].id
 end function
 
-' A game channel's demo in the guide's preview box.
+' A game or special channel's demo in the guide's preview box.
 sub DrawGamePreview(st as object, ch as object, x as integer, y as integer, w as integer, h as integer)
     if ch.id = "game.test" then
         DrawTpPreview(st, x, y, w, h)
+    else if ch.id = "radio.fm" then
+        DrawFmPreview(st, x, y, w, h)
     else if ch.id = "game.snake" then
         DrawSnakePreview(st, x, y, w, h)
     else
@@ -993,11 +999,16 @@ sub DrawGamePreview(st as object, ch as object, x as integer, y as integer, w as
     end if
 end sub
 
-' Whether the guide's highlight is on a game, so the preview box plays its demo.
+' Whether a channel's preview box plays a demo of it: the games and b0r3d FM, in every look.
+function HasPreview(ch as object) as boolean
+    return ch.kind = "game" or ch.kind = "radio"
+end function
+
+' Whether the guide's highlight is on a channel with a demo in its preview box.
 function GuideShowsGame(st as object) as boolean
     if st.mode <> "guide" then return false
     if st.channels.Count() = 0 then return false
-    return st.channels[st.focus].kind = "game"
+    return HasPreview(st.channels[st.focus])
 end function
 
 ' The demo, centred in the preview box (x, y, w, h in pixels): a small well, and beside it the

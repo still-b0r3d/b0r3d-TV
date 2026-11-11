@@ -86,7 +86,7 @@ sub DrawPhosphorGuide(st as object)
     end if
     if ch = invalid then
         DrawCentered(s, "NO CHANNELS YET", bx, by + hh, bw, bh - hh, c.full, f.detail)
-    else if ch.kind = "game" then
+    else if HasPreview(ch) then
         DrawGamePreview(st, ch, bx + line, by + hh, bw - 2 * line, bh - hh - line)
     else
         bigH = f.big.GetOneLineHeight()

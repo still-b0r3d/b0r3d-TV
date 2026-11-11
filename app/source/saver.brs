@@ -610,14 +610,15 @@ sub SaverProbes(st as object)
 end sub
 
 ' How long Main's loop waits for a key: what's left of a frame (about 30 a second) while Rukus
-' is on, the game's own frames while it's open, the demo's next step while the guide's preview
-' plays one, else a second. The RGB look's lights move, so its guide and pages are drawn again
-' up to 20 times a second, but, as with the demos, never more than half the time goes to
+' is on, the open game's or channel's own frames, the demo's next step while the guide's
+' preview plays one, else a second. The RGB look's lights move, so its guide and pages are drawn
+' again up to 20 times a second, but, as with the demos, never more than half the time goes to
 ' drawing (RgbWaitMs). Never 0, which would mean "wait for ever".
 function LoopWaitMs(st as object) as integer
     if st.mode = "stuck" then return StuckWaitMs(st)
     if st.mode = "testpat" then return TpWaitMs(st)
     if st.mode = "snake" then return SnakeWaitMs(st)
+    if st.mode = "fm" then return 33
     if st.mode = "saver" and st.saver <> invalid then
         left = 33 - st.saver.frame.TotalMilliseconds()
         if left < 1 then return 1
@@ -689,6 +690,20 @@ function SaverChores(st as object) as boolean
     if idle < SaverStartSeconds(st) then return false
     StartSaver(st)
     return true
+end function
+
+' The chores for a channel that plays on its own (the radio station), about once a second.
+' While it plays, Rukus doesn't come on over it, but the TV is kept awake as SaverChores does
+' for the "keep" pick (without that, the TV turns the screen black at its screensaver time, as
+' over any 2D app, even mid-song). Paused, it's like a paused game: the usual chores, Rukus
+' included. Returns true when Rukus has just come on.
+function MediaChores(st as object, playing as boolean) as boolean
+    if not playing then return SaverChores(st)
+    if st.choreTimer.TotalMilliseconds() < 900 then return false
+    st.choreTimer.Mark()
+    if st.idlePending >= 0 then FinishIdleTest(st)
+    if st.saverPick = "keep" and TvWaitSeconds(st) > 0 then KeepAwake(st, st.idle.TotalSeconds())
+    return false
 end function
 
 ' Rukus comes on over whichever screen is up; StopSaver brings that screen back.

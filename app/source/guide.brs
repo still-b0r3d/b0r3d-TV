@@ -58,7 +58,7 @@ sub DrawCableGuide(st as object)
     s.DrawRect(px, py, pw, ph, c.tile)
     if ch = invalid then
         DrawCentered(s, "NO CHANNELS YET", px, py, pw, ph, c.white, f.name)
-    else if ch.kind = "game" then
+    else if HasPreview(ch) then
         DrawGamePreview(st, ch, px, py, pw, ph)
     else
         bigH = f.big.GetOneLineHeight()

@@ -6,32 +6,36 @@
 ' Kept on the TV (registry): sp.mode, sp.level and sp.rows (the menu's picks), sp.initials
 ' (the last initials typed) and sp.best.<mode> (each mode's top 10).
 
-' The games' channels, at their own numbers (the apps' numbers skip 20, 21 and 23).
+' The games' channels, at their own numbers (the apps' numbers skip 20, 21, 22 and 23).
 function GameChannels() as object
     stuck = MakeChannel("game.stuck", "Stuck Pixels", "STUCK", "Falling blocks, made by b0r3d", "game")
     stuck.n = "20"
     test = MakeChannel("game.test", "Test Pattern", "TEST", "Brick breaker, made by b0r3d", "game")
     test.n = "21"
+    fm = MakeChannel("radio.fm", "b0r3d FM", "B0R3D", "Radio stream, made by b0r3d", "radio")
+    fm.n = "22"
     snake = MakeChannel("game.snake", "Snake", "SNAKE", "Retro snake arcade, made by b0r3d", "game")
     snake.n = "23"
-    return [stuck, test, snake]
+    return [stuck, test, fm, snake]
 end function
 
 function IsGameNumber(n as integer) as boolean
-    return n = 20 or n = 21 or n = 23
+    return n = 20 or n = 21 or n = 22 or n = 23
 end function
 
 ' What OK does on a channel, for the guides' hints: "OK opens YouTube", "OK starts Stuck Pixels".
 function OkWord(ch as object) as string
     if ch.kind = "game" then return "OK starts " + ch.name
+    if ch.kind = "radio" then return "OK tunes to " + ch.name
     return "OK opens " + ch.name
 end function
 
-' OK on a game's channel, after tuning in.
+' OK on a game or special channel, after tuning in.
 sub OpenGame(st as object, id as string)
     if id = "game.stuck" then OpenStuckPixels(st)
     if id = "game.test" then OpenTestPattern(st)
     if id = "game.snake" then OpenSnake(st)
+    if id = "radio.fm" then OpenB0r3dFm(st)
 end sub
 
 sub OpenStuckPixels(st as object)

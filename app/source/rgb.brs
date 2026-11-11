@@ -293,7 +293,7 @@ sub DrawRgbGuide(st as object)
 
     if ch = invalid then
         DrawCentered(s, "NO SIGNAL", pipX, pipY, pipW, pipH, c.dim, f.name)
-    else if ch.kind = "game" then
+    else if HasPreview(ch) then
         DrawGamePreview(st, ch, pipX + b, pipY + b, pipW - 2 * b, pipH - 2 * b)
     else
         ' Channel callsign & icon display
