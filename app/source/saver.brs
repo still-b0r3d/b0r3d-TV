@@ -629,6 +629,7 @@ function LoopWaitMs(st as object) as integer
     if st.mode = "fm" then return 33
     if st.mode = "promo" then return PromoWaitMs(st)
     if st.mode = "deck" then return DeckWaitMs(st)
+    if st.mode = "cam" then return CamWaitMs(st)
     if st.mode = "hijack" then return HijackWaitMs(st)
     if st.mode = "saver" and st.saver <> invalid then
         left = 33 - st.saver.frame.TotalMilliseconds()
@@ -705,8 +706,8 @@ function SaverChores(st as object) as boolean
     return true
 end function
 
-' The chores for a channel that plays on its own (a radio station, the ads, a tape in the VCR),
-' about once a second.
+' The chores for a channel that plays on its own (a radio station, the ads, a tape in the VCR,
+' Rukus Cam), about once a second.
 ' While it plays, Rukus doesn't come on over it, but the TV is kept awake as SaverChores does
 ' for the "keep" pick (without that, the TV turns the screen black at its screensaver time, as
 ' over any 2D app, even mid-song). Paused, it's like a paused game: the usual chores, Rukus
@@ -907,6 +908,8 @@ sub ScreensaverEvent(st as object, info as dynamic)
         ' as a key: the signal ends, and from Rukus so does he
         StopHijack(st, true)
     else
+        ' Rukus Cam goes straight back to its full frames
+        if st.mode = "cam" and st.cam <> invalid then st.cam.blank = false
         Redraw(st)
     end if
 end sub

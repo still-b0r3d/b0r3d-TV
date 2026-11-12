@@ -417,6 +417,7 @@ sub DeckTakeTape(st as object, tape as dynamic)
     if st.mode = "snake" then CloseSnake(st)
     if st.mode = "fm" then CloseB0r3dFm(st)
     if st.mode = "promo" then ClosePromo(st)
+    if st.mode = "cam" then CloseCam(st)
     ' then channel 3 comes on, as when OK opens it in the guide
     ch = GameChannel("video.vcr")
     i = IndexOfId(st.channels, ch.id)

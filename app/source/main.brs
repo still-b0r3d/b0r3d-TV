@@ -1,8 +1,9 @@
 ' b0r3d TV: a home screen for Roku TVs that looks like an old cable box.
 ' Everything is drawn on one 2D screen: 1920 x 1080 where the TV allows it, else 1280 x 720.
 ' Screens (st.mode): the guide, Settings, the channel list, the TV check, the Screensaver check,
-' About and clearing the high scores; "deck" while the VCR (channel 3, deck.brs) is on, "stuck"
-' while Stuck Pixels (channel 20) is open (stuckplay.brs), "testpat" while Test Pattern
+' About and clearing the high scores; "deck" while the VCR (channel 3, deck.brs) is on, "cam"
+' while Rukus Cam (channel 9, cam.brs) is on, "stuck" while Stuck Pixels (channel 20) is open
+' (stuckplay.brs), "testpat" while Test Pattern
 ' (channel 21) is open (tpplay.brs), "fm" for b0r3d FM (22, fm.brs), "snake" for Snake (23,
 ' snakeplay.brs), "promo" for Commercial Breaks (24, promos.brs); "hijack" while Agent Ø's
 ' signal is on (hijack.brs); "saver" while Rukus is on, "aside" while b0r3d TV steps aside for
@@ -67,7 +68,7 @@ sub Main(args as dynamic)
     while true
         msg = wait(LoopWaitMs(st), st.port)
         if msg = invalid then
-            if st.mode <> "saver" and st.mode <> "stuck" and st.mode <> "testpat" and st.mode <> "snake" and st.mode <> "fm" and st.mode <> "promo" and st.mode <> "deck" and st.mode <> "hijack" then Tick(st)
+            if st.mode <> "saver" and st.mode <> "stuck" and st.mode <> "testpat" and st.mode <> "snake" and st.mode <> "fm" and st.mode <> "promo" and st.mode <> "deck" and st.mode <> "cam" and st.mode <> "hijack" then Tick(st)
         else if type(msg) = "roUniversalControlEvent" then
             code = msg.GetInt()
             if code < 100 then
@@ -120,6 +121,7 @@ sub Main(args as dynamic)
         if st.mode = "fm" then FmTurn(st)
         if st.mode = "promo" then PromoTurn(st)
         if st.mode = "deck" then DeckTurn(st)
+        if st.mode = "cam" then CamTurn(st)
         if st.mode = "hijack" then HijackTurn(st)
         if st.quit then exit while
     end while
@@ -152,6 +154,9 @@ function HandleKey(st as object, code as integer) as boolean
         return true
     else if st.mode = "deck" then
         DeckKey(st, code)
+        return true
+    else if st.mode = "cam" then
+        CamKey(st, code)
         return true
     else if st.mode = "clearscores" then
         ClearScoresKey(st, code)
@@ -238,7 +243,7 @@ sub OpenChannel(st as object)
     ch = st.channels[st.focus]
     RememberOpened(ch.id)
     TuneIn(st, ch)
-    if ch.kind = "game" or ch.kind = "radio" or ch.kind = "promo" or ch.kind = "vcr" then
+    if ch.kind = "game" or ch.kind = "radio" or ch.kind = "promo" or ch.kind = "vcr" or ch.kind = "cam" then
         st.note = ""
         st.noteTimer = invalid
         OpenGame(st, ch.id)
@@ -324,6 +329,8 @@ sub Redraw(st as object)
         DrawPromoScreen(st)
     else if st.mode = "deck" then
         DrawDeckScreen(st)
+    else if st.mode = "cam" then
+        DrawCamScreen(st)
     else if st.mode = "clearscores" then
         DrawClearScores(st)
     else if st.mode = "settings" then
