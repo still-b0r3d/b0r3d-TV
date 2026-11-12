@@ -135,11 +135,11 @@ end sub
 ' --- Time ---
 
 ' How long Main's loop waits: what's left of a frame (about 60 a second) while a run is on
-' screen, else a second.
+' screen, else a second (less in the RGB look, whose light flows: RgbMenuWaitMs).
 function StuckWaitMs(st as object) as integer
     sp = st.sp
     if sp = invalid then return 1000
-    if sp.view <> "play" and sp.view <> "signal" then return 1000
+    if sp.view <> "play" and sp.view <> "signal" then return RgbMenuWaitMs(st, 1000)
     left = 16 - (sp.clock.TotalMilliseconds() - sp.lastMs)
     if left < 1 then return 1
     return left
@@ -163,7 +163,10 @@ sub StuckTurn(st as object)
         if SaverChores(st) then return
         if not StuckBusy(st) then Redraw(st)
     end if
-    if not StuckBusy(st) then return
+    if not StuckBusy(st) then
+        RgbMenuTurn(st)
+        return
+    end if
     ' the run's own clock: each frame takes what's passed since the last one, so no fraction
     ' of a millisecond goes missing (a frame of a slow moment counts as 50 ms at most)
     now = sp.clock.TotalMilliseconds()

@@ -10,7 +10,7 @@ It comes in five looks:
 - **b0r3d 95:** a desktop with a channel guide window
 - **Phosphor terminal:** one glowing color on black, with scanlines
 - **VCR menu:** an on-screen menu with a picture-in-picture box
-- **RGB LED lights:** a dark case lit by strips of colour-changing LEDs
+- **RGB LED lights:** a TV on a dark wall, lit from behind by colour-changing LEDs
 
 b0r3d's own channels are a **VCR**, three games, **Stuck Pixels** (a falling-block game), **Test Pattern** (a brick breaker) and **Snake**, a radio station, **b0r3d FM**, and **Commercial Breaks**, late-night ads for b0r3d's games.
 
@@ -128,6 +128,7 @@ b0r3d TV installs through Roku's developer mode, which lets a TV hold one app yo
 - `app/`: the Roku app: `manifest`, the BrightScript code in `source/`, the stand-in screen in `components/` (shown while b0r3d TV hands over to the TV's own screensaver), the pictures in `images/`, the fonts in `fonts/` and the sounds in `sounds/`. A local git hook writes the commit's short hash into `app/build.txt`, which the build line shows (`Build: abc1234`); the file stays out of the repo, and without it the build says `dev`.
 - `tools/make-images.js`: makes the home-screen tile and the splash picture (`node tools/make-images.js`)
 - `tools/make-sounds.js`: makes the burst of static heard when a channel opens and the games' sounds (`node tools/make-sounds.js`)
+- `tools/make-rgb-light.js`: makes the RGB look's pictures in `app/images/rgb/`: the soft glows round the TV and the Settings panel, the LED colour strips, the focused row's light, the TV badge, the remote's keys and the arrows (`node tools/make-rgb-light.js`)
 - `tools/font-family-names.js`: the one change made to the Barlow Condensed files (see License)
 - `tests/stuck-tests.brs`, `tests/tp-tests.brs`, `tests/snake-tests.brs` and `tools/test-games.sh`: the games' rules played on a PC by a BrightScript simulator (brs-node), test by test (`bash tools/test-games.sh`)
 - `tools/check.sh` and `.github/workflows/check.yml`: the check every push to main gets (the app compiles, the games' rules pass their tests, every commit carries the project's name, nothing private slipped in)

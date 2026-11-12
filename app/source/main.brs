@@ -272,7 +272,12 @@ end sub
 ' idle long enough, and the screen is drawn again, since Roku's own screensaver can wipe it while
 ' b0r3d TV is open.
 sub Tick(st as object)
-    st.clock = ClockNow()
+    ' the clock is read twice a second at most (the RGB look ticks 10 times a second)
+    if st.clockTimer = invalid then st.clockTimer = CreateObject("roTimespan")
+    if st.clock = invalid or st.clockTimer.TotalMilliseconds() >= 500 then
+        st.clock = ClockNow()
+        st.clockTimer.Mark()
+    end if
     ' no hello yet: TVFollow may have connected before b0r3d TV was listening, so ask again
     if st.tvf = invalid then
         askAt = [3000, 10000]
@@ -294,9 +299,10 @@ sub Tick(st as object)
     end if
     if SaverChores(st) then return
     ' how long this takes to draw sets how often the RGB look's lights may move (RgbWaitMs)
-    timer = CreateObject("roTimespan")
-    Redraw(st)
-    st.tickMs = timer.TotalMilliseconds()
+    if st.tickTimer = invalid then st.tickTimer = CreateObject("roTimespan")
+    st.tickTimer.Mark()
+    if not RgbRepaint(st) then Redraw(st)
+    st.tickMs = st.tickTimer.TotalMilliseconds()
 end sub
 
 sub Redraw(st as object)
@@ -331,9 +337,10 @@ sub Redraw(st as object)
     else if st.mode = "savercheck" then
         DrawSaverCheck(st)
     else
-        timer = CreateObject("roTimespan")
+        if st.guideTimer = invalid then st.guideTimer = CreateObject("roTimespan")
+        st.guideTimer.Mark()
         DrawGuideFor(st)
-        st.guideMs = timer.TotalMilliseconds()
+        st.guideMs = st.guideTimer.TotalMilliseconds()
     end if
 end sub
 
