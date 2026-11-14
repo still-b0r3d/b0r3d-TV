@@ -24,7 +24,7 @@ Roku TVs don't let an app switch the TV's inputs. [TVFollow](https://github.com/
 
 A VCR on channel 3, where old VCRs played. It has no tape yet: its blue screen says STOP and NO TAPE, and its clock blinks 12:00, the time nobody ever set. It looks the same in every look.
 
-A tape goes in with the launch parameter `tape`, set to a video's address: an `http://` or `https://` address of up to 2000 characters, of an MP4 file or of an HLS stream ending in `.m3u8`. Sent while b0r3d TV is open (as an input command), it does the same. The VCR comes on and plays the tape full screen, showing PLAY and the tape counter for 5 seconds. The tape isn't kept: when b0r3d TV closes, it's gone. Like b0r3d FM, the VCR keeps Ruckus away while a tape plays, and keeps the TV awake only with Settings → Screensaver on its first pick.
+A tape goes in with the launch parameter `tape`, set to a video's address: an `http://` or `https://` address of up to 2000 characters, of an MP4 file or of an HLS stream ending in `.m3u8`. Sent while b0r3d TV is open (as an input command), it does the same. The VCR comes on and plays the tape full screen, showing PLAY and the tape counter for 5 seconds. A tape that can't play, or hasn't started after 30 seconds, shows NO SIGNAL, and OK tries it again. The tape isn't kept: when b0r3d TV closes, it's gone. While it's in, the guide says so: TAPE IN in the preview box, and "VCR: Tape In" in the ON NOW column. Like b0r3d FM, the VCR keeps Ruckus away while a tape plays, and keeps the TV awake only with Settings → Screensaver on its first pick.
 
 ## Ruckus Cam
 
