@@ -16,6 +16,7 @@ sub Main()
         { name: "a held key pressed again (a repeating remote) doesn't restart the slide", fn: TestRepeatedPress },
         { name: "down drops a row now and one every 45 ms while held, a point a row", fn: TestSoftDrop },
         { name: "up drops it all the way, 2 points a row, and sets it", fn: TestHardDrop },
+        { name: "ghost row shows where up will set the falling piece", fn: TestGhost },
         { name: "a row a second at level 0, 80 ms faster a level, a tenth of a second at most", fn: TestGravity },
         { name: "a piece on the ground sets after half a second", fn: TestLockDelay },
         { name: "moving on the ground buys time, 15 times at most", fn: TestLockResets },
@@ -364,6 +365,22 @@ sub TestHardDrop(t as object)
     Same(t, g.pieces, 1, "it is set at once")
     Same(t, g.state, "play", "the next piece is in play")
     Check(t, g.cur.row <= 0, "the next piece is at the top")
+end sub
+
+sub TestGhost(t as object)
+    g = EmptyGame(0)
+    PutPiece(g, "bar3", 0, -1, 4, -1)
+    Same(t, SpGhostRow(g), 16, "on an empty well the ghost rests at row 16")
+    Same(t, g.cur.row, -1, "reading the ghost row leaves the falling piece put")
+    SetRow(g, 14, ".....#......")
+    Same(t, SpGhostRow(g), 12, "ghost stops right above a landed pixel")
+    PutPiece(g, "bar3", 0, 12, 4, -1)
+    Same(t, SpGhostRow(g), 12, "when already grounded, ghost matches current row")
+    PutPiece(g, "bar3", 0, 2, 4, -1)
+    g.score = 0
+    SpPress(g, "drop")
+    Same(t, RowText(g, 13), "....###.....", "hard drop lands at the ghost row")
+    Same(t, g.score, 20, "10 rows dropped scores 20 points")
 end sub
 
 sub TestGravity(t as object)

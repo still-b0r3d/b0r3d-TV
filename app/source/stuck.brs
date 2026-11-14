@@ -248,6 +248,16 @@ function SpGrounded(g as object) as boolean
     return not SpFits(g, c.p, c.rot, c.row + 1, c.col)
 end function
 
+' The lowest row where the falling piece fits straight below its column, for the ghost guide.
+function SpGhostRow(g as object) as integer
+    if g = invalid or g.cur = invalid then return 0
+    r = g.cur.row
+    while SpFits(g, g.cur.p, g.cur.rot, r + 1, g.cur.col)
+        r = r + 1
+    end while
+    return r
+end function
+
 ' --- Moving ---
 
 ' A key pressed: "left", "right", "down" (soft drop), "drop" (all the way down), "cw" and
@@ -344,11 +354,9 @@ end function
 
 sub SpHardDrop(g as object)
     c = g.cur
-    dist = 0
-    while SpFits(g, c.p, c.rot, c.row + 1, c.col)
-        c.row = c.row + 1
-        dist = dist + 1
-    end while
+    target = SpGhostRow(g)
+    dist = target - c.row
+    c.row = target
     g.score = g.score + 2 * dist
     SpEvent(g, "drop", dist)
     SpLock(g)

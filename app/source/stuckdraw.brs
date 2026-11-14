@@ -14,23 +14,23 @@
 function StuckKit(st as object) as object
     c = st.kit
     if st.look = "phosphor" then
-        return { wellBg: c.bg, empty: c.faint, block: c.soft, stuckOn: c.full, stuckOff: c.lead, mini: c.bg, flash: c.full, bannerBg: c.bg, bannerFg: c.full, noise: c.noise, light: 0, dark: 0, stuckLight: 0, stuckDark: 0 }
+        return { wellBg: c.bg, empty: c.faint, block: c.soft, stuckOn: c.full, stuckOff: c.lead, ghost: c.dim, ghostStuck: c.full, mini: c.bg, flash: c.full, bannerBg: c.bg, bannerFg: c.full, noise: c.noise, light: 0, dark: 0, stuckLight: 0, stuckDark: 0 }
     end if
     if st.look = "vcr" then
         wells = [&h0B1A7AFF, &h0E0E0EFF, &h06401FFF]
         empties = [&h1A2A9AFF, &h1C1C1CFF, &h0D5530FF]
         offs = [&h535A86FF, &h554F28FF, &h497A37FF]
         i = st.colour
-        return { wellBg: wells[i], empty: empties[i], block: c.white, stuckOn: c.yellow, stuckOff: offs[i], mini: wells[i], flash: c.white, bannerBg: c.shadow, bannerFg: c.yellow, noise: c.noise, light: 0, dark: 0, stuckLight: 0, stuckDark: 0 }
+        return { wellBg: wells[i], empty: empties[i], block: c.white, stuckOn: c.yellow, stuckOff: offs[i], ghost: c.grey, ghostStuck: c.yellow, mini: wells[i], flash: c.white, bannerBg: c.shadow, bannerFg: c.yellow, noise: c.noise, light: 0, dark: 0, stuckLight: 0, stuckDark: 0 }
     end if
     if st.look = "b95" then
-        return { wellBg: &h808080FF, empty: &h000000FF, block: &h000080FF, stuckOn: &hFFFF00FF, stuckOff: &h404000FF, mini: &h000000FF, flash: &hFFFFFFFF, bannerBg: c.navy, bannerFg: c.white, noise: c.noise, light: &h5A5AE0FF, dark: &h00004AFF, stuckLight: &hFFFFC0FF, stuckDark: &h8A8A00FF }
+        return { wellBg: &h808080FF, empty: &h000000FF, block: &h000080FF, stuckOn: &hFFFF00FF, stuckOff: &h404000FF, ghost: &h5A5AE0FF, ghostStuck: &h8A8A00FF, mini: &h000000FF, flash: &hFFFFFFFF, bannerBg: c.navy, bannerFg: c.white, noise: c.noise, light: &h5A5AE0FF, dark: &h00004AFF, stuckLight: &hFFFFC0FF, stuckDark: &h8A8A00FF }
     end if
     ' each look has its own branch: a kit only has the colour names its own look uses
     if st.look = "rgb" then
-        return { wellBg: c.well, empty: c.track, block: c.blue, stuckOn: c.accent, stuckOff: c.dim, mini: c.well, flash: c.white, bannerBg: c.card, bannerFg: c.accent, noise: c.noise, light: 0, dark: 0, stuckLight: 0, stuckDark: 0 }
+        return { wellBg: c.well, empty: c.track, block: c.blue, stuckOn: c.accent, stuckOff: c.dim, ghost: c.dim, ghostStuck: c.accent, mini: c.well, flash: c.white, bannerBg: c.card, bannerFg: c.accent, noise: c.noise, light: 0, dark: 0, stuckLight: 0, stuckDark: 0 }
     end if
-    return { wellBg: &h050B22FF, empty: &h0B1740FF, block: &h8FB4FFFF, stuckOn: c.accent, stuckOff: &h484640FF, mini: &h050B22FF, flash: c.white, bannerBg: c.ink, bannerFg: c.accent, noise: c.noise, light: 0, dark: 0, stuckLight: 0, stuckDark: 0, cabinet: &h1F3170FF, bezel: &h03081AFF }
+    return { wellBg: &h050B22FF, empty: &h0B1740FF, block: &h8FB4FFFF, stuckOn: c.accent, stuckOff: &h484640FF, ghost: &h4C6AB0FF, ghostStuck: &hA88A2AFF, mini: &h050B22FF, flash: c.white, bannerBg: c.ink, bannerFg: c.accent, noise: c.noise, light: 0, dark: 0, stuckLight: 0, stuckDark: 0, cabinet: &h1F3170FF, bezel: &h03081AFF }
 end function
 
 ' The play screen's lettering in the look, loaded once a run.
@@ -389,6 +389,20 @@ sub DrawStuckPlay(st as object)
     end if
     if g.state = "play" then
         cells = SpCells(g)
+        ghostRow = SpGhostRow(g)
+        if ghostRow > g.cur.row then
+            rowDelta = ghostRow - g.cur.row
+            edgeT = Z(2, k)
+            if edgeT < 2 then edgeT = 2
+            for i = 0 to cells.Count() - 1
+                gr = cells[i][0] + rowDelta
+                if gr >= 0 then
+                    gCol = a.kit.ghost
+                    if i = g.cur.stuck then gCol = a.kit.ghostStuck
+                    DrawStuckGhostCell(s, wx + cells[i][1] * a.P, wy + gr * a.P, a.B, edgeT, gCol)
+                end if
+            end for
+        end if
         for i = 0 to cells.Count() - 1
             r = cells[i][0]
             if r >= 0 then
@@ -417,6 +431,14 @@ sub DrawStuckPlay(st as object)
     if a.fpsPic <> invalid then DrawPic(s, a.fpsPic, Z(a.fpsSlot.x, k), Z(a.fpsSlot.y, k), a.fpsSlot.align)
     s.SwapBuffers()
     sp.fps.frames = sp.fps.frames + 1
+end sub
+
+' Hollow landing guide for one cell of the ghost piece.
+sub DrawStuckGhostCell(s as object, x as integer, y as integer, size as integer, thick as integer, color as dynamic)
+    s.DrawRect(x, y, size, thick, color)
+    s.DrawRect(x, y + size - thick, size, thick, color)
+    s.DrawRect(x, y + thick, thick, size - 2 * thick, color)
+    s.DrawRect(x + size - thick, y + thick, thick, size - 2 * thick, color)
 end sub
 
 ' The next piece or the one on hold, centred on its small screen ([x, y, w, h] in pixels).

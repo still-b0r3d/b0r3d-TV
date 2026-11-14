@@ -652,6 +652,9 @@ function StuckMenuRows(st as object) as object
     ]
     if sp.mode = "cleanup" then rows.Push({ id: "rows", label: "Rows of static", value: StuckRowsWord(sp.rowsPick), kind: "choice" })
     rows.Push({ id: "goal", label: "Goal", value: StuckGoalWord(sp.mode), kind: "info", dim: true })
+    boardText = "Local top 10 only (stays on TV)"
+    if BoardKeyFor("stuck", sp.mode) <> "" then boardText = "Posts top 10 to still.b0r3d.org"
+    rows.Push({ id: "board", label: "Online board", value: boardText, kind: "info", dim: true })
     rows.Push({ id: "best", label: "Best", value: StuckBestWord(sp.mode), kind: "info", dim: true })
     rows.Push({ id: "scores", label: "High scores", value: "The top 10 of each mode", kind: "open" })
     rows.Push({ id: "howto", label: "How to play", value: "The keys and the stuck pixels", kind: "open" })
@@ -709,6 +712,7 @@ function StuckResultsRows(st as object) as object
         { id: "guide", label: "Back to the guide", value: "", kind: "open" }
     ]
     rows.Append(StuckRunRows(r.mode, r.score, r.lines, r.level, r.time, r.fixed))
+    rows.Push(OnlinePostRow(st, BoardKeyFor("stuck", r.mode), r))
     return rows
 end function
 
@@ -775,7 +779,7 @@ function StuckHowToRows() as object
     return [
         { label: "Move", value: "Left and right; hold one to slide" },
         { label: "Turn", value: "OK or fast-forward turns right, rewind turns left" },
-        { label: "Drop", value: "Down drops faster; up drops it all the way" },
+        { label: "Drop", value: "Down drops faster; up drops it onto the ghost guide" },
         { label: "Hold", value: "Replay puts the piece aside, or swaps it back, once a piece" },
         { label: "Pause", value: "Play, Back or the options key" },
         { label: "Lines", value: "Fill a row from side to side and it clears" },

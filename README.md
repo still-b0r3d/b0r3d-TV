@@ -42,7 +42,7 @@ Now and then a piece comes with a stuck pixel in it, flickering. Its row has to 
 - **Sprint 40:** 40 lines against the clock
 - **Cleanup:** 25 lines, starting over rows of TV static
 
-Each mode keeps its top 10 on the TV, with three-letter initials. Settings → High scores clears them (it asks first). When channel 20 is highlighted in the guide, its preview plays a demo. Ruckus comes on only while the game is paused or on its menus.
+A faint ghost outline below the falling piece shows where Up drops it. Each mode keeps its top 10 on the TV, with three-letter initials; Marathon's top 10 also posts online. Settings → High scores clears them (it asks first). When channel 20 is highlighted in the guide, its preview plays a demo. Ruckus comes on only while the game is paused or on its menus.
 
 ## Test Pattern
 
@@ -56,11 +56,11 @@ Each mode keeps its top 10 on the TV, with initials, and its preview in the guid
 
 ## Snake
 
-Snake on channel 23: a 20 by 20 arena whose edges wrap round to the other side. Each bite makes the snake one longer and a little faster, down to 70 ms a step, and biting yourself ends the run. It keeps its top 10 on the TV, with initials, and Ruckus comes on only while it's paused or on its menus.
+Snake on channel 23: a 20 by 20 arena in two modes — **Wrap edges** (moving past any edge wraps to the other side) or **Solid walls** (edges end the run). Rapid two-step turns queue cleanly across ticks. Each bite makes the snake one longer and a little faster, down to 70 ms a step, and biting yourself ends the run. Each arena keeps its top 10 on the TV, with initials (Wrap edges also posts online), and Ruckus comes on only while it's paused or on its menus.
 
 ## b0r3d FM
 
-A radio station on channel 22: b0r3d's songs, streamed from b0r3d.download one after another, with bars that move to them and Ruckus listening. OK or Play pauses and carries on, left and right (or rewind and fast-forward) skip. With no network the station stops after a few tries and says so; OK tries again. While it plays, Ruckus stays away until it's paused. With Settings → Screensaver on its first pick (Ruckus, keeping the TV awake), b0r3d TV keeps the TV awake while it plays; with the other picks the screen goes black at the TV's screensaver time.
+A radio station on channel 22: b0r3d's songs, streamed from b0r3d.download one after another, with bars that move to them and Ruckus listening to the beat (or dozing with Zs while paused). OK or Play pauses and carries on, left and right (or rewind and fast-forward) skip, Replay switches between In order, Shuffle and Repeat 1, and ✱ opens the 16-track list to pick a song directly. With no network the station stops after a few tries and says so; OK tries again. While it plays, Ruckus stays away until it's paused. With Settings → Screensaver on its first pick (Ruckus, keeping the TV awake), b0r3d TV keeps the TV awake while it plays; with the other picks the screen goes black at the TV's screensaver time.
 
 ## Commercial Breaks
 
@@ -68,7 +68,7 @@ Late-night ads on channel 24, a new one every 8 seconds: b0r3d's games and a pub
 
 ## Online high scores
 
-A score that makes a game's top 10 on the TV also goes to b0r3d's online boards at still.b0r3d.org, each game with boards of its own (Stuck Pixels' Marathon, Test Pattern's two modes, and Snake). What's sent is the three initials and the score, with a run token the board handed out when the run began; the request names b0r3d TV and its version. A game's high-score page asks for its board's table when it opens; up and down switch between the TV's table and the online one.
+A score that makes a game's top 10 on the TV also goes to b0r3d's online boards at still.b0r3d.org, each game with boards of its own (Stuck Pixels' Marathon, Test Pattern's two modes, and Snake's Wrap edges). What's sent is the three initials and the score, with a run token the board handed out when the run began; the request names b0r3d TV and its version. The results screen shows whether the score posted or why it stayed on the TV. A game's high-score page asks for its board's table when it opens; up and down switch between the TV's table and the online one.
 
 ## The screensaver
 
@@ -111,6 +111,8 @@ On b0r3d FM and Commercial Breaks:
 
 - **OK or Play:** pause, and carry on from the same spot
 - **Left and right, rewind and fast-forward:** skip (on b0r3d FM, up and down too)
+- **Replay (b0r3d FM):** cycle playback order (`In order`, `Shuffle`, `Repeat 1`)
+- **✱ (b0r3d FM):** open or close the 16-track list (up and down pick, OK plays, Back closes)
 - **Back:** back to the guide
 
 On the VCR:

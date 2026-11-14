@@ -10,6 +10,8 @@ sub Main()
         { name: "moving off any of the four edges wraps around to the opposite side", fn: TestWrap },
         { name: "direction change updates next direction and moves accordingly on next step", fn: TestDirection },
         { name: "reversing directly into the snake's neck is ignored", fn: TestNoReverse },
+        { name: "rapid two-turn U-turns buffer cleanly without allowing self-reversal", fn: TestTurnBuffer },
+        { name: "solid walls mode ends the run when hitting any arena edge", fn: TestWallsMode },
         { name: "eating food increases score and length, accelerates speed, and places new food", fn: TestEat },
         { name: "moving into the space vacated by the tail in the same tick is legal", fn: TestTailChase },
         { name: "colliding with any part of the body ends the run with an over event", fn: TestSelfCollision },
@@ -132,6 +134,53 @@ sub TestNoReverse(t as object)
     turned = SnakeTurnDir(g, -1, 0)
     Check(t, not turned, "180 reverse rejected")
     Check(t, g.nextDir.x = 1 and g.nextDir.y = 0, "nextDir remained right")
+end sub
+
+sub TestTurnBuffer(t as object)
+    ' Rapid U-turn before a tick: right -> up -> left queues two turns without self-reversing
+    g = SnakeNew(501)
+    g.food = { x: 0, y: 0 }
+    Check(t, SnakeTurnDir(g, 0, -1), "first queued turn up accepted")
+    Check(t, not SnakeTurnDir(g, 0, -1), "duplicate up ignored")
+    Check(t, not SnakeTurnDir(g, 0, 1), "180 reverse against queued up rejected")
+    Check(t, SnakeTurnDir(g, -1, 0), "second queued turn left (U-turn) accepted")
+    Check(t, not SnakeTurnDir(g, 0, 1), "third turn rejected while two turns queued")
+
+    ok1 = SnakeStep(g)
+    Check(t, ok1, "first step after U-turn succeeds")
+    Check(t, g.dir.x = 0 and g.dir.y = -1, "stepped up first")
+    Check(t, g.snake[0].x = 10 and g.snake[0].y = 9, "head moved to (10, 9)")
+
+    ok2 = SnakeStep(g)
+    Check(t, ok2, "second step after U-turn succeeds")
+    Check(t, g.dir.x = -1 and g.dir.y = 0, "stepped left second")
+    Check(t, g.snake[0].x = 9 and g.snake[0].y = 9, "head moved to (9, 9)")
+end sub
+
+sub TestWallsMode(t as object)
+    g = SnakeNew(502, "walls")
+    g.food = { x: 0, y: 0 }
+    Check(t, g.mode = "walls", "mode recorded as walls")
+    g.snake[0] = { x: 19, y: 5 }
+    g.snake[1] = { x: 18, y: 5 }
+    g.snake[2] = { x: 17, y: 5 }
+    g.dir = { x: 1, y: 0 }
+    g.nextDir = { x: 1, y: 0 }
+    ok = SnakeStep(g)
+    Check(t, not ok, "hitting right wall ends run")
+    Check(t, g.state = "over", "state set to over")
+    Check(t, g.events.Count() = 1 and g.events[0].kind = "over", "over event fired")
+
+    ' Autoplay in walls mode survives safely inside bounds
+    g2 = SnakeNew(503, "walls")
+    for i = 1 to 100
+        if g2.state <> "play" then exit for
+        SnakeAutoplay(g2)
+        SnakeStep(g2)
+    end for
+    Check(t, g2.state = "play", "walls autoplay avoids hitting edges")
+    Check(t, g2.snake[0].x >= 0 and g2.snake[0].x < g2.cols, "autoplay head x stays in bounds")
+    Check(t, g2.snake[0].y >= 0 and g2.snake[0].y < g2.rows, "autoplay head y stays in bounds")
 end sub
 
 sub TestEat(t as object)
