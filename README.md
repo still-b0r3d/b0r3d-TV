@@ -12,11 +12,11 @@ It comes in five looks:
 - **VCR menu:** an on-screen menu with a picture-in-picture box
 - **RGB LED lights:** a TV on a dark wall, lit from behind by colour-changing LEDs
 
-b0r3d's own channels are a **VCR**, **Rukus Cam** (a camera on Rukus's room), three games, **Stuck Pixels** (a falling-block game), **Test Pattern** (a brick breaker) and **Snake**, a radio station, **b0r3d FM**, and **Commercial Breaks**, late-night ads for b0r3d's games.
+b0r3d's own channels are a **VCR**, **Ruckus Cam** (a camera on Ruckus's room), three games, **Stuck Pixels** (a falling-block game), **Test Pattern** (a brick breaker) and **Snake**, a radio station, **b0r3d FM**, and **Commercial Breaks**, late-night ads for b0r3d's games.
 
 ## Status
 
-0.71 is a test build. Every app on your TV gets a channel, and the guide remembers the channel you opened last. Its ON NOW column lists a made-up late-night show for each channel, changing every half hour. Settings (the ✱ key) picks the look (the late-night cable guide, b0r3d 95 on a teal, blue or slate desktop, the phosphor terminal in green, amber or cyan, the VCR menu in blue, black or green, or the RGB LED lights in four colourways), shows, hides and reorders the channels, and sets the clock, the sound, the screensaver and the screen size. Its TV check page shows what your TV allows. Opening a channel tunes in with a burst of static and the channel's banner. b0r3d's own channels are 3, 9 and 20 to 24: the VCR, Rukus Cam, Stuck Pixels, Test Pattern, b0r3d FM, Snake and Commercial Breaks. Each one's preview box in the guide plays a demo of it, or for the VCR a small copy of its screen, and for Rukus Cam the camera's live picture.
+0.71 is a test build. Every app on your TV gets a channel, and the guide remembers the channel you opened last. Its ON NOW column lists a made-up late-night show for each channel, changing every half hour. Settings (the ✱ key) picks the look (the late-night cable guide, b0r3d 95 on a teal, blue or slate desktop, the phosphor terminal in green, amber or cyan, the VCR menu in blue, black or green, or the RGB LED lights in four colourways), shows, hides and reorders the channels, and sets the clock, the sound, the screensaver and the screen size. Its TV check page shows what your TV allows. Opening a channel tunes in with a burst of static and the channel's banner. b0r3d's own channels are 3, 9 and 20 to 24: the VCR, Ruckus Cam, Stuck Pixels, Test Pattern, b0r3d FM, Snake and Commercial Breaks. Each one's preview box in the guide plays a demo of it, or for the VCR a small copy of its screen, and for Ruckus Cam the camera's live picture.
 
 Roku TVs don't let an app switch the TV's inputs. [TVFollow](https://github.com/still-b0r3d/TVFollow) can do it for b0r3d TV: with TVFollow 1.3 (coming soon) running on your PC and **Let the app switch the TV's inputs** ticked in its developer tools, your TV's inputs (HDMI, the antenna) show up as channels a few seconds after b0r3d TV opens, and opening one switches the TV. Without TVFollow, b0r3d TV leaves the inputs to Roku's own home screen. And when you leave an app you opened from b0r3d TV, the TV goes to Roku's home screen, not back to b0r3d TV. To come back quickly, move b0r3d TV to the first spot on the home screen: highlight it there, press ✱ and move it.
 
@@ -24,13 +24,13 @@ Roku TVs don't let an app switch the TV's inputs. [TVFollow](https://github.com/
 
 A VCR on channel 3, where old VCRs played. It has no tape yet: its blue screen says STOP and NO TAPE, and its clock blinks 12:00, the time nobody ever set. It looks the same in every look.
 
-A tape goes in with the launch parameter `tape`, set to a video's address: an `http://` or `https://` address of up to 2000 characters, of an MP4 file or of an HLS stream ending in `.m3u8`. Sent while b0r3d TV is open (as an input command), it does the same. The VCR comes on and plays the tape full screen, showing PLAY and the tape counter for 5 seconds. The tape isn't kept: when b0r3d TV closes, it's gone. Like b0r3d FM, the VCR keeps Rukus away while a tape plays, and keeps the TV awake only with Settings → Screensaver on its first pick.
+A tape goes in with the launch parameter `tape`, set to a video's address: an `http://` or `https://` address of up to 2000 characters, of an MP4 file or of an HLS stream ending in `.m3u8`. Sent while b0r3d TV is open (as an input command), it does the same. The VCR comes on and plays the tape full screen, showing PLAY and the tape counter for 5 seconds. The tape isn't kept: when b0r3d TV closes, it's gone. Like b0r3d FM, the VCR keeps Ruckus away while a tape plays, and keeps the TV awake only with Settings → Screensaver on its first pick.
 
-## Rukus Cam
+## Ruckus Cam
 
-A security camera on Rukus's room, on channel 9 (a cat has nine lives). It's live: Rukus walks about, sits, grooms, loafs, naps, stretches, wanders off and comes back, and now and then chases a stuck pixel, as he does in the screensaver. The window shows the time of day by the TV's clock: sunrise from 6, daylight from 8 with the sun lying on the floor, sunset from 17, and from 20 the camera switches to infrared, with the moon out and his eyes shining. CAM 1, a blinking REC and the date and time sit over the picture, as on a real camera. It looks the same in every look.
+A security camera on Ruckus's room, on channel 9 (a cat has nine lives). It's live: Ruckus walks about, sits, grooms, loafs, naps, stretches, wanders off and comes back, and now and then chases a stuck pixel, as he does in the screensaver. The window shows the time of day by the TV's clock: sunrise from 6, daylight from 8 with the sun lying on the floor, sunset from 17, and from 20 the camera switches to infrared, with the moon out and his eyes shining. CAM 1, a blinking REC and the date and time sit over the picture, as on a real camera. It looks the same in every look.
 
-OK throws Rukus a treat from the camera, one at a time, nine a day. He drops whatever he's doing, even a nap or a stroll out of the room, dashes for it and crunches it. Like b0r3d FM, Rukus Cam keeps the screensaver away (Rukus is on already), and keeps the TV awake only with Settings → Screensaver on its first pick.
+OK throws Ruckus a treat from the camera, one at a time, nine a day. He drops whatever he's doing, even a nap or a stroll out of the room, dashes for it and crunches it. Like b0r3d FM, Ruckus Cam keeps the screensaver away (Ruckus is on already), and keeps the TV awake only with Settings → Screensaver on its first pick.
 
 ## Stuck Pixels
 
@@ -42,7 +42,7 @@ Now and then a piece comes with a stuck pixel in it, flickering. Its row has to 
 - **Sprint 40:** 40 lines against the clock
 - **Cleanup:** 25 lines, starting over rows of TV static
 
-Each mode keeps its top 10 on the TV, with three-letter initials. Settings → High scores clears them (it asks first). When channel 20 is highlighted in the guide, its preview plays a demo. Rukus comes on only while the game is paused or on its menus.
+Each mode keeps its top 10 on the TV, with three-letter initials. Settings → High scores clears them (it asks first). When channel 20 is highlighted in the guide, its preview plays a demo. Ruckus comes on only while the game is paused or on its menus.
 
 ## Test Pattern
 
@@ -52,19 +52,19 @@ A brick breaker on channel 21, on a field as wide as the TV. Every wall is a TV 
 - **Endless:** new walls that never stop, faster each time up to twice the speed
 - **Easy, normal or hard:** 5, 3 or 2 lives, a wider or narrower paddle, a slower or faster ball, and half, normal or one and a half times the points
 
-Each mode keeps its top 10 on the TV, with initials, and its preview in the guide plays a demo. As in Stuck Pixels, Rukus comes on only while the game is paused or on its menus.
+Each mode keeps its top 10 on the TV, with initials, and its preview in the guide plays a demo. As in Stuck Pixels, Ruckus comes on only while the game is paused or on its menus.
 
 ## Snake
 
-Snake on channel 23: a 20 by 20 arena whose edges wrap round to the other side. Each bite makes the snake one longer and a little faster, down to 70 ms a step, and biting yourself ends the run. It keeps its top 10 on the TV, with initials, and Rukus comes on only while it's paused or on its menus.
+Snake on channel 23: a 20 by 20 arena whose edges wrap round to the other side. Each bite makes the snake one longer and a little faster, down to 70 ms a step, and biting yourself ends the run. It keeps its top 10 on the TV, with initials, and Ruckus comes on only while it's paused or on its menus.
 
 ## b0r3d FM
 
-A radio station on channel 22: b0r3d's songs, streamed from b0r3d.download one after another, with bars that move to them and Rukus listening. OK or Play pauses and carries on, left and right (or rewind and fast-forward) skip. With no network the station stops after a few tries and says so; OK tries again. While it plays, Rukus stays away until it's paused. With Settings → Screensaver on its first pick (Rukus, keeping the TV awake), b0r3d TV keeps the TV awake while it plays; with the other picks the screen goes black at the TV's screensaver time.
+A radio station on channel 22: b0r3d's songs, streamed from b0r3d.download one after another, with bars that move to them and Ruckus listening. OK or Play pauses and carries on, left and right (or rewind and fast-forward) skip. With no network the station stops after a few tries and says so; OK tries again. While it plays, Ruckus stays away until it's paused. With Settings → Screensaver on its first pick (Ruckus, keeping the TV awake), b0r3d TV keeps the TV awake while it plays; with the other picks the screen goes black at the TV's screensaver time.
 
 ## Commercial Breaks
 
-Late-night ads on channel 24, a new one every 8 seconds: b0r3d's games and a public service announcement. Left and right skip, OK or Play pauses. Like b0r3d FM, it keeps Rukus away while it plays, and keeps the TV awake only with Settings → Screensaver on its first pick.
+Late-night ads on channel 24, a new one every 8 seconds: b0r3d's games and a public service announcement. Left and right skip, OK or Play pauses. Like b0r3d FM, it keeps Ruckus away while it plays, and keeps the TV awake only with Settings → Screensaver on its first pick.
 
 ## Online high scores
 
@@ -72,10 +72,10 @@ A score that makes a game's top 10 on the TV also goes to b0r3d's online boards 
 
 ## The screensaver
 
-Rukus wanders a dark screen: he walks on, sits, grooms, loafs, naps, stretches, chases a stuck pixel now and then, and wanders off. A clock in the look's lettering drifts slowly, so nothing stays in one spot.
+Ruckus wanders a dark screen: he walks on, sits, grooms, loafs, naps, stretches, chases a stuck pixel now and then, and wanders off. A clock in the look's lettering drifts slowly, so nothing stays in one spot.
 
 - **On the whole TV:** pick **b0r3d TV** in the TV's Settings → Theme → Screensavers. It comes on whenever the TV sits idle outside b0r3d TV.
-- **Inside b0r3d TV:** Roku shows no screensaver over an app drawn like b0r3d TV; at the TV's screensaver time the screen just goes black. So b0r3d TV brings Rukus on itself, 30 seconds before that time, and any key brings back the screen you were on. Settings → Screensaver picks what happens at the TV's time: b0r3d TV keeps the TV awake so Rukus stays on (with an old Roku call that resets the TV's idle clock, for up to 2 hours), hands over to the TV's own screensaver, or lets the screen go black. Settings → Screensaver check shows how each of those went on your TV.
+- **Inside b0r3d TV:** Roku shows no screensaver over an app drawn like b0r3d TV; at the TV's screensaver time the screen just goes black. So b0r3d TV brings Ruckus on itself, 30 seconds before that time, and any key brings back the screen you were on. Settings → Screensaver picks what happens at the TV's time: b0r3d TV keeps the TV awake so Ruckus stays on (with an old Roku call that resets the TV's idle clock, for up to 2 hours), hands over to the TV's own screensaver, or lets the screen go black. Settings → Screensaver check shows how each of those went on your TV.
 
 ## The remote
 
@@ -85,7 +85,7 @@ Rukus wanders a dark screen: he walks on, sits, grooms, loafs, naps, stretches, 
 - **Replay:** jump back to the channel you opened before, like a cable remote's LAST key
 - **✱:** Settings
 - **Back:** leave b0r3d TV
-- **Any key while Rukus is on:** back to the screen you were on
+- **Any key while Ruckus is on:** back to the screen you were on
 
 In Stuck Pixels:
 
@@ -119,9 +119,9 @@ On the VCR:
 - **✱:** show or hide PLAY and the tape counter
 - **Back:** stop the tape and go back to the guide
 
-On Rukus Cam:
+On Ruckus Cam:
 
-- **OK:** throw Rukus a treat (one at a time, nine a day)
+- **OK:** throw Ruckus a treat (one at a time, nine a day)
 - **Back:** back to the guide
 
 On a game's high-score page, **up and down** switch between the TV's table and the online one.
@@ -148,6 +148,6 @@ b0r3d TV installs through Roku's developer mode, which lets a TV hold one app yo
 
 The code is under the MIT License with the Commons Clause: you can use and change it, but not sell it. See [LICENSE](LICENSE).
 
-Rukus and the rest of the art, sound and writing are all rights reserved. See [LICENSE-ASSETS](LICENSE-ASSETS).
+Ruckus and the rest of the art, sound and writing are all rights reserved. See [LICENSE-ASSETS](LICENSE-ASSETS).
 
 The fonts in `app/fonts` are Barlow Condensed, VT323, Silkscreen and W95FA, free fonts under the SIL Open Font License 1.1. Each folder holds the font's license and copyright in `OFL.txt`, except W95FA, whose license file came with no copyright filled in: its `README.txt` names the maker. Neither notice above covers the fonts. The Medium, SemiBold and ExtraBold files of Barlow Condensed have one change: their shared family name is taken out, so a Roku keeps each weight apart (`tools/font-family-names.js` makes that change).

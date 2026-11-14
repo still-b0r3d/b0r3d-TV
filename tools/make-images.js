@@ -26,7 +26,7 @@ const GLYPHS = {
   V: ['#...#', '#...#', '#...#', '#...#', '#...#', '.#.#.', '..#..'],
 };
 
-// Rukus, loafing: the same sprite as in app/source/art.brs. A dot is clear.
+// Ruckus, loafing: the same sprite as in app/source/art.brs. A dot is clear.
 const RUKUS = [
   '..k...k.........',
   '..kk.kk.........',
@@ -81,7 +81,7 @@ function sprite(c, rows, x, y, scale) {
   });
 }
 
-// "b0r3d" in white with a yellow "TV" badge beside it, and Rukus underneath, centred.
+// "b0r3d" in white with a yellow "TV" badge beside it, and Ruckus underneath, centred.
 function picture(w, h, s) {
   const c = canvas(w, h, NAVY);
   const logoW = textWidth('b0r3d', s.logo);
