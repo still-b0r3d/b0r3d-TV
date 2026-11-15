@@ -16,9 +16,9 @@ b0r3d's own channels are a **VCR**, **Ruckus Cam** (a camera on Ruckus's room), 
 
 ## Status
 
-0.75 is a test build. Every app on your TV gets a channel, and the guide remembers the channel you opened last. Its ON NOW column lists a made-up late-night show for each channel, changing every half hour. Settings (the ✱ key) picks the look (the late-night cable guide, b0r3d 95 on a teal, blue or slate desktop, the phosphor terminal in green, amber or cyan, the VCR menu in blue, black or green, or the RGB LED lights in four colourways), shows, hides and reorders the channels, and sets the clock, the sound, the screensaver and the screen size. Its TV check page shows what your TV allows. Opening a channel tunes in with a burst of static and the channel's banner. b0r3d's own channels are 3, 9 and 20 to 24: the VCR, Ruckus Cam, Stuck Pixels, Test Pattern, b0r3d FM, Snake and Commercial Breaks. Each one's preview box in the guide plays a demo of it, or for the VCR a small copy of its screen, and for Ruckus Cam the camera's live picture.
+0.75 is the first release. Every app on your TV gets a channel, and the guide remembers the channel you opened last. Its ON NOW column lists a made-up late-night show for each channel, changing every half hour. Settings (the ✱ key) picks the look (the late-night cable guide, b0r3d 95 on a teal, blue or slate desktop, the phosphor terminal in green, amber or cyan, the VCR menu in blue, black or green, or the RGB LED lights in four colourways), shows, hides and reorders the channels, and sets the clock, the sound, the screensaver and the screen size. Its TV check page shows what your TV allows. Opening a channel tunes in with a burst of static and the channel's banner. b0r3d's own channels are 3, 9 and 20 to 24: the VCR, Ruckus Cam, Stuck Pixels, Test Pattern, b0r3d FM, Snake and Commercial Breaks. Each one's preview box in the guide plays a demo of it, or for the VCR a small copy of its screen, and for Ruckus Cam the camera's live picture.
 
-Roku TVs don't let an app switch the TV's inputs. [TVFollow](https://github.com/still-b0r3d/TVFollow) can do it for b0r3d TV: with TVFollow 1.3 (coming soon) running on your PC and **Let the app switch the TV's inputs** ticked in its developer tools, your TV's inputs (HDMI, the antenna) show up as channels a few seconds after b0r3d TV opens, and opening one switches the TV. Without TVFollow, b0r3d TV leaves the inputs to Roku's own home screen. And when you leave an app you opened from b0r3d TV, the TV goes to Roku's home screen, not back to b0r3d TV. To come back quickly, move b0r3d TV to the first spot on the home screen: highlight it there, press ✱ and move it.
+Roku TVs don't let an app switch the TV's inputs. [TVFollow](https://github.com/still-b0r3d/TVFollow) can do it for b0r3d TV: with TVFollow 1.3 or later running on your PC and **Let the app switch the TV's inputs** ticked in its developer tools, your TV's inputs (HDMI, the antenna) show up as channels a few seconds after b0r3d TV opens, and opening one switches the TV. Without TVFollow, b0r3d TV leaves the inputs to Roku's own home screen. And when you leave an app you opened from b0r3d TV, the TV goes to Roku's home screen, not back to b0r3d TV. To come back quickly, move b0r3d TV to the first spot on the home screen: highlight it there, press ✱ and move it. Or tick **Open the app whenever the TV goes to Roku's home screen** in TVFollow's developer tools: while your PC is on, backing out of another app lands back in b0r3d TV.
 
 ## VCR
 
@@ -134,9 +134,11 @@ On a game's high-score page, **up and down** switch between the TV's table and t
 
 b0r3d TV installs through Roku's developer mode, which lets a TV hold one app you add yourself. It won't be in Roku's store.
 
-1. Turn on developer mode on your Roku TV (Roku's developer documentation shows how).
-2. Zip everything inside the `app` folder, so `manifest` sits at the top of the zip.
+1. Turn on developer mode on your Roku TV (Roku's developer documentation shows how; you choose a password and the TV restarts).
+2. Download the zip from the [latest release](https://github.com/still-b0r3d/b0r3d-TV/releases/latest) (b0r3d-TV-0.75.zip for 0.75).
 3. In a browser, open your TV's address (the TV shows it in Settings → Network → About), sign in as `rokudev` with the password you chose, and install the zip.
+
+Or, with TVFollow 1.3 on your PC, use **Push the example app** in its developer tools: it's this same 0.75. To try changes of your own, zip everything inside the `app` folder, so `manifest` sits at the top of the zip, or push the folder with TVFollow's **Push a folder…**.
 
 ## What's here
 
