@@ -4,6 +4,8 @@ A home screen for Roku TVs that looks like an old cable box, made by [b0r3d.org]
 
 Your apps and b0r3d's own channels each get a channel in a retro channel guide, and you flip through them with the Roku remote.
 
+![The late-night cable guide with channel 9, Ruckus Cam, highlighted: its preview window shows Ruckus's room live](docs/images/1-guide.png)
+
 It comes in five looks:
 
 - **Late-night cable guide:** a blue grid of channels with a preview window
@@ -12,11 +14,21 @@ It comes in five looks:
 - **VCR menu:** an on-screen menu with a picture-in-picture box
 - **RGB LED lights:** a TV on a dark wall, lit from behind by colour-changing LEDs
 
+| b0r3d 95 | Phosphor terminal |
+|---|---|
+| ![The b0r3d 95 look: the guide in a window on a teal desktop, with Ruckus Cam in its preview](docs/images/2-b0r3d-95.png) | ![The phosphor terminal look in green, with Stuck Pixels' demo in the preview](docs/images/3-phosphor.png) |
+
+| VCR menu | RGB LED lights |
+|---|---|
+| ![The VCR menu look in blue, with Test Pattern's demo in the picture-in-picture box](docs/images/4-vcr-menu.png) | ![The RGB LED lights look: the TV on a dark wall lit from behind, showing Commercial Breaks](docs/images/5-rgb-led-lights.png) |
+
 b0r3d's own channels are a **VCR**, **Ruckus Cam** (a camera on Ruckus's room), three games, **Stuck Pixels** (a falling-block game), **Test Pattern** (a brick breaker) and **Snake**, a radio station, **b0r3d FM**, and **Commercial Breaks**, late-night ads for b0r3d's games.
 
 ## Status
 
 0.75 is the first release. Every app on your TV gets a channel, and the guide remembers the channel you opened last. Its ON NOW column lists a made-up late-night show for each channel, changing every half hour. Settings (the ✱ key) picks the look (the late-night cable guide, b0r3d 95 on a teal, blue or slate desktop, the phosphor terminal in green, amber or cyan, the VCR menu in blue, black or green, or the RGB LED lights in four colourways), shows, hides and reorders the channels, and sets the clock, the sound, the screensaver and the screen size. Its TV check page shows what your TV allows. Opening a channel tunes in with a burst of static and the channel's banner. b0r3d's own channels are 3, 9 and 20 to 24: the VCR, Ruckus Cam, Stuck Pixels, Test Pattern, b0r3d FM, Snake and Commercial Breaks. Each one's preview box in the guide plays a demo of it, or for the VCR a small copy of its screen, and for Ruckus Cam the camera's live picture.
+
+![Settings in the late-night cable guide look: the look, the channels, the clock, the sound, the screensaver, the screen size and more](docs/images/6-settings.png)
 
 Roku TVs don't let an app switch the TV's inputs. [TVFollow](https://github.com/still-b0r3d/TVFollow) can do it for b0r3d TV: with TVFollow 1.3 or later running on your PC and **Let the app switch the TV's inputs** ticked in its developer tools, your TV's inputs (HDMI, the antenna) show up as channels a few seconds after b0r3d TV opens, and opening one switches the TV. Without TVFollow, b0r3d TV leaves the inputs to Roku's own home screen. And when you leave an app you opened from b0r3d TV, the TV goes to Roku's home screen, not back to b0r3d TV. To come back quickly, move b0r3d TV to the first spot on the home screen: highlight it there, press ✱ and move it. Or tick **Open the app whenever the TV goes to Roku's home screen** in TVFollow's developer tools: while your PC is on, backing out of another app lands back in b0r3d TV.
 
@@ -24,17 +36,23 @@ Roku TVs don't let an app switch the TV's inputs. [TVFollow](https://github.com/
 
 A VCR on channel 3, where old VCRs played. It has no tape yet: its blue screen says STOP and NO TAPE, and its clock blinks 12:00, the time nobody ever set. It looks the same in every look.
 
+![The VCR on channel 3: STOP, NO TAPE and 12:00 on a blue screen](docs/images/7-vcr.png)
+
 A tape goes in with the launch parameter `tape`, set to a video's address: an `http://` or `https://` address of up to 2000 characters, of an MP4 file or of an HLS stream ending in `.m3u8`. Sent while b0r3d TV is open (as an input command), it does the same. The VCR comes on and plays the tape full screen, showing PLAY and the tape counter for 5 seconds. A tape that can't play, or hasn't started after 30 seconds, shows NO SIGNAL, and OK tries it again. The tape isn't kept: when b0r3d TV closes, it's gone. While it's in, the guide says so: TAPE IN in the preview box, and "VCR: Tape In" in the ON NOW column. Like b0r3d FM, the VCR keeps Ruckus away while a tape plays, and keeps the TV awake only with Settings → Screensaver on its first pick.
 
 ## Ruckus Cam
 
 A security camera on Ruckus's room, on channel 9 (a cat has nine lives). It's live: Ruckus walks about, sits, grooms, loafs, naps, stretches, wanders off and comes back, and now and then chases a stuck pixel, as he does in the screensaver. The window shows the time of day by the TV's clock: sunrise from 6, daylight from 8 with the sun lying on the floor, sunset from 17, and from 20 the camera switches to infrared, with the moon out and his eyes shining. CAM 1, a blinking REC and the date and time sit over the picture, as on a real camera. It looks the same in every look.
 
+![Ruckus Cam in the morning: Ruckus on the rug, the sun in the window, and the date and time along the bottom](docs/images/8-ruckus-cam.png)
+
 OK throws Ruckus a treat from the camera, one at a time, nine a day. He drops whatever he's doing, even a nap or a stroll out of the room, dashes for it and crunches it. Like b0r3d FM, Ruckus Cam keeps the screensaver away (Ruckus is on already), and keeps the TV awake only with Settings → Screensaver on its first pick.
 
 ## Stuck Pixels
 
 A falling-block game on channel 20, drawn in whichever look you picked. The well is a small TV, 12 pixels wide and 18 tall, and the pieces are clusters of 3 and 5 pixels, all in the look's one colour. Fill a row from side to side and it clears.
+
+![A run of Stuck Pixels in the late-night cable guide look](docs/images/9-stuck-pixels.png)
 
 Now and then a piece comes with a stuck pixel in it, flickering. Its row has to be filled twice: the first time, the stuck pixel pops out for extra points and leaves a hole; fill that, and the row clears. When the pile reaches the top, the little TV loses its signal.
 
@@ -48,6 +66,8 @@ Each mode keeps its top 10 on the TV, with three-letter initials; Marathon's top
 
 A brick breaker on channel 21, on a field as wide as the TV. Every wall is a TV test card's colour bars, the ball is a square pixel, and the paddle speeds up the longer you hold a direction. Bricks of static are bombs that blow up the bricks around them, and bricks with a little TV on them drop a capsule, a little TV of its own: two more balls, a wider paddle, a sticky paddle for 12 seconds, a slower ball for 8 seconds, a life, or a surprise.
 
+![Test Pattern's first wall, with the ball in play](docs/images/10-test-pattern.png)
+
 - **Campaign:** six walls, each a little faster than the last
 - **Endless:** new walls that never stop, faster each time up to twice the speed
 - **Easy, normal or hard:** 5, 3 or 2 lives, a wider or narrower paddle, a slower or faster ball, and half, normal or one and a half times the points
@@ -58,6 +78,8 @@ Each mode keeps its top 10 on the TV, with initials, and its preview in the guid
 
 Snake on channel 23: a 20 by 20 arena in two modes — **Wrap edges** (moving past any edge wraps to the other side) or **Solid walls** (edges end the run). Rapid two-step turns queue cleanly across ticks. Each bite makes the snake one longer and a little faster, down to 70 ms a step, and biting yourself ends the run. Each arena keeps its top 10 on the TV, with initials (Wrap edges also posts online), and Ruckus comes on only while it's paused or on its menus.
 
+![Snake in Wrap edges, 31 long](docs/images/11-snake.png)
+
 ## b0r3d FM
 
 A radio station on channel 22: b0r3d's songs, streamed from b0r3d.download one after another, with bars that move to them and Ruckus listening to the beat (or dozing with Zs while paused). OK or Play pauses and carries on, left and right (or rewind and fast-forward) skip, Replay switches between In order, Shuffle and Repeat 1, and ✱ opens the 16-track list to pick a song directly. With no network the station stops after a few tries and says so; OK tries again. While it plays, Ruckus stays away until it's paused. With Settings → Screensaver on its first pick (Ruckus, keeping the TV awake), b0r3d TV keeps the TV awake while it plays; with the other picks the screen goes black at the TV's screensaver time.
@@ -66,6 +88,8 @@ A radio station on channel 22: b0r3d's songs, streamed from b0r3d.download one a
 
 Late-night ads on channel 24, a new one every 8 seconds: b0r3d's games and a public service announcement. Each ad has a picture beside its words, from the game itself (Ruckus himself for the announcement), framed the look's own way: in a window on b0r3d 95, in the terminal's glow on the phosphor look, with a lit edge on the RGB LED lights. The guide's preview box shows it too. On a TV short of picture memory the ads carry on as words only. Left and right skip, OK or Play pauses. Like b0r3d FM, it keeps Ruckus away while it plays, and keeps the TV awake only with Settings → Screensaver on its first pick.
 
+![Commercial Breaks: the ad for RUCKUS: Locked & Loafed](docs/images/12-commercial-breaks.png)
+
 ## Online high scores
 
 A score that makes a game's top 10 on the TV also goes to b0r3d's online boards at still.b0r3d.org, each game with boards of its own (Stuck Pixels' Marathon, Test Pattern's two modes, and Snake's Wrap edges). What's sent is the three initials and the score, with a run token the board handed out when the run began; the request names b0r3d TV and its version. The results screen shows whether the score posted or why it stayed on the TV. A game's high-score page asks for its board's table when it opens; up and down switch between the TV's table and the online one.
@@ -73,6 +97,8 @@ A score that makes a game's top 10 on the TV also goes to b0r3d's online boards 
 ## The screensaver
 
 Ruckus wanders a dark screen: he walks on, sits, grooms, loafs, naps, stretches, chases a stuck pixel now and then, and wanders off. A clock in the look's lettering drifts slowly, so nothing stays in one spot.
+
+![The screensaver: Ruckus on a dark screen beside the clock](docs/images/13-screensaver.png)
 
 - **On the whole TV:** pick **b0r3d TV** in the TV's Settings → Theme → Screensavers. It comes on whenever the TV sits idle outside b0r3d TV.
 - **Inside b0r3d TV:** Roku shows no screensaver over an app drawn like b0r3d TV; at the TV's screensaver time the screen just goes black. So b0r3d TV brings Ruckus on itself, 30 seconds before that time, and any key brings back the screen you were on. Settings → Screensaver picks what happens at the TV's time: b0r3d TV keeps the TV awake so Ruckus stays on (with an old Roku call that resets the TV's idle clock, for up to 2 hours), hands over to the TV's own screensaver, or lets the screen go black. Settings → Screensaver check shows how each of those went on your TV.
@@ -143,6 +169,7 @@ Or, with TVFollow 1.3 on your PC, use **Push the example app** in its developer 
 ## What's here
 
 - `app/`: the Roku app: `manifest`, the BrightScript code in `source/`, the stand-in screen in `components/` (shown while b0r3d TV hands over to the TV's own screensaver), the pictures in `images/`, the fonts in `fonts/` and the sounds in `sounds/`. A local git hook writes the commit's short hash into `app/build.txt`, which the build line shows (`Build: abc1234`); the file stays out of the repo, and without it the build says `dev`.
+- `docs/images/`: the pictures in this README: 0.75 at 1920 x 1080 in a BrightScript simulator (brs-node) on a PC, with a few pretend apps on its pretend TV
 - `tools/make-images.js`: makes the home-screen tile and the splash picture (`node tools/make-images.js`)
 - `tools/make-sounds.js`: makes the burst of static heard when a channel opens and the games' sounds (`node tools/make-sounds.js`)
 - `tools/make-rgb-light.js`: makes the RGB look's pictures in `app/images/rgb/`: the soft glows round the TV and the Settings panel, the LED colour strips, the focused row's light, the TV badge, the remote's keys and the arrows (`node tools/make-rgb-light.js`)
