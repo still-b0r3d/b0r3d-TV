@@ -42,7 +42,7 @@ Now and then a piece comes with a stuck pixel in it, flickering. Its row has to 
 - **Sprint 40:** 40 lines against the clock
 - **Cleanup:** 25 lines, starting over rows of TV static
 
-A faint ghost outline below the falling piece shows where Up drops it. Each mode keeps its top 10 on the TV, with three-letter initials; Marathon's top 10 also posts online. Settings → High scores clears them (it asks first). When channel 20 is highlighted in the guide, its preview plays a demo. Ruckus comes on only while the game is paused or on its menus.
+Each mode keeps its top 10 on the TV, with three-letter initials; Marathon's top 10 also posts online. Settings → High scores clears them (it asks first). When channel 20 is highlighted in the guide, its preview plays a demo. Ruckus comes on only while the game is paused or on its menus.
 
 ## Test Pattern
 

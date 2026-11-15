@@ -779,7 +779,7 @@ function StuckHowToRows() as object
     return [
         { label: "Move", value: "Left and right; hold one to slide" },
         { label: "Turn", value: "OK or fast-forward turns right, rewind turns left" },
-        { label: "Drop", value: "Down drops faster; up drops it onto the ghost guide" },
+        { label: "Drop", value: "Down drops faster; up drops it all the way" },
         { label: "Hold", value: "Replay puts the piece aside, or swaps it back, once a piece" },
         { label: "Pause", value: "Play, Back or the options key" },
         { label: "Lines", value: "Fill a row from side to side and it clears" },
