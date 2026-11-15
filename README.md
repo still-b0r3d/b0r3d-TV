@@ -64,7 +64,7 @@ A radio station on channel 22: b0r3d's songs, streamed from b0r3d.download one a
 
 ## Commercial Breaks
 
-Late-night ads on channel 24, a new one every 8 seconds: b0r3d's games and a public service announcement. Left and right skip, OK or Play pauses. Like b0r3d FM, it keeps Ruckus away while it plays, and keeps the TV awake only with Settings → Screensaver on its first pick.
+Late-night ads on channel 24, a new one every 8 seconds: b0r3d's games and a public service announcement. Each ad has a picture beside its words, from the game itself (Ruckus himself for the announcement), framed the look's own way: in a window on b0r3d 95, in the terminal's glow on the phosphor look, with a lit edge on the RGB LED lights. The guide's preview box shows it too. On a TV short of picture memory the ads carry on as words only. Left and right skip, OK or Play pauses. Like b0r3d FM, it keeps Ruckus away while it plays, and keeps the TV awake only with Settings → Screensaver on its first pick.
 
 ## Online high scores
 
@@ -92,9 +92,9 @@ In Stuck Pixels:
 - **Left and right:** move the piece (hold one to slide)
 - **Down:** drop faster while held
 - **Up:** drop it all the way
-- **OK or fast-forward:** turn right; **rewind:** turn left
-- **Replay:** put the piece on hold, or swap it back (once a piece)
-- **Play, Back or ✱:** pause, with a menu to carry on, start again or go back to the guide
+- **OK, Replay or fast-forward:** turn right; **rewind:** turn left
+- **✱:** put the piece on hold, or swap it back (once a piece)
+- **Play or Back:** pause, with a menu to carry on, start again or go back to the guide
 
 In Test Pattern:
 
@@ -106,6 +106,8 @@ In Snake:
 
 - **Up, down, left and right:** steer
 - **Play, Back or ✱:** pause, with the same menu
+
+To leave any of the three games, press Back on its menu or its pause menu: it asks first, and OK on **Back to the guide** goes back to the guide (Back or Play stays in the game).
 
 On b0r3d FM and Commercial Breaks:
 
